@@ -28,4 +28,5 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
-- (Ghi tên và khi nào dùng; tối thiểu 2 skill/hook/command nhóm tự viết, đặt ở `.agents/skills/` hoặc tương đương.)
+- `phase-check` (`.agents/skills/phase-check/`): dùng trước khi đẩy, gộp hoặc gắn tag. Lệnh: `python .agents/skills/phase-check/phase_check.py [--proof docs/proof/phase-1]`.
+- `clarify-log` (`.agents/skills/clarify-log/`): dùng khi PRD/spec mơ hồ, ghi câu hỏi và giả định vào `docs/clarify.md`.
