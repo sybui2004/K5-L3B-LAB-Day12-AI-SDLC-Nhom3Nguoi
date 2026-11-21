@@ -6,7 +6,8 @@ Vòng một Ngày (headless): day_start → day_plan → phase_start(gather) →
 DayIntro / EveningIntro / DayResult / Summary là màn hình của client (TV3), không có trong headless.
 
 Trả sự kiện dạng (name, data, phase, day): sự kiện kết thúc mang pha cũ, phase_start mang pha mới.
-Tiền, earned, uy tín và cấp đã mua giữ qua Ngày. Oxy/Máu theo cấp ĐANG ÁP DỤNG (active_upgrades), chỉ sao từ
+Giao diện các sim theo hợp đồng chuyển pha (spec phase-2/README.md 3.2): `ctx`, một `Streams` và một `IdAllocator`
+cho cả lượt. Tiền, earned, uy tín và cấp đã mua giữ qua Ngày. Oxy/Máu theo cấp ĐANG ÁP DỤNG (active_upgrades), chỉ sao từ
 cấp đã mua khi dựng Ngày mới. Giỏ làm mới mỗi Ngày; kho dư bị bỏ sau Shop.
 """
 
@@ -14,19 +15,10 @@ import copy
 import inspect
 
 from ..errors import BadInput
-from ..ids import IdAllocator
 from .gather import GatherSim
+from .plan import plan_ingredients
 from .quan import QuanSim
-
-UPGRADE_FIELD = {"oxygen": "oxygen_max_s", "hp": "hp_max"}  # id nâng cấp -> khóa tuning gather bị ghi đè
-
-
-def plan_ingredients(menu, dishes):
-    out = {}
-    for dish, n in dishes.items():
-        for k, m in menu[dish]["recipe"].items():
-            out[k] = out.get(k, 0) + m * n
-    return {k: out[k] for k in sorted(out)}
+from .shop import UPGRADE_FIELD, ShopSim
 
 
 class DaySim:
@@ -35,6 +27,7 @@ class DaySim:
     def __init__(self, tuning, scenario, streams, ids, days=1):
         self.tuning = tuning
         self.streams = streams
+        self.ids = ids  # dùng chung cả lượt (hợp đồng 3.2)
         self.days = days
         d = scenario.get("day", {})
         self.money = d.get("money", 0)
@@ -46,7 +39,7 @@ class DaySim:
                       for p in tuning["day_plan"]}
         for p in d.get("day_plan", []):  # ghi đè theo số Ngày; ingredients tính lại (scenario đã so nếu có khai)
             self.plans[p["day"]] = {"dishes": dict(p["dishes"]),
-                                    "ingredients": plan_ingredients(tuning["menu"], p["dishes"])}
+                                    "ingredients": plan_ingredients(p["dishes"], tuning["menu"])}
         self.g_tpl = scenario.get("gather", {})
         self.q_tpl = scenario.get("quan", {})
         self.day = 0
@@ -55,23 +48,21 @@ class DaySim:
         self.phase_tick = 0
         self.phase_changed = False
         self.child = None
-        self.shop_left = 0
-        self.leftover = {}
+        self.last_stats = None
         self.done = False
         self.reason = None
-        self.pending = []  # sự kiện tick 0 (day_start, day_plan, phase_start) — runner ghi trước snapshot tick 0
+        self.pending = []  # sự kiện tick 0 (day_start, day_plan, phase_start) — runner ghi SAU snapshot tick 0 (clarify #19)
         self._start_day(self.pending)
 
     # --- giao diện cho runner ----------------------------------------------------------
     @property
     def time_left_ticks(self):
-        return self.shop_left if self.phase == "shop" else self.child.time_left_ticks
+        return self.child.time_left_ticks
 
     def snapshot(self) -> dict:
-        if self.phase == "shop":
-            snap = {"stock": {k: self.leftover[k] for k in sorted(self.leftover) if self.leftover[k] > 0}}
-        else:
-            snap = self.child.snapshot()
+        snap = self.child.snapshot()
+        if self.phase == "shop" and self.last_stats is not None:
+            snap["day_result"] = self.last_stats  # DayResult: phục vụ, bỏ đi, tiền ca, boa, đổi uy tín, món bán chạy
         plan = self.plans[self.day]
         snap.update({"day": self.day, "days_completed": self.days_completed,
                      "day_plan": {"dishes": plan["dishes"], "ingredients": plan["ingredients"]},
@@ -87,13 +78,16 @@ class DaySim:
             self._tag(events, self.child.step(inp))
             if self.child.done:
                 self._open_quan(events)
-        elif self.phase == "quan":
+        else:
             self._tag(events, self.child.step(inp))
             self.money, self.earned, self.reputation = self.child.money, self.child.earned, self.child.reputation
+            if self.phase == "shop":
+                self.upgrades = dict(self.child.upgrades)
             if self.child.done:
-                self._open_shop(events)
-        else:
-            self._shop_step(inp, events)
+                if self.phase == "quan":
+                    self._open_shop(events)
+                else:
+                    self._close_day(events)
         return events
 
     # --- đổi pha -------------------------------------------------------------------------
@@ -113,61 +107,35 @@ class DaySim:
         plan = self.plans[self.day]
         events.append(("day_start", {}, "gather", self.day))
         events.append(("day_plan", {"dishes": plan["dishes"], "ingredients": plan["ingredients"]}, "gather", self.day))
+        # ctx cho gather (hp_max, oxygen_max_s theo cấp đang áp dụng). Khi GatherSim chưa nhận ctx (TV1),
+        # vẫn ghi đè hai khóa đó trong bản sao tuning để cấp có hiệu lực.
         t = copy.deepcopy(self.tuning)
-        for kind, level in self.active_upgrades.items():
-            if level > 0:
-                row = self.tuning["shop"]["upgrades"][kind][level - 1]
-                t["gather"][UPGRADE_FIELD[kind]] = row[UPGRADE_FIELD[kind]]
-        kwargs = {"day": self.day} if "day" in inspect.signature(GatherSim.__init__).parameters else {}
-        self.child = GatherSim(t, self.g_tpl, self.streams, IdAllocator(), **kwargs)
+        ctx = {"day": self.day}
+        for kind, field in UPGRADE_FIELD.items():
+            level = self.active_upgrades.get(kind, 0)
+            value = self.tuning["shop"]["upgrades"][kind][level - 1][field] if level > 0 else self.tuning["gather"][field]
+            ctx[field] = t["gather"][field] = value
+        kwargs = {"ctx": ctx} if "ctx" in inspect.signature(GatherSim.__init__).parameters else {}
+        self.child = GatherSim(t, self.g_tpl, self.streams, self.ids, **kwargs)
         self._enter("gather", events)
 
     def _open_quan(self, events):
         items = {} if self.child.reason == "fainted" else self.child.inventory_items()
-        dishes = sorted(self.plans[self.day]["dishes"])
-        carry = {"money": self.money, "earned": self.earned, "reputation": self.reputation}
-        self.child = QuanSim(self.tuning, self.q_tpl, self.streams, IdAllocator(), inventory=items,
-                             dishes=dishes, carry=carry)
+        ctx = {"day": self.day, "plan_dishes": dict(self.plans[self.day]["dishes"]),
+               "money": self.money, "earned": self.earned, "reputation": self.reputation}
+        self.child = QuanSim(self.tuning, self.q_tpl, self.streams, self.ids, inventory=items, ctx=ctx)
         self._enter("quan", events)
 
     def _open_shop(self, events):
-        self.leftover = dict(self.child.stock)
-        self.child = None
-        self.shop_left = int(self.tuning["shop"]["max_ticks"])
+        self.last_stats = self.child.stats()  # cho DayResult (TV3)
+        ctx = {"day": self.day, "money": self.money, "earned": self.earned, "reputation": self.reputation,
+               "upgrades": self.upgrades, "stock": self.child.stock}
+        self.child = ShopSim(self.tuning, self.streams, self.ids, ctx)
         self._enter("shop", events)
 
-    # --- Shop ----------------------------------------------------------------------------
-    def _shop_step(self, inp, events):
-        self.shop_left = max(0, self.shop_left - 1)
-        if inp.buy:
-            self._buy(inp.buy, events)  # một lệnh mua xử lý TRƯỚC cạnh shop_done, kể cả bước cuối
-        if inp.pressed("shop_done"):
-            self._close_shop("done", events)
-        elif self.shop_left == 0:
-            self._close_shop("time", events)
-
-    def _buy(self, action, events):
-        table = self.tuning["shop"]["upgrades"].get(action)
-        if action not in UPGRADE_FIELD or table is None:
-            events.append(("buy_failed", {"action": action, "reason": "unknown"}, "shop", self.day))
-            return
-        level = self.upgrades.get(action, 0) + 1
-        if level > len(table):
-            events.append(("buy_failed", {"action": action, "reason": "max_level"}, "shop", self.day))
-            return
-        price = table[level - 1]["price"]
-        if price > self.money:
-            events.append(("buy_failed", {"action": action, "reason": "funds"}, "shop", self.day))
-            return
-        self.money -= price  # earned và điểm giữ nguyên
-        self.upgrades[action] = level
-        events.append(("bought", {"upgrade": action, "level": level, "price": price, "money": self.money},
-                       "shop", self.day))
-
-    def _close_shop(self, reason, events):
-        events.append(("shop_end", {"reason": reason}, "shop", self.day))
+    def _close_day(self, events):
+        """Shop đã phát shop_end: tăng days_completed, kết thúc hoặc dựng Ngày kế ngay tick này (kho dư bị bỏ)."""
         self.days_completed += 1
-        self.leftover = {}
         if self.days_completed >= self.days:
             self.done = True
             self.reason = "days_complete"
