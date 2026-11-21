@@ -103,9 +103,9 @@ const TOAST = {
   choke: (d) => [`Ngạt thở! Máu còn ${d.hp ?? "?"}`, "bad"],
   faint: () => ["Ngất! Mất toàn bộ giỏ", "bad"],
   gather_end: (d) => [`Hết buổi sáng: ${END_REASON[d.reason] || d.reason || ""}`, "info"],
-  cook_started: (d) => [`Bắt đầu nấu ${dishName(d.dish)}`, "info"],
-  dish_ready: (d) => [`${dishName(d.dish)} đã chín`, "good"],
-  served: (d) => [`Đã phục vụ ${dishName(d.dish)}`, "good"],
+  cook_started: (d) => [`Bắt đầu nấu ${dishName(d.dish ?? d.dish_id)}`, "info"],
+  dish_ready: (d) => [`${dishName(d.dish ?? d.dish_id)} đã chín`, "good"],
+  served: (d) => [`Đã phục vụ ${dishName(d.dish ?? d.dish_id)}`, "good"],
   paid: (d) => [`Khách trả ${d.amount ?? 0}k` + (d.tip ? ` (boa ${d.tip}k)` : ""), "good"],
   customer_left: () => ["Khách bỏ đi, uy tín giảm", "bad"],
   no_dish: () => ["Kho không đủ nấu món nào", "warn"],
@@ -310,11 +310,11 @@ function drawQuan(w, h) {
     if (c) {
       const cx = sx(tb.pos[0]), cy = sy(tb.pos[1]) - 1.5 * s;
       ctx.fillStyle = c.state === "eating" ? "#7bc67b" : "#f4b6c2"; ctx.beginPath(); ctx.arc(cx, cy, 0.55 * s, 0, Math.PI * 2); ctx.fill();
-      text(c.dish ? dishName(c.dish) : "?", cx, cy - 0.75 * s, { size: 10, align: "center", color: "#2a1a0a" });
-      if (c.state === "eating" && c.eat_ticks !== undefined) {
-        bar(cx - 0.8 * s, cy + 0.65 * s, 1.6 * s, 5, c.eat_ticks / ((meta.eat_s || 10) * 60), "#7bc67b");
-      } else if (c.patience_ticks !== undefined) {
-        const frac = c.patience_ticks / patMax;
+      text(c.dish_id ? dishName(c.dish_id) : "?", cx, cy - 0.75 * s, { size: 10, align: "center", color: "#2a1a0a" });
+      if (c.state === "eating" && c.eat_ticks_left !== undefined) {
+        bar(cx - 0.8 * s, cy + 0.65 * s, 1.6 * s, 5, c.eat_ticks_left / ((meta.eat_s || 10) * 60), "#7bc67b");
+      } else if (c.patience_ticks_left !== undefined) {
+        const frac = c.patience_ticks_left / patMax;
         bar(cx - 0.8 * s, cy + 0.65 * s, 1.6 * s, 5, frac, frac >= (meta.tip_min_patience_ratio ?? 0.5) ? "#66bb6a" : "#e57373");
       }
     }

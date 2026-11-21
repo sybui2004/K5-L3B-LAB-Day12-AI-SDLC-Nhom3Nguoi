@@ -26,8 +26,8 @@ NEAR_TABLE = [TABLE["pos"][0], TABLE["pos"][1] + 1]
 
 
 def customer(cid="C1", dish=DISH, patience=PATIENCE_MAX, **extra):
-    c = {"id": cid, "table_id": TABLE["id"], "dish": dish, "state": "waiting",
-         "patience_ticks": patience, "reserved": dict(MENU[dish]["recipe"]) if dish in MENU else {}}
+    c = {"id": cid, "table_id": TABLE["id"], "dish_id": dish, "state": "waiting",
+         "patience_ticks_left": patience, "reserved": dict(MENU[dish]["recipe"]) if dish in MENU else {}}
     c.update(extra)
     return c
 
@@ -103,10 +103,10 @@ class Customers(unittest.TestCase):
                 with self.subTest(stock=stock, seed=seed), Workdir() as w:
                     _, snaps = run_quan(w, {"stock": stock}, ticks=Q["first_customer_tick"], seed=seed)
                     c = snaps[Q["first_customer_tick"]]["customers"][0]
-                    self.assertIn(c["dish"], allowed)
-                    self.assertEqual(c["reserved"], MENU[c["dish"]]["recipe"])
+                    self.assertIn(c["dish_id"], allowed)
+                    self.assertEqual(c["reserved"], MENU[c["dish_id"]]["recipe"])
                     self.assertEqual(c["state"], "waiting")
-                    self.assertEqual(c["patience_ticks"], PATIENCE_MAX)
+                    self.assertEqual(c["patience_ticks_left"], PATIENCE_MAX)
 
     def test_ac_q_04_patience_out_customer_left(self):
         with Workdir() as w:
@@ -167,8 +167,10 @@ class ScenarioConflicts(unittest.TestCase):
             self.assertFalse(os.path.exists(out), "lỗi đầu vào phải thoát trước khi ghi đầu ra")
 
     def test_valid_fixture_is_accepted(self):
-        with Workdir() as w:
-            run_quan(w, {"stock": {"ca_loc": 1}, "customers": [customer()]}, ticks=0)
+        eating = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved={})
+        for c in (customer(), eating):
+            with self.subTest(state=c["state"]), Workdir() as w:
+                run_quan(w, {"stock": {"ca_loc": 1}, "customers": [c]}, ticks=0)
 
     def test_ac_q_06_reserved_exceeds_stock(self):
         self.assert_exit_2({"stock": {"bong_sung": 2}, "customers": [customer()]})
@@ -183,7 +185,7 @@ class ScenarioConflicts(unittest.TestCase):
     def test_ac_q_06_eating_missing_price_or_tip(self):
         for missing in ("price", "tip"):
             with self.subTest(missing=missing):
-                c = customer(state="eating", eat_ticks=10, price=60, tip=12)
+                c = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved={})
                 del c[missing]
                 self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [c]})
 
@@ -293,9 +295,9 @@ class ServiceAndMoney(unittest.TestCase):
 
     def _overlap_block(self, player_x):
         """Bếp và bàn cùng trong bán kính; tay cầm đúng món khách đang chờ."""
-        return {"player": {"pos": [player_x, 5]}, "hand": DISH, "stock": {"ca_loc": 1}, "random_customers": False,
+        return {"player": {"pos": [player_x, 5]}, "hand": DISH, "random_customers": False,
                 "stoves": [{"id": STOVE["id"], "pos": [5, 5]}], "tables": [{"id": TABLE["id"], "pos": [6, 5]}],
-                "customers": [customer()]}
+                "customers": [customer(reserved={})]}
 
     def test_ac_q_11_tie_prefers_stove_and_does_not_fall_through(self):
         with Workdir() as w:
