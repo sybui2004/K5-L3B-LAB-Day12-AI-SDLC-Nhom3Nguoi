@@ -55,6 +55,21 @@ Spec chung (DoD, AC-P2-01…28, hợp đồng chuyển pha, sự kiện mới): 
 - `--mode day`, `DaySim`, pause, scenario `day`; menu, màn Intro/Result/Shop/Summary, HUD; smoke tích hợp, verification.
   - Spec: [`docs/spec/phase-2/day-ui.md`](docs/spec/phase-2/day-ui.md) · Plan: [`docs/plan/phase-2/day-ui-qa.md`](docs/plan/phase-2/day-ui-qa.md)
 
+## Nhiệm vụ Phase 3 (Ticket-03 — Change Request "Mùa Nước Nổi", Test Contract v1.2)
+
+Spec chung (DoD, AC-P3-01…16, bảng tác động, schema cá thể): [`docs/spec/phase-3/README.md`](docs/spec/phase-3/README.md) · Quyết định schema: [`docs/adr/0001-kho-ca-the-v1.2.md`](docs/adr/0001-kho-ca-the-v1.2.md) · Kế hoạch + mốc giờ: [`docs/plan/phase-3.md`](docs/plan/phase-3.md)
+
+### Thành viên 1 (sybui2004) — gộp gather P2 + lát B Lặn · Integrator/Release
+- Gộp gather Phase 2 còn dở, gắn tag còn thiếu; giỏ cá thể, hao tươi, `spoiled`, LIFO cá thể. Spec: [`docs/spec/phase-3/gather.md`](docs/spec/phase-3/gather.md)
+- Gắn tag `phase-3` trước 2:30.
+
+### Thành viên 2 (lit1numyt) — lát C Quán + day · PO
+- Kho cá thể, hao, giữ theo id, giữ lại một lần, giá theo tươi; bàn giao cùng tick, id xuyên Ngày. Spec: [`docs/spec/phase-3/quan-day.md`](docs/spec/phase-3/quan-day.md)
+- Giữ `docs/clarify.md` (#28–31).
+
+### Thành viên 3 (hgmdz1210) — lát A adapter + HUD + QA · QA lead
+- Adapter kho v1.2 (đẩy trước phút 10), HUD độ tươi, smoke kho, bật v1.2, CHANGELOG, verification. Spec: [`docs/spec/phase-3/adapter-hud-qa.md`](docs/spec/phase-3/adapter-hud-qa.md)
+
 ## Thỏa thuận làm việc nhóm (điền trong 15 phút kickoff, ≤ 10 dòng)
 
 - Kênh liên lạc: … (nhóm chat chung)
