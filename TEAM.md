@@ -7,8 +7,8 @@
 | Thành viên | GitHub handle | Module chính | Vai quy trình | Người dự phòng cho |
 |---|---|---|---|---|
 | Thành viên 1 (điền tên) | sybui2004 | `sim/gather` + `sim/quan` lát 4 | Integrator · Scrum/Release | Thành viên 2 |
-| Thành viên 2 (điền tên) | … | `sim/quan` lát 3 + `scenario` | PO | Thành viên 3 |
-| Thành viên 3 (điền tên) | … | `client/ui` + `qa` | QA lead | Thành viên 1 |
+| Đồng Hữu Nguyên Khoa | lit1numyt | `sim/quan` lát 3 + `scenario` | PO | Thành viên 3 |
+| Đoàn Sỹ Hưng | hgmdz1210 | `client/ui` + `qa` | QA lead | Thành viên 1 |
 | Sang Phan | sangdaden | — (admin, không nhận module) | Admin | — |
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
