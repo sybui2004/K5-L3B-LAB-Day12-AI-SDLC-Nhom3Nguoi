@@ -5,15 +5,15 @@
 
 | AC | Cách kiểm chứng | Bằng chứng (`docs/proof/phase-2/...`) | Kết quả |
 |---|---|---|---|
-| AC-P2-01 manifest v1.1, 6 nguyên liệu | unittest `contract`, đọc manifest | | |
-| AC-P2-02 gather số chuẩn | `tests/test_p2_gather.py` | | |
-| AC-P2-03 cá bơi | `tests/test_p2_gather.py` | | |
-| AC-P2-04 sinh cá | `tests/test_p2_gather.py`, headless seed 1 | | |
-| AC-P2-05 bắt theo vị trí trước khi bơi | `tests/test_p2_gather.py` | | |
-| AC-P2-06 Cá Sấu patrol/chase, M2 từ Ngày 3 | `tests/test_p2_gather.py`, `day --days 3` | | |
-| AC-P2-07 chạm, LIFO, bất tử, recoil | `tests/test_p2_gather.py` | | |
-| AC-P2-08 ngất do quái | `tests/test_p2_gather.py` | | |
-| AC-P2-09 thứ tự bước gather | `tests/test_p2_gather.py` | | |
+| AC-P2-01 manifest v1.1, 6 nguyên liệu | unittest `contract`, đọc manifest | [contract-check.txt](../proof/phase-2/contract-check.txt), [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt trên `26ab801` (TV1 chạy lại): contract 1.1, `extensions []`, 6 loại kho/scenario, 6 món, 4 bàn/2 bếp, `load_contract()` không lỗi |
+| AC-P2-02 gather số chuẩn | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_02_gather_standard_numbers`): N1–N6, cá kèo 2, `fish_yield` 3 loài |
+| AC-P2-03 cá bơi | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_03_fish_swimming_and_bounds`): 120 bước bơi = 3 m, phản xạ mép x=96 |
+| AC-P2-04 sinh cá | `tests/test_p2_gather.py`, headless seed 1 | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_04_fish_initial_and_spawning`): 8 đàn tick 0, `fish_spawned` chỉ ở `phase_tick` chia hết 360, ≤ 12. Giả định chờ PO: sinh đầu ca không phát `fish_spawned` (đã có trong snapshot tick 0) |
+| AC-P2-05 bắt theo vị trí trước khi bơi | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_05_catch_before_fish_moves`) |
+| AC-P2-06 Cá Sấu patrol/chase, M2 từ Ngày 3 | `tests/test_p2_gather.py`, `day --days 3` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt), [day3-monsters.txt](../proof/phase-2/day3-monsters.txt) | Đạt (`test_ac_p2_06_monster_patrol_and_chase`); `day --days 3` seed 1: Ngày 1, 2 chỉ M1, Ngày 3 có M1 và M2 |
+| AC-P2-07 chạm, LIFO, bất tử, recoil | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt một phần (`test_ac_p2_07_monster_hit_and_recoil`): −1 Máu, rơi đúng `floor(n/2)` món cuối (kiểm theo tập hợp, chưa kiểm thứ tự rơi), bất tử > 0 và quái vào `recoil`. **Chưa kiểm**: đúng 90 tick mới bị chạm lại, `recoil_dir`, tối đa 1 hit/bước |
+| AC-P2-08 ngất do quái | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_08_monster_faint_and_choke`): `faint{cause:"monster"}` rồi `gather_end(fainted)` cùng tick, ngạt xuyên bất tử |
+| AC-P2-09 thứ tự bước gather | `tests/test_p2_gather.py` | [gather-unittest.txt](../proof/phase-2/gather-unittest.txt) | Đạt (`test_ac_p2_09_step_order`) |
 | AC-P2-10 2 bếp/4 bàn/6 món | `tests/test_quan_kitchen.py` Data + `test_quan_customers` (4 bàn) | [integration.txt](../proof/phase-2/integration.txt) §4 | đạt trên `feature/p2-quan-shop` (TV2); QA chạy lại trên commit tag |
 | AC-P2-11 tương tác, đơn cũ nhất | `test_quan_kitchen.Stove.*` (đơn cũ nhất theo order_tick rồi id bàn, hòa bếp trước bàn rồi id) | §4 | đạt trên `feature/p2-quan-shop` (TV2); QA chạy lại trên commit tag |
 | AC-P2-12 lịch khách, boa, uy tín | `test_quan_customers.*`, `test_quan_kitchen.Serve.*` (lịch 120+900k, boa floor, uy tín ±) | §4 | đạt trên `feature/p2-quan-shop` (TV2); QA chạy lại trên commit tag |

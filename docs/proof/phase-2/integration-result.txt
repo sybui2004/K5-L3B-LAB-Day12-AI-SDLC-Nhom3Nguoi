@@ -1,0 +1,4 @@
+gather_end: {"reason": "docked", "inventory": {"items": {"bong_sung": 2, "ca_keo": 2, "ca_loc": 1, "keo_neo": 1}}}
+kho.json  : {"bong_sung": 2, "ca_keo": 2, "ca_loc": 1, "keo_neo": 1}
+quan tick0 stock: {"bong_sung": 2, "ca_keo": 2, "ca_loc": 1, "keo_neo": 1}
+KHỚP
