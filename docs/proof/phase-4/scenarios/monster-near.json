@@ -1,0 +1,31 @@
+{
+ "gather": {
+  "player": {
+   "pos": [
+    60,
+    18
+   ]
+  },
+  "random_fish": false,
+  "monsters": [
+   {
+    "id": "M1",
+    "kind": "ca_sau",
+    "pos": [
+     65,
+     18
+    ],
+    "waypoints": [
+     [
+      65,
+      18
+     ],
+     [
+      69,
+      18
+     ]
+    ]
+   }
+  ]
+ }
+}
