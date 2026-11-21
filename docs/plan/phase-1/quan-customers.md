@@ -8,16 +8,16 @@ Nhánh: `feature/quan-customers`
 - [ ] Trả lời / ghi vào `docs/clarify.md`: clarify #1–5 (gather) và 5 câu hỏi mở cuối `quan.md`. Câu hỏi PRD không trả lời được ⇒ hỏi giảng viên ("Anh Năm hàng xóm" trên lab board).
 
 ## Bước 1 — Khung `step()` (≤ 0:20, đẩy sớm để TV1 làm song song)
-- [ ] Viết thứ tự gọi hàm trong `QuanSim.step()` như spec mục 0, tất cả hàm rỗng.
-- [ ] Unittest xanh ⇒ commit + push `main` (hoặc gộp ngay), báo TV1.
+- [x] Viết thứ tự gọi hàm trong `QuanSim.step()` như spec mục 0, tất cả hàm rỗng.
+- [x] Unittest xanh ⇒ commit + push `main` (hoặc gộp ngay), báo TV1.
 
 ## Bước 2 — Lát 3 (0:20–0:45)
-- [ ] `_can_cook`, `_reserve`, `_release` (phần kho chưa giữ chỗ = `stock - Σ reserved`).
-- [ ] `_spawn_customer`: lịch 120 / mỗi 900 tick, bàn trống id nhỏ, chọn món qua `self.rng.get("customers")`, `no_dish`, `customer_arrived`; tôn trọng `random_customers: false`.
-- [ ] `_tick_customers`: giảm kiên nhẫn, `customer_left`, uy tín `-0.5` kẹp `[0,5]`.
-- [ ] Khách dựng sẵn từ scenario: suy ra `reserved` nếu thiếu; cập nhật `snapshot()`.
-- [ ] `_validate_quan`: thêm các luật mâu thuẫn mục A4 ⇒ `BadInput`.
-- [ ] Chạy `tests/test_quan_rules.py` (TV3 viết) cho AC-Q-01..06 + smoke.
+- [x] `_can_cook`, `_reserve`, `_release` (phần kho chưa giữ chỗ = `stock - Σ reserved`).
+- [x] `_spawn_customer`: lịch 120 / mỗi 900 tick, bàn trống id nhỏ, chọn món qua `self.rng.get("customers")`, `no_dish`, `customer_arrived`; tôn trọng `random_customers: false`.
+- [x] `_tick_customers`: giảm kiên nhẫn, `customer_left`, uy tín `-0.5` kẹp `[0,5]`.
+- [x] Khách dựng sẵn từ scenario: suy ra `reserved` nếu thiếu; cập nhật `snapshot()`.
+- [x] `_validate_quan`: thêm các luật mâu thuẫn mục A4 ⇒ `BadInput`.
+- [x] Chạy `tests/test_quan_rules.py` (TV3 viết) cho AC-Q-01..06 + smoke.
 
 ## Dự phòng
 Nếu TV3 vướng UI: TV2 viết thêm test exit-2 cho scenario. Người dự phòng của TV2 là TV1.
