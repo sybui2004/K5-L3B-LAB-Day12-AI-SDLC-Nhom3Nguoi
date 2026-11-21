@@ -384,6 +384,24 @@ class TestP2Gather(unittest.TestCase):
             m1 = [m for m in s_end["monsters"] if m["id"] == "M1"][0]
             self.assertEqual(m1["state"], "recoil")
 
+    def test_ac_p2_07_last_recoil_step_cannot_hit(self):
+        block = {
+            "player": {"pos": [60.0, 20.0], "hp": 3},
+            "random_fish": False,
+            "monsters": [{
+                "id": "M1",
+                "kind": "ca_sau",
+                "pos": [60.0, 20.5],
+                "waypoints": [[60.0, 20.5], [60.0, 20.5]],
+                "state": "recoil",
+                "state_ticks_left": 1,
+                "recoil_dir": [0.0, 1.0],
+            }],
+        }
+        with Workdir() as w:
+            rows = run(w, block, ticks=2)
+        self.assertEqual([row["tick"] for row in events(rows, "monster_hit")], [2])
+
     def test_ac_p2_08_monster_faint_and_choke(self):
         """AC-P2-08: Ngất do quái: faint{cause:"monster"}, mất giỏ, gather_end(fainted) ngay; ngạt xuyên bất tử.
 

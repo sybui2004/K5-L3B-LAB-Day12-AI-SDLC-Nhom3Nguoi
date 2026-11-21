@@ -1,6 +1,8 @@
 # Ma trận truy vết Phase 3 (Ticket-03, Test Contract v1.2)
 
-> Commit bàn giao (tag `phase-3`): chưa gắn; kết quả dưới đây chạy trên nhánh `feature/p3-adapter-hud`, tách từ `d0652b9` · AC: [`docs/spec/phase-3/README.md`](../spec/phase-3/README.md) mục 2 · Kết quả ghi **trung thực** trên đúng commit tag.
+> Bản bàn giao muộn `phase-3` được chuẩn bị từ `0701271`. [Tiêu chí Phase 3](../spec/phase-3/README.md)
+
+> Kiểm lại lát hồi quy thủy quái theo Phase 2. Quái ở bước lùi cuối chỉ xét chạm từ bước tiếp theo. Test hồi quy liên quan nằm trong `test_p2_gather.py`.
 
 | AC | Cách kiểm chứng | Bằng chứng (`docs/proof/phase-3/...`) | Kết quả |
 |---|---|---|---|
@@ -19,7 +21,7 @@
 | AC-P3-13 day bàn giao cùng tick, id xuyên Ngày, Shop không hao | `tests/test_p3_quan.py`, `day-2.jsonl` | [unittest.txt](../proof/phase-3/unittest.txt), [handoff.md](../proof/phase-3/handoff.md), [day-2-events](../proof/phase-3/day-2-events.jsonl.txt) | Đạt, sau khi sửa lỗi làm tròn độ tươi lúc bàn giao |
 | AC-P3-14 scenario v1.2, mã 2 | `tests/test_p3_inventory.py`, `tests/test_p3_quan.py` | [unittest.txt](../proof/phase-3/unittest.txt) | Đạt |
 | AC-P3-15 HUD độ tươi/ươn | ảnh chụp 1280×720 | [giỏ](../proof/phase-3/hud-gio-do-tuoi.png), [kho quán](../proof/phase-3/hud-kho-do-tuoi.png) | Đạt trên scenario dựng sẵn; chưa có người chơi kiểm tra |
-| AC-P3-16 regression P1–P2, CHANGELOG, tag | `unittest.txt`, `CHANGELOG.md` | [unittest.txt](../proof/phase-3/unittest.txt), [CHANGELOG](../../CHANGELOG.md) | Chưa đạt: regression và CHANGELOG xong, còn chờ gộp `main` và tag `phase-3` |
+| AC-P3-16 regression P1–P2, CHANGELOG, tag | `unittest.txt`, `CHANGELOG.md` | [unittest.txt](../proof/phase-3/unittest.txt), [CHANGELOG](../../CHANGELOG.md) | Bản bàn giao muộn. Kết quả chạy lại được ghi dưới đây. |
 
 ## Test đổi vì luật mới (Ticket-03 thay schema kho)
 | Test | Vì sao đổi | Commit |
@@ -29,5 +31,5 @@
 | `test_gather_rules`, `test_p2_gather`, `test_smoke_p1`, `test_day`, `test_p2_live_day`, `test_p3_quan` | `hold` và file kho là cá thể; kho đếm nay bị từ chối | nhánh `feature/p3-adapter-hud` |
 
 ## Đánh giá ngắn
-- Đạt / chưa đạt: đạt 15/16 AC. Còn AC-P3-16 vì chưa gộp `main` và chưa gắn tag `phase-3`.
+- Hồ sơ HUD dùng scenario dựng sẵn. Mốc giờ `phase-3` đã qua trước khi đóng gói bản bàn giao.
 - Bài học từ lần đổi kho (cũng ghi vào `docs/retro.md`): dữ liệu làm tròn để xuất JSONL không được dùng lại cho luật; lỗi này chỉ lộ ra ở đúng ngưỡng ươn nên cần test sát ngưỡng khi bàn giao giữa các pha.
