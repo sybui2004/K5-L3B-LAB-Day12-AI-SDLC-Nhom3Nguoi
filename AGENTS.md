@@ -3,9 +3,9 @@
 > Cập nhật file này qua các phase (lịch sử git phải cho thấy điều đó). Ngắn gọn, có lệnh chạy thật.
 
 ## Lệnh
-- Test: `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v`
-- Headless: `python3 -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
-- Chơi thử trên trình duyệt: `python3 -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
+- Test: `PYTHONPATH=tests:. python -m unittest discover -s tests -v`
+- Headless: `python -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
+- Chơi thử trên trình duyệt: `python -m chonoi.live --mode gather|quan` (mở địa chỉ in ra; WASD, E, Space, R)
 
 ## Cấu trúc & quy ước
 - (Starter Python là TÙY CHỌN; nhóm có thể dùng ngôn ngữ khác nếu giữ Test Contract.) Khung do giảng viên cấp: `chonoi/{headless,inputs,scenario,contract,rng,ids,jsonl,inventory,runner,live}.py` và `chonoi/web/`. Hạn chế sửa; nếu phải sửa thì báo cả nhóm và ghi lại lý do.
@@ -26,4 +26,5 @@
 - Sáng tạo thêm được khuyến khích nhưng phải tắt ở headless (xem README, mục "Tự do sáng tạo").
 
 ## Skills / hooks của nhóm
-- (Ghi tên và khi nào dùng; tối thiểu 2 skill/hook/command nhóm tự viết, đặt ở `.agents/skills/` hoặc tương đương.)
+- `phase-check` (`.agents/skills/phase-check/`): dùng trước khi đẩy, gộp hoặc gắn tag. Lệnh: `python .agents/skills/phase-check/phase_check.py [--proof docs/proof/phase-1]`.
+- `clarify-log` (`.agents/skills/clarify-log/`): dùng khi PRD/spec mơ hồ, ghi câu hỏi và giả định vào `docs/clarify.md`.
