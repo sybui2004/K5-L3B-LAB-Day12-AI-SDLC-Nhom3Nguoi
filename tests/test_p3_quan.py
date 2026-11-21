@@ -10,6 +10,7 @@ import os
 import unittest
 
 from helpers import ROOT, Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import hold_items
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     T = json.load(_f)["tuning"]
@@ -259,7 +260,7 @@ class Scenario(unittest.TestCase):
 
 
 class Day(unittest.TestCase):
-    SC = {"day": {}, "gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"], "random_fish": False}}
+    SC = {"day": {}, "gather": {"hold": hold_items(["ca_loc", "bong_sung", "bong_sung"]), "random_fish": False}}
     G = int(T["gather"]["duration_s"] * 60)
     Q_TICKS = int(Q["duration_s"] * 60)
 

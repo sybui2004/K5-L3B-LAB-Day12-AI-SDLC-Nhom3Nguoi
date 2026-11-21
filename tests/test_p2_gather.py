@@ -29,6 +29,7 @@ from helpers import (
     snapshots,
     write_json,
 )
+from helpers import hold_items, stock_counts, stock_items
 
 
 def g():
@@ -127,7 +128,7 @@ class TestP2Gather(unittest.TestCase):
         with Workdir() as w:
             block = {
                 "player": {"pos": [20.0, 5.0]},
-                "hold": ["ca_loc"] * (cap - 1),
+                "hold": hold_items(["ca_loc"] * (cap - 1)),
                 "random_fish": False,
                 "fish": [{"id": "F1", "kind": "ca_keo", "pos": [20.0, 5.0]}],
                 "monsters": [{"id": "M1", "kind": "ca_sau", "pos": [60, 24], "waypoints": [[60, 24], [64, 24]]}],
@@ -347,7 +348,7 @@ class TestP2Gather(unittest.TestCase):
             # Người chơi ở d >= 10, quái ở khoảng cách <= hit_radius (1.5)
             block = {
                 "player": {"pos": [60.0, 20.0], "hp": 3, "invuln_ticks": 0},
-                "hold": list(initial_hold),
+                "hold": hold_items(initial_hold),
                 "random_fish": False,
                 "monsters": [{
                     "id": "M1",
@@ -394,7 +395,7 @@ class TestP2Gather(unittest.TestCase):
             inv_file = w.path("inv.json")
             block = {
                 "player": {"pos": [60.0, 20.0], "hp": 1, "invuln_ticks": 0},
-                "hold": ["ca_loc", "ca_keo"],
+                "hold": hold_items(["ca_loc", "ca_keo"]),
                 "random_fish": False,
                 "monsters": [{
                     "id": "M1",
@@ -422,13 +423,13 @@ class TestP2Gather(unittest.TestCase):
             self.assertEqual(ev_end[0]["data"]["inventory"], {"items": []})
 
             with open(inv_file, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {}})
+                self.assertEqual(json.load(f), {"items": []})
 
         # Nhánh 2: Ngạt xuyên bất tử (đang bất tử do quái nhưng hết oxy vẫn bị choke)
         with Workdir() as w:
             block = {
                 "player": {"pos": [20.0, 5.0], "hp": 2, "invuln_ticks": 60, "oxygen_ticks": 0, "zero_oxy_ticks": 59},
-                "hold": ["ca_loc"],
+                "hold": hold_items(["ca_loc"]),
                 "random_fish": False,
                 "monsters": [{"id": "M1", "kind": "ca_sau", "pos": [60, 24], "waypoints": [[60, 24], [64, 24]]}],
             }

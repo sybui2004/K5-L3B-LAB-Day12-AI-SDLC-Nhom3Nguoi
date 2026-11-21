@@ -47,8 +47,9 @@ STATIC_JS = {"/creative.js": "creative.js", "/screens.js": "screens.js"}
 class LiveGame:
     """Một lượt chơi + luồng nền bước 60 tick/s. Mọi truy cập trạng thái đi qua khóa."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=DEFAULT_DAYS):
-        self._args = (mode, tuning, scenario, seed, inventory, days)
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=DEFAULT_DAYS,
+                 contract_version="1.2"):
+        self._args = (mode, tuning, scenario, seed, inventory, days, contract_version)
         self.mode = mode
         self.days = days
         self.tuning = tuning
@@ -299,12 +300,13 @@ def main(argv=None) -> int:
         days = DEFAULT_DAYS if a.days is None else a.days
         if a.mode == "day":
             validate_days(days)
-        tuning = load_contract()["tuning"]
-        scenario = load_scenario(a.scenario, a.mode, tuning)
-        inventory = read_inventory(a.inventory) if a.inventory else None
+        contract = load_contract()
+        tuning, version = contract["tuning"], contract["contract_version"]
+        scenario = load_scenario(a.scenario, a.mode, tuning, version)
+        inventory = read_inventory(a.inventory, version) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
-        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days)
+        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days, version)
         server = LiveServer(game, a.host, a.port)
     except BadInput as e:
         sys.stderr.write(f"đầu vào sai: {e}\n")
