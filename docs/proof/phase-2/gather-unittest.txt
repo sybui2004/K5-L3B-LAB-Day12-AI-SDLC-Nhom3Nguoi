@@ -1,0 +1,62 @@
+test_ac_p2_02_gather_standard_numbers (tests.test_p2_gather.TestP2Gather.test_ac_p2_02_gather_standard_numbers)
+AC-P2-02: Gather số chuẩn: N1–N6, fish_yield 3 loài (cá kèo 2), oxy/ngạt/hái như v1.0. ... ok
+test_ac_p2_03_fish_swimming_and_bounds (tests.test_p2_gather.TestP2Gather.test_ac_p2_03_fish_swimming_and_bounds)
+AC-P2-03: Cá bơi 1.5 m/s, miền x [4,96], dải d theo loài, đổi hướng theo seed, phản xạ mép. ... ok
+test_ac_p2_04_fish_initial_and_spawning (tests.test_p2_gather.TestP2Gather.test_ac_p2_04_fish_initial_and_spawning)
+AC-P2-04: Đầu ca 8 đàn ở 8 điểm khác nhau; sinh tối đa 1 đàn ở phase_tick = 360k; fish_spawned. ... ok
+test_ac_p2_05_catch_before_fish_moves (tests.test_p2_gather.TestP2Gather.test_ac_p2_05_catch_before_fish_moves)
+AC-P2-05: Bắt cá xét theo vị trí cá TRƯỚC khi bơi; cá mới tham gia từ bước sau. ... ok
+test_ac_p2_06_monster_patrol_and_chase (tests.test_p2_gather.TestP2Gather.test_ac_p2_06_monster_patrol_and_chase)
+AC-P2-06: Cá Sấu patrol <-> chase (<= 10 m, d >= 10) <-> patrol (> 16 m hoặc d < 10), chặn d in [10,30]. ... ok
+test_ac_p2_07_monster_hit_and_recoil (tests.test_p2_gather.TestP2Gather.test_ac_p2_07_monster_hit_and_recoil)
+AC-P2-07: Chạm: -1 Máu, rơi floor(n/2) LIFO, bất tử 90, recoil 60 bước x 2/60 m; monster_hit. ... ok
+test_ac_p2_08_monster_faint_and_choke (tests.test_p2_gather.TestP2Gather.test_ac_p2_08_monster_faint_and_choke)
+AC-P2-08: Ngất do quái: faint{cause:"monster"}, mất giỏ, gather_end(fainted) ngay; ngạt xuyên bất tử. ... ok
+test_ac_p2_09_step_order (tests.test_p2_gather.TestP2Gather.test_ac_p2_09_step_order)
+AC-P2-09: Thứ tự một bước gather v1.1 (mục 0 spec). ... ok
+test_determinism_seed_1 (tests.test_p2_gather.TestP2Gather.test_determinism_seed_1)
+Test tất định: headless gather seed 1 chạy 2 lần, so nhị phân file output phải giống từng byte. ... ok
+test_catch_cooldown_blocks_second_catch (tests.test_gather_rules.Catch.test_catch_cooldown_blocks_second_catch) ... ok
+test_catch_school_underwater (tests.test_gather_rules.Catch.test_catch_school_underwater) ... ok
+test_dock_after_catch_writes_inventory (tests.test_gather_rules.Catch.test_dock_after_catch_writes_inventory) ... ok
+test_no_catch_at_surface (tests.test_gather_rules.Catch.test_no_catch_at_surface) ... ok
+test_not_enough_room_for_school_is_hold_full (tests.test_gather_rules.Catch.test_not_enough_room_for_school_is_hold_full)
+v1.1 (spec gather A1): phải đủ chỗ cho CẢ đàn, thiếu chỗ ⇒ hold_full, không bắt. ... ok
+test_gather_node_then_wait_regrow (tests.test_gather_rules.Harvest.test_gather_node_then_wait_regrow) ... ok
+test_hold_full_on_harvest (tests.test_gather_rules.Harvest.test_hold_full_on_harvest) ... ok
+test_nearest_tie_picks_smaller_id (tests.test_gather_rules.Harvest.test_nearest_tie_picks_smaller_id) ... ok
+test_no_harvest_underwater (tests.test_gather_rules.Harvest.test_no_harvest_underwater) ... ok
+test_node_regrown_event (tests.test_gather_rules.Harvest.test_node_regrown_event) ... ok
+test_dive_and_surface_events (tests.test_gather_rules.Oxygen.test_dive_and_surface_events) ... ok
+test_faint_empties_hold_and_writes_empty_inventory (tests.test_gather_rules.Oxygen.test_faint_empties_hold_and_writes_empty_inventory) ... ok
+test_oxygen_drains_underwater_and_refills_at_surface (tests.test_gather_rules.Oxygen.test_oxygen_drains_underwater_and_refills_at_surface) ... ok
+test_oxygen_empty_then_choke_every_interval (tests.test_gather_rules.Oxygen.test_oxygen_empty_then_choke_every_interval) ... ok
+test_con_01_ticks_zero_and_end_line (tests.test_smoke_p1.Contract.test_con_01_ticks_zero_and_end_line) ... ok
+test_con_02_deterministic_bytes (tests.test_smoke_p1.Contract.test_con_02_deterministic_bytes) ... ok
+test_con_03_bad_input_exit_2 (tests.test_smoke_p1.Contract.test_con_03_bad_input_exit_2) ... ok
+test_con_03_old_and_future_modes_rejected (tests.test_smoke_p1.Contract.test_con_03_old_and_future_modes_rejected) ... ok
+test_gather_snapshot_has_gather_fields (tests.test_smoke_p1.Contract.test_gather_snapshot_has_gather_fields) ... ok
+test_scenario_out_of_domain_exit_2 (tests.test_smoke_p1.Contract.test_scenario_out_of_domain_exit_2) ... ok
+test_inv_01_gather_writes_inventory_quan_reads_it (tests.test_smoke_p1.Integration.test_inv_01_gather_writes_inventory_quan_reads_it)
+Ví dụ smoke test trong PRD-0 mục G: cập bến ở tick 0, quán đọc kho đúng nội dung. ... ok
+test_inv_01_not_written_when_tick_limit_first (tests.test_smoke_p1.Integration.test_inv_01_not_written_when_tick_limit_first) ... ok
+test_inv_bad_schema_exit_2 (tests.test_smoke_p1.Integration.test_inv_bad_schema_exit_2) ... ok
+test_inventory_and_scenario_stock_conflict (tests.test_smoke_p1.Integration.test_inventory_and_scenario_stock_conflict) ... ok
+test_inventory_flags_mode_mismatch_exit_2 (tests.test_smoke_p1.Integration.test_inventory_flags_mode_mismatch_exit_2) ... ok
+test_move_01_swim_speed_after_ramp (tests.test_smoke_p1.Movement.test_move_01_swim_speed_after_ramp)
+Bỏ 6 tick tăng tốc rồi đo 60 tick: quãng ≈ swim_speed × 1 s (±0.1). Ngang, xuống, chéo (không nhanh hơn). ... ok
+test_move_02_heading_positive_is_down (tests.test_smoke_p1.Movement.test_move_02_heading_positive_is_down) ... ok
+test_move_03_edge_clamp (tests.test_smoke_p1.Movement.test_move_03_edge_clamp)
+Chặn từng mép của vùng nước, kể cả d không âm (không bay lên khỏi mặt nước) và đáy d = 30. ... ok
+test_move_mep_vel_ve_0 (tests.test_smoke_p1.Movement.test_move_mep_vel_ve_0) ... ok
+test_move_ramp_doi_huong_trong_tran (tests.test_smoke_p1.Movement.test_move_ramp_doi_huong_trong_tran)
+Đảo từ +speed sang -speed: vận tốc chạm mục tiêu sau tối đa ramp_max_ticks tick kể từ lúc đổi input. ... ok
+test_time_ends_gather_and_keeps_hold (tests.test_smoke_p1.Movement.test_time_ends_gather_and_keeps_hold) ... ok
+test_khoi_sai_mode_exit_2 (tests.test_smoke_p1.ScenarioModes.test_khoi_sai_mode_exit_2) ... ok
+test_quan_fixture_khong_hop_le_exit_2 (tests.test_smoke_p1.ScenarioModes.test_quan_fixture_khong_hop_le_exit_2) ... ok
+test_quan_player_vel_hop_le (tests.test_smoke_p1.ScenarioModes.test_quan_player_vel_hop_le) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 18.664s
+
+OK
