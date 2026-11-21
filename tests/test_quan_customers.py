@@ -71,12 +71,21 @@ class Arrival(unittest.TestCase):
             self.assertEqual(events(rows, "customer_arrived") + events(rows, "no_dish"), [])
 
     def test_full_tables_skip_turn(self):
-        """Clarify #9: hết bàn trống -> bỏ lượt, không phát sự kiện."""
+        """Clarify #9: hết bàn trống -> bỏ lượt, không phát sự kiện. (v1.1: 4 bàn, dựng sẵn khách ở cả 4 bàn.)"""
+        full = [{"id": f"C{i}", "table_id": tb["id"], "dish_id": "ca_loc_nuong_trui", "reserved": {}}
+                for i, tb in enumerate(Q["tables"], 1)]
         with Workdir() as w:
-            code, err, rows = run_quan(w, {"stock": {"ca_loc": 5}}, FIRST + INTERVAL + 1)
+            code, err, rows = run_quan(w, {"stock": {"ca_loc": 5}, "customers": full}, FIRST + 1)
             self.assertEqual(code, 0, err)
-            self.assertEqual(len(events(rows, "customer_arrived")), 1)
-            self.assertEqual(events(rows, "no_dish"), [])
+            self.assertEqual(events(rows, "customer_arrived") + events(rows, "no_dish"), [])
+
+    def test_customers_fill_tables_in_id_order(self):
+        with Workdir() as w:
+            code, err, rows = run_quan(w, {"stock": {"ca_loc": 9}}, FIRST + 2 * INTERVAL)
+            self.assertEqual(code, 0, err)
+            arr = events(rows, "customer_arrived")
+            self.assertEqual([e["tick"] for e in arr], [FIRST, FIRST + INTERVAL, FIRST + 2 * INTERVAL])
+            self.assertEqual([e["data"]["table_id"] for e in arr], ["T1", "T2", "T3"])
 
 
 class Reservation(unittest.TestCase):
@@ -92,14 +101,15 @@ class Reservation(unittest.TestCase):
                 self.assertEqual(c["reserved"], MENU["goi_bong_sung"]["recipe"])
 
     def test_reserved_ingredients_are_not_offered_again(self):
-        """Khách dựng sẵn giữ chỗ hết cá lóc -> khách mới (sau khi bàn trống) không chọn được món nào."""
+        """Khách dựng sẵn giữ chỗ hết cá lóc -> khách mới ở bàn trống kế tiếp không chọn được món nào (no_dish)."""
         block = {"stock": {"ca_loc": 1}, "customers": [
             {"id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui", "patience_ticks_left": PATIENCE}]}
         with Workdir() as w:
             code, err, rows = run_quan(w, block, FIRST)
             self.assertEqual(code, 0, err)
             self.assertEqual(snapshots(rows)[0]["customers"][0]["reserved"], {"ca_loc": 1})
-            self.assertEqual(events(rows, "no_dish") + events(rows, "customer_arrived"), [])  # bàn đầy
+            self.assertEqual(events(rows, "customer_arrived"), [])
+            self.assertEqual([e["data"] for e in events(rows, "no_dish")], [{"table_id": "T2"}])
 
     def test_new_customer_id_follows_scenario_ids(self):
         block = {"stock": {"ca_loc": 1}, "customers": [
@@ -120,7 +130,8 @@ class Patience(unittest.TestCase):
             left = events(rows, "customer_left")
             self.assertEqual(len(left), 1)
             self.assertEqual(left[0]["tick"], 5)
-            self.assertEqual(left[0]["data"], {"customer_id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"})
+            self.assertEqual(left[0]["data"], {"customer_id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui",
+                                            "reason": "patience"})
             snap = snapshots(rows)[-1]
             self.assertAlmostEqual(snap["reputation"], Q["reputation_initial"] + Q["left_reputation_delta"])
             # nguyên liệu được nhả -> khách mới ở tick FIRST lại chọn được cá lóc
