@@ -115,7 +115,7 @@ class Session:
     def write_inventory_if_done(self, inventory_out):
         """File kho: ghi MỘT lần khi có gather_end; chưa kết thúc thì giữ nguyên file đích."""
         if self.mode == "gather" and self.sim.done and inventory_out:
-            write_inventory(inventory_out, self.sim.inventory_items())
+            write_inventory(inventory_out, self.sim.hold_counts())  # TV3 lát A thay bằng ghi v1.2 qua adapter; manifest còn 1.1 nên file kho vẫn dạng đếm
 
 
 def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every, inventory=None, inventory_out=None,

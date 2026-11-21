@@ -99,7 +99,8 @@ class TestP2Gather(unittest.TestCase):
             self.assertEqual(ev_gather[0]["data"]["node_id"], "N5")
 
             s_end = snapshots(rows)[-1]
-            self.assertEqual(s_end["hold"], ["keo_neo"] * node_yield)
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh} theo thứ tự vào giỏ.
+            self.assertEqual([it["kind"] for it in s_end["hold"]], ["keo_neo"] * node_yield)
 
         # Nhánh 2: Bắt cá kèo cho đúng 2 cá
         with Workdir() as w:
@@ -118,7 +119,8 @@ class TestP2Gather(unittest.TestCase):
             self.assertEqual(ev_catch[0]["data"]["count"], ca_keo_yield)
 
             s_end = snapshots(rows)[-1]
-            self.assertEqual(s_end["hold"], ["ca_keo"] * ca_keo_yield)
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh} theo thứ tự vào giỏ.
+            self.assertEqual([it["kind"] for it in s_end["hold"]], ["ca_keo"] * ca_keo_yield)
 
         # Nhánh 3: Thiếu chỗ cho cả đàn (còn 1 chỗ trống mà cá kèo cần 2) => hold_full, không bắt
         cap = t["hold_capacity"]
@@ -365,13 +367,16 @@ class TestP2Gather(unittest.TestCase):
             self.assertEqual(hit_data["hp"], 2)
 
             # 2 món rơi theo LIFO là 2 món cuối cùng trong giỏ
+            # Đổi test (P3 lát B): lost là mảng cá thể theo đúng thứ tự bỏ (mới nhất trước).
             self.assertEqual(len(hit_data["lost"]), drop_count)
-            self.assertEqual(set(hit_data["lost"]), set(initial_hold[-drop_count:]))
+            self.assertEqual([it["kind"] for it in hit_data["lost"]],
+                             list(reversed(initial_hold[-drop_count:])))
 
             # Snapshot sau khi hit
             s_end = snapshots(rows)[-1]
             self.assertEqual(s_end["player"]["hp"], 2)
-            self.assertEqual(s_end["hold"], expected_remaining)
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh}.
+            self.assertEqual([it["kind"] for it in s_end["hold"]], expected_remaining)
             self.assertGreater(s_end["player"]["invuln_ticks"], 0, "Người chơi phải có thời gian bất tử")
 
             # Quái M1 vào trạng thái recoil
@@ -407,12 +412,14 @@ class TestP2Gather(unittest.TestCase):
             faint_data = ev_faint[0]["data"]
             self.assertEqual(faint_data.get("cause"), "monster")
             self.assertEqual(faint_data["hp"], 0)
-            self.assertEqual(set(faint_data["lost"]), {"ca_loc", "ca_keo"})
+            # Đổi test (P3 lát B): lost là mảng cá thể (đọc kind), không còn mảng kind.
+            self.assertEqual({it["kind"] for it in faint_data["lost"]}, {"ca_loc", "ca_keo"})
 
             ev_end = events(rows, "gather_end")
             self.assertEqual(len(ev_end), 1)
             self.assertEqual(ev_end[0]["data"]["reason"], "fainted")
-            self.assertEqual(ev_end[0]["data"]["inventory"], {"items": {}})
+            # Đổi test (P3 lát B): gather_end.inventory là mảng cá thể v1.2 (ngất => rỗng).
+            self.assertEqual(ev_end[0]["data"]["inventory"], {"items": []})
 
             with open(inv_file, encoding="utf-8") as f:
                 self.assertEqual(json.load(f), {"items": {}})
@@ -428,7 +435,8 @@ class TestP2Gather(unittest.TestCase):
             rows = run(w, block, ticks=2)
             self.assertEqual(len(events(rows, "choke")), 1, "Ngạt phải xuyên bất tử")
             # Ngạt không làm rơi giỏ trước khi ngất
-            self.assertEqual(snapshots(rows)[-1]["hold"], ["ca_loc"])
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh}.
+            self.assertEqual([it["kind"] for it in snapshots(rows)[-1]["hold"]], ["ca_loc"])
 
     def test_ac_p2_09_step_order(self):
         """AC-P2-09: Thứ tự một bước gather v1.1 (mục 0 spec).
