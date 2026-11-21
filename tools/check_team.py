@@ -1,6 +1,6 @@
 """Kiểm danh sách thành viên: chạy trong CI (bước của job `ci / test`) và chạy tay.
 
-    python3 tools/check_team.py
+    python tools/check_team.py
 
 Điều kiện của bảng thành viên (commit của người không có trong danh sách không được tính; CI chỉ cảnh báo, không chặn):
   - TEAM.md có bảng thành viên với 4-6 người, mỗi người có GitHub handle thật (không để mẫu/…),
