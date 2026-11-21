@@ -1,0 +1,25 @@
+{
+  "viewport": "1280x720",
+  "browser": "Chrome/158.0.8127.37",
+  "gatherFps": 60,
+  "quanFps": 60,
+  "pausedShopTimerTicks": 559,
+  "javaScriptErrors": 0,
+  "completedDays": 5,
+  "scenario": {
+    "gather": {
+      "time_left_ticks": 420,
+      "hold": [
+        "ca_loc",
+        "ca_loc",
+        "bong_sung",
+        "bong_sung",
+        "bong_dien_dien"
+      ],
+      "random_fish": false
+    },
+    "quan": {
+      "time_left_ticks": 300
+    }
+  }
+}
