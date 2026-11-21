@@ -10,11 +10,13 @@ import json
 from .errors import BadInput
 from .inventory import KINDS, validate_items
 
-GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks"}
+GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks", "monsters"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
                       "invuln_ticks", "catch_cd_ticks"}
-NODE_KINDS = ("bong_dien_dien", "bong_sung")
-FISH_KINDS = ("ca_linh", "ca_loc")
+NODE_KINDS = ("bong_dien_dien", "bong_sung", "keo_neo")
+FISH_KINDS = ("ca_linh", "ca_loc", "ca_keo")
+MONSTER_KEYS = {"id", "kind", "pos", "waypoints", "target_idx", "state", "state_ticks_left", "recoil_dir"}
+MONSTER_STATES = ("patrol", "chase", "recoil", "stunned")
 QUAN_PLAYER_KEYS = {"pos", "vel"}
 QUAN_KEYS = {"player", "stock", "hand", "stoves", "tables", "customers", "random_customers",
              "reputation", "time_left_ticks"}
@@ -131,8 +133,11 @@ def _load_day(data, tuning):
             if isinstance(cnt, bool) or not isinstance(cnt, int) or cnt <= 0:
                 raise BadInput(f"day.day_plan[{n}].dishes.{dish} phải là số nguyên dương")
         if "ingredients" in p:
-            from .sim.plan import plan_ingredients
-            if p["ingredients"] != plan_ingredients(dishes, tuning["menu"]):
+            want = {}
+            for dish, cnt in dishes.items():
+                for k, m in tuning["menu"][dish]["recipe"].items():
+                    want[k] = want.get(k, 0) + m * cnt
+            if p["ingredients"] != want:
                 raise BadInput(f"day.day_plan[{n}].ingredients không khớp tổng công thức × số suất")
     out["day"] = d
     return out
@@ -159,7 +164,7 @@ def _pos(name, pos, bounds, axes=("x", "d")):
 def _validate_gather(b, tuning):
     g = tuning["gather"]
     bounds = g["bounds"]
-    for arr in ("nodes", "fish"):
+    for arr in ("nodes", "fish", "monsters"):
         if arr in b:
             _check_ids(arr, b[arr])
     if "random_fish" in b and not isinstance(b["random_fish"], bool):
@@ -213,6 +218,33 @@ def _validate_gather(b, tuning):
             raise BadInput(f"fish.{f['id']}: đàn cá phải ở dưới nước")
         if "heading_deg" in f and not _num(f["heading_deg"]):
             raise BadInput(f"fish.{f['id']}.heading_deg phải là số")
+    species = g["monsters"]["species"]
+    for m in b.get("monsters", []):
+        mid = m["id"]
+        extra = set(m) - MONSTER_KEYS
+        if extra:
+            raise BadInput(f"monsters.{mid}: trường lạ/chưa hỗ trợ {sorted(extra)}")
+        if m.get("kind") not in species:
+            raise BadInput(f"monsters.{mid}: kind phải là một trong {tuple(sorted(species))}")
+        state = m.get("state", "patrol")
+        if state not in MONSTER_STATES:
+            raise BadInput(f"monsters.{mid}: state phải là một trong {MONSTER_STATES}")
+        if "pos" in m:
+            _pos(f"monsters.{mid}.pos", m["pos"], bounds)
+        if "waypoints" in m:
+            if not isinstance(m["waypoints"], list):
+                raise BadInput(f"monsters.{mid}.waypoints phải là mảng [x, d]")
+            for i, wp in enumerate(m["waypoints"]):
+                _pos(f"monsters.{mid}.waypoints[{i}]", wp, bounds)
+        if "target_idx" in m:
+            _nonneg_int(f"monsters.{mid}.target_idx", m["target_idx"])
+        if "state_ticks_left" in m:
+            _nonneg_int(f"monsters.{mid}.state_ticks_left", m["state_ticks_left"])
+        if state in ("recoil", "stunned") and not m.get("state_ticks_left", 0) > 0:
+            raise BadInput(f"monsters.{mid}: {state} cần state_ticks_left dương")
+        if "recoil_dir" in m and not (isinstance(m["recoil_dir"], list) and len(m["recoil_dir"]) == 2
+                                      and all(_num(c) for c in m["recoil_dir"])):
+            raise BadInput(f"monsters.{mid}.recoil_dir phải là [x, d]")
 
 
 def _validate_quan(b, tuning):

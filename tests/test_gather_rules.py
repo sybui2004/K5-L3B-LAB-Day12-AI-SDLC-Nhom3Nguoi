@@ -120,8 +120,10 @@ class Harvest(unittest.TestCase):
 class Catch(unittest.TestCase):
     def test_catch_school_underwater(self):
         t = g()
+        # v1.1: cá đầu ca được sinh ngẫu nhiên (lát 1), nên ghim đàn cá bằng scenario.
+        fish = [{"id": "F1", "kind": "ca_linh", "pos": [15, 5]}]
         with Workdir() as w:
-            rows = run(w, {"player": {"pos": [15, 5]}}, [{"tick": 0, "catch": True}])
+            rows = run(w, {"player": {"pos": [15, 5]}, "fish": fish}, [{"tick": 0, "catch": True}])
             ev = events(rows, "fish_caught")
             self.assertEqual(len(ev), 1)
             self.assertEqual(ev[0]["data"]["fish_id"], "F1")
@@ -143,13 +145,20 @@ class Catch(unittest.TestCase):
             rows = run(w, {"player": {"pos": [20, 0]}, "fish": fish}, [{"tick": 0, "catch": True}])
             self.assertEqual(events(rows, "fish_caught"), [])
 
-    def test_partial_room_fills_hold_then_hold_full(self):
+    def test_not_enough_room_for_school_is_hold_full(self):
+        """v1.1 (spec gather A1): phải đủ chỗ cho CẢ đàn, thiếu chỗ ⇒ hold_full, không bắt.
+
+        Luật v1.0 (nhặt được phần vừa chỗ) đã bị thay ở lattice 1.
+        """
         cap = g()["hold_capacity"]
+        # v1.1: ghim đàn cá (mặc định do lát 1 sinh) để kiểm giỏ đầy.
+        fish = [{"id": "F1", "kind": "ca_linh", "pos": [15, 5]}]
         with Workdir() as w:
-            rows = run(w, {"player": {"pos": [15, 5]}, "hold": ["ca_loc"] * (cap - 1)}, [{"tick": 0, "catch": True}])
-            self.assertEqual(events(rows, "fish_caught")[0]["data"]["count"], 1)
+            rows = run(w, {"player": {"pos": [15, 5]}, "fish": fish, "hold": ["ca_loc"] * (cap - 1)},
+                       [{"tick": 0, "catch": True}])
+            self.assertEqual(events(rows, "fish_caught"), [])
             self.assertEqual(len(events(rows, "hold_full")), 1)
-            self.assertEqual(last(rows)["hold_count"], cap)
+            self.assertEqual(last(rows)["hold_count"], cap - 1)
 
     def test_dock_after_catch_writes_inventory(self):
         with Workdir() as w:
