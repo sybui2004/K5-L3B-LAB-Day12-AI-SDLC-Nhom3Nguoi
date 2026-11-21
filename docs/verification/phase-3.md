@@ -21,7 +21,7 @@
 | AC-P3-13 day bàn giao cùng tick, id xuyên Ngày, Shop không hao | `tests/test_p3_quan.py`, `day-2.jsonl` | [unittest.txt](../proof/phase-3/unittest.txt), [handoff.md](../proof/phase-3/handoff.md), [day-2-events](../proof/phase-3/day-2-events.jsonl.txt) | Đạt, sau khi sửa lỗi làm tròn độ tươi lúc bàn giao |
 | AC-P3-14 scenario v1.2, mã 2 | `tests/test_p3_inventory.py`, `tests/test_p3_quan.py` | [unittest.txt](../proof/phase-3/unittest.txt) | Đạt |
 | AC-P3-15 HUD độ tươi/ươn | ảnh chụp 1280×720 | [giỏ](../proof/phase-3/hud-gio-do-tuoi.png), [kho quán](../proof/phase-3/hud-kho-do-tuoi.png) | Đạt trên scenario dựng sẵn; chưa có người chơi kiểm tra |
-| AC-P3-16 regression P1–P2, CHANGELOG, tag | `unittest.txt`, `CHANGELOG.md` | [unittest.txt](../proof/phase-3/unittest.txt), [CHANGELOG](../../CHANGELOG.md) | Bản bàn giao muộn. Kết quả chạy lại được ghi dưới đây. |
+| AC-P3-16 regression P1–P2, CHANGELOG, tag | `unittest.txt`, `CHANGELOG.md` | [unittest.txt](../proof/phase-3/unittest.txt), [CHANGELOG](../../CHANGELOG.md) | Hồi quy đạt. Bàn giao sau mốc giờ lab. |
 
 ## Test đổi vì luật mới (Ticket-03 thay schema kho)
 | Test | Vì sao đổi | Commit |

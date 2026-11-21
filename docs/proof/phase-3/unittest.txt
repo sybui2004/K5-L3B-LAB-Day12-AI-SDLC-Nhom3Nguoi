@@ -46,6 +46,7 @@ test_ac_p2_05_catch_before_fish_moves (test_p2_gather.TestP2Gather.test_ac_p2_05
 AC-P2-05: Bắt cá xét theo vị trí cá TRƯỚC khi bơi; cá mới tham gia từ bước sau. ... ok
 test_ac_p2_06_monster_patrol_and_chase (test_p2_gather.TestP2Gather.test_ac_p2_06_monster_patrol_and_chase)
 AC-P2-06: Cá Sấu patrol <-> chase (<= 10 m, d >= 10) <-> patrol (> 16 m hoặc d < 10), chặn d in [10,30]. ... ok
+test_ac_p2_07_last_recoil_step_cannot_hit (test_p2_gather.TestP2Gather.test_ac_p2_07_last_recoil_step_cannot_hit) ... ok
 test_ac_p2_07_monster_hit_and_recoil (test_p2_gather.TestP2Gather.test_ac_p2_07_monster_hit_and_recoil)
 AC-P2-07: Chạm: -1 Máu, rơi floor(n/2) LIFO, bất tử 90, recoil 60 bước x 2/60 m; monster_hit. ... ok
 test_ac_p2_08_monster_faint_and_choke (test_p2_gather.TestP2Gather.test_ac_p2_08_monster_faint_and_choke)
@@ -228,6 +229,6 @@ test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ----------------------------------------------------------------------
-Ran 193 tests in 57.744s
+Ran 194 tests in 136.228s
 
 OK
