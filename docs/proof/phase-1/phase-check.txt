@@ -1,6 +1,6 @@
 | Mục | Kết quả | Ghi chú |
 |---|---|---|
-| unittest | KHÔNG ĐẠT | FAILED (failures=21, errors=16) |
+| unittest | KHÔNG ĐẠT | FAILED (failures=7, errors=1) |
 | check_team | ĐẠT | OK: 4 thành viên: sybui2004, lit1numyt, hgmdz1210, sangdaden |
 | headless gather seed 1 | ĐẠT | mã thoát 0/0 |
 | so byte gather (2 lần) | ĐẠT | giống từng byte |

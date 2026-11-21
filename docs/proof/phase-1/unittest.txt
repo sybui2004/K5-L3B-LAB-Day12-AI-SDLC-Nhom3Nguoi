@@ -1,3 +1,6 @@
+test_creative_js_served_and_gated (test_creative_serve.CreativeServeTest.test_creative_js_served_and_gated) ... ok
+test_state_has_no_creative_fields (test_creative_serve.CreativeServeTest.test_state_has_no_creative_fields)
+Sáng tạo không được đổi snapshot/headless: /state không chứa trường 'creative'. ... ok
 test_state_input_and_clean_stop (test_live.LiveServerTest.test_state_input_and_clean_stop) ... ok
 test_bad_frames_raise (test_python_starter_units.Units.test_bad_frames_raise) ... ok
 test_catch_is_a_v10_button_and_attack_is_not (test_python_starter_units.Units.test_catch_is_a_v10_button_and_attack_is_not) ... ok
@@ -6,43 +9,41 @@ test_id_sorting (test_python_starter_units.Units.test_id_sorting) ... ok
 test_input_edges_and_inherit (test_python_starter_units.Units.test_input_edges_and_inherit) ... ok
 test_live_inputs_keep_fast_tap_edge (test_python_starter_units.Units.test_live_inputs_keep_fast_tap_edge) ... ok
 test_session_steps_gather_and_dock (test_python_starter_units.Units.test_session_steps_gather_and_dock) ... ok
-test_ac_q_01_first_customer_on_schedule (test_quan_rules.Customers.test_ac_q_01_first_customer_on_schedule) ... FAIL
-test_ac_q_02_empty_stock_no_dish (test_quan_rules.Customers.test_ac_q_02_empty_stock_no_dish) ... FAIL
-test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) ... 
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=1) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=2) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=3) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=4) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=5) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=1) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=2) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=3) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=4) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=5) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=1) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=2) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=3) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=4) ... ERROR
-  test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=5) ... ERROR
-test_ac_q_04_patience_out_customer_left (test_quan_rules.Customers.test_ac_q_04_patience_out_customer_left) ... FAIL
+test_ac_q_01_first_customer_at_first_customer_tick (test_quan_customers.Arrival.test_ac_q_01_first_customer_at_first_customer_tick) ... ok
+test_ac_q_02_empty_stock_no_dish (test_quan_customers.Arrival.test_ac_q_02_empty_stock_no_dish) ... ok
+test_full_tables_skip_turn (test_quan_customers.Arrival.test_full_tables_skip_turn)
+Clarify #9: hết bàn trống -> bỏ lượt, không phát sự kiện. ... ok
+test_no_customer_before_first_tick (test_quan_customers.Arrival.test_no_customer_before_first_tick) ... ok
+test_random_customers_false_disables_schedule (test_quan_customers.Arrival.test_random_customers_false_disables_schedule) ... ok
+test_ac_q_05_same_seed_same_bytes (test_quan_customers.Determinism.test_ac_q_05_same_seed_same_bytes) ... ok
+test_ac_q_04_customer_leaves_reputation_drops_reservation_released (test_quan_customers.Patience.test_ac_q_04_customer_leaves_reputation_drops_reservation_released) ... ok
+test_default_customer_leaves_after_patience (test_quan_customers.Patience.test_default_customer_leaves_after_patience) ... ok
+test_reputation_clamped_at_min (test_quan_customers.Patience.test_reputation_clamped_at_min) ... ok
+test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_customers.Reservation.test_ac_q_03_dish_is_cookable_and_reserves_recipe) ... ok
+test_new_customer_id_follows_scenario_ids (test_quan_customers.Reservation.test_new_customer_id_follows_scenario_ids) ... ok
+test_reserved_ingredients_are_not_offered_again (test_quan_customers.Reservation.test_reserved_ingredients_are_not_offered_again)
+Khách dựng sẵn giữ chỗ hết cá lóc -> khách mới (sau khi bàn trống) không chọn được món nào. ... ok
+test_ac_q_06_conflicts_exit_2 (test_quan_customers.ScenarioConflicts.test_ac_q_06_conflicts_exit_2) ... ok
+test_reserved_more_than_inventory_file_exit_2 (test_quan_customers.ScenarioConflicts.test_reserved_more_than_inventory_file_exit_2) ... ok
+test_valid_prebuilt_customers_exit_0 (test_quan_customers.ScenarioConflicts.test_valid_prebuilt_customers_exit_0) ... ok
+test_ac_q_01_first_customer_on_schedule (test_quan_rules.Customers.test_ac_q_01_first_customer_on_schedule) ... ok
+test_ac_q_02_empty_stock_no_dish (test_quan_rules.Customers.test_ac_q_02_empty_stock_no_dish) ... ok
+test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) ... ok
+test_ac_q_04_patience_out_customer_left (test_quan_rules.Customers.test_ac_q_04_patience_out_customer_left) ... ok
 test_ac_q_04_reputation_clamped_at_min (test_quan_rules.Customers.test_ac_q_04_reputation_clamped_at_min) ... ok
-test_ac_q_04_reservation_released_for_next_customer (test_quan_rules.Customers.test_ac_q_04_reservation_released_for_next_customer) ... FAIL
-test_ac_q_05_same_seed_same_bytes (test_quan_rules.Customers.test_ac_q_05_same_seed_same_bytes) ... FAIL
+test_ac_q_04_reservation_released_for_next_customer (test_quan_rules.Customers.test_ac_q_04_reservation_released_for_next_customer) ... ok
+test_ac_q_05_same_seed_same_bytes (test_quan_rules.Customers.test_ac_q_05_same_seed_same_bytes) ... ok
 test_random_customers_false_disables_schedule (test_quan_rules.Customers.test_random_customers_false_disables_schedule) ... ok
 test_ac_q_07_cook_then_ready (test_quan_rules.Kitchen.test_ac_q_07_cook_then_ready) ... FAIL
 test_ac_q_08_full_hand_cannot_pick_up (test_quan_rules.Kitchen.test_ac_q_08_full_hand_cannot_pick_up) ... ok
 test_ac_q_08_pick_up_ready_dish (test_quan_rules.Kitchen.test_ac_q_08_pick_up_ready_dish) ... FAIL
-test_ac_q_06_dish_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_dish_not_on_menu) ... FAIL
-test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) ... 
-  test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) (missing='price') ... FAIL
-  test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) (missing='tip') ... FAIL
-test_ac_q_06_hand_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_hand_not_on_menu) ... FAIL
-test_ac_q_06_reserved_differs_from_recipe (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_differs_from_recipe) ... FAIL
-test_ac_q_06_reserved_exceeds_stock (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_exceeds_stock) ... FAIL
-test_ac_q_06_stove_state_invalid (test_quan_rules.ScenarioConflicts.test_ac_q_06_stove_state_invalid) ... FAIL
-test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) ... 
-  test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) (patience=0) ... FAIL
-  test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) (patience=3601) ... FAIL
+test_ac_q_06_dish_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_dish_not_on_menu) ... ok
+test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) ... ok
+test_ac_q_06_hand_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_hand_not_on_menu) ... ok
+test_ac_q_06_reserved_differs_from_recipe (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_differs_from_recipe) ... ok
+test_ac_q_06_reserved_exceeds_stock (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_exceeds_stock) ... ok
+test_ac_q_06_stove_state_invalid (test_quan_rules.ScenarioConflicts.test_ac_q_06_stove_state_invalid) ... ok
+test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) ... ok
 test_valid_fixture_is_accepted (test_quan_rules.ScenarioConflicts.test_valid_fixture_is_accepted) ... ok
 test_ac_q_09_serve_then_paid_with_price_and_tip (test_quan_rules.ServiceAndMoney.test_ac_q_09_serve_then_paid_with_price_and_tip) ... FAIL
 test_ac_q_09_wrong_dish_is_not_served (test_quan_rules.ServiceAndMoney.test_ac_q_09_wrong_dish_is_not_served) ... ok
@@ -82,194 +83,19 @@ test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=1)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=2)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=3)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=4)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1}, seed=5)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=1)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=2)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=3)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=4)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_linh': 3, 'bong_sung': 2}, seed=5)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=1)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=2)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=3)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=4)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
-ERROR: test_ac_q_03_dish_is_cookable_and_reserves_recipe (test_quan_rules.Customers.test_ac_q_03_dish_is_cookable_and_reserves_recipe) (stock={'ca_loc': 1, 'bong_sung': 2, 'ca_linh': 3, 'bong_dien_dien': 1}, seed=5)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 105, in test_ac_q_03_dish_is_cookable_and_reserves_recipe
-    c = snaps[Q["first_customer_tick"]]["customers"][0]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-======================================================================
 ERROR: test_ac_q_10_high_patience_gets_tip_and_reputation (test_quan_rules.ServiceAndMoney.test_ac_q_10_high_patience_gets_tip_and_reputation)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 280, in test_ac_q_10_high_patience_gets_tip_and_reputation
+  File ".\tests\test_quan_rules.py", line 282, in test_ac_q_10_high_patience_gets_tip_and_reputation
     self.assertGreater(events(rows, "paid")[0]["data"]["tip"], 0)
                        ~~~~~~~~~~~~~~~~~~~~^^^
 IndexError: list index out of range
 
 ======================================================================
-FAIL: test_ac_q_01_first_customer_on_schedule (test_quan_rules.Customers.test_ac_q_01_first_customer_on_schedule)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 81, in test_ac_q_01_first_customer_on_schedule
-    self.assertEqual(len(arrived), 1, arrived)
-AssertionError: 0 != 1 : []
-
-======================================================================
-FAIL: test_ac_q_02_empty_stock_no_dish (test_quan_rules.Customers.test_ac_q_02_empty_stock_no_dish)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 91, in test_ac_q_02_empty_stock_no_dish
-    self.assertEqual(len(events(rows, "no_dish")), 1)
-AssertionError: 0 != 1
-
-======================================================================
-FAIL: test_ac_q_04_patience_out_customer_left (test_quan_rules.Customers.test_ac_q_04_patience_out_customer_left)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 116, in test_ac_q_04_patience_out_customer_left
-    self.assertEqual(len(left), 1)
-AssertionError: 0 != 1
-
-======================================================================
-FAIL: test_ac_q_04_reservation_released_for_next_customer (test_quan_rules.Customers.test_ac_q_04_reservation_released_for_next_customer)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 128, in test_ac_q_04_reservation_released_for_next_customer
-    self.assertEqual(len(events(rows, "customer_arrived")), 1, "nguyên liệu phải được nhả cho khách sau")
-AssertionError: 0 != 1 : nguyên liệu phải được nhả cho khách sau
-
-======================================================================
-FAIL: test_ac_q_05_same_seed_same_bytes (test_quan_rules.Customers.test_ac_q_05_same_seed_same_bytes)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 155, in test_ac_q_05_same_seed_same_bytes
-    self.assertTrue(events(read_jsonl(w.path("o1.jsonl")), "customer_arrived"), "phải có khách để so chuỗi món")
-AssertionError: [] is not true : phải có khách để so chuỗi món
-
-======================================================================
 FAIL: test_ac_q_07_cook_then_ready (test_quan_rules.Kitchen.test_ac_q_07_cook_then_ready)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 213, in test_ac_q_07_cook_then_ready
+  File ".\tests\test_quan_rules.py", line 215, in test_ac_q_07_cook_then_ready
     self.assertEqual(len(started), 1)
 AssertionError: 0 != 1
 
@@ -277,105 +103,15 @@ AssertionError: 0 != 1
 FAIL: test_ac_q_08_pick_up_ready_dish (test_quan_rules.Kitchen.test_ac_q_08_pick_up_ready_dish)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 228, in test_ac_q_08_pick_up_ready_dish
+  File ".\tests\test_quan_rules.py", line 230, in test_ac_q_08_pick_up_ready_dish
     self.assertEqual(len(picked), 1)
 AssertionError: 0 != 1
-
-======================================================================
-FAIL: test_ac_q_06_dish_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_dish_not_on_menu)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 177, in test_ac_q_06_dish_not_on_menu
-    self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [customer(dish="pho_bo", reserved={"ca_loc": 1})]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'pho_bo', 'state': 'waiting', 'patience_ticks': 3600, 'reserved': {'ca_loc': 1}}]}
-
-======================================================================
-FAIL: test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) (missing='price')
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 188, in test_ac_q_06_eating_missing_price_or_tip
-    self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [c]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'eating', 'patience_ticks': 3600, 'reserved': {'ca_loc': 1}, 'eat_ticks': 10, 'tip': 12}]}
-
-======================================================================
-FAIL: test_ac_q_06_eating_missing_price_or_tip (test_quan_rules.ScenarioConflicts.test_ac_q_06_eating_missing_price_or_tip) (missing='tip')
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 188, in test_ac_q_06_eating_missing_price_or_tip
-    self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [c]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'eating', 'patience_ticks': 3600, 'reserved': {'ca_loc': 1}, 'eat_ticks': 10, 'price': 60}]}
-
-======================================================================
-FAIL: test_ac_q_06_hand_not_on_menu (test_quan_rules.ScenarioConflicts.test_ac_q_06_hand_not_on_menu)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 196, in test_ac_q_06_hand_not_on_menu
-    self.assert_exit_2({"hand": "pho_bo"})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'hand': 'pho_bo'}
-
-======================================================================
-FAIL: test_ac_q_06_reserved_differs_from_recipe (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_differs_from_recipe)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 180, in test_ac_q_06_reserved_differs_from_recipe
-    self.assert_exit_2({"stock": {"ca_loc": 1, "bong_sung": 2},
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1, 'bong_sung': 2}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'waiting', 'patience_ticks': 3600, 'reserved': {'bong_sung': 2}}]}
-
-======================================================================
-FAIL: test_ac_q_06_reserved_exceeds_stock (test_quan_rules.ScenarioConflicts.test_ac_q_06_reserved_exceeds_stock)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 174, in test_ac_q_06_reserved_exceeds_stock
-    self.assert_exit_2({"stock": {"bong_sung": 2}, "customers": [customer()]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'bong_sung': 2}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'waiting', 'patience_ticks': 3600, 'reserved': {'ca_loc': 1}}]}
-
-======================================================================
-FAIL: test_ac_q_06_stove_state_invalid (test_quan_rules.ScenarioConflicts.test_ac_q_06_stove_state_invalid)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 199, in test_ac_q_06_stove_state_invalid
-    self.assert_exit_2({"stoves": [{"id": STOVE["id"], "state": "burning"}]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stoves': [{'id': 'B1', 'state': 'burning'}]}
-
-======================================================================
-FAIL: test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) (patience=0)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 193, in test_ac_q_06_waiting_patience_out_of_range
-    self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [customer(patience=patience)]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'waiting', 'patience_ticks': 0, 'reserved': {'ca_loc': 1}}]}
-
-======================================================================
-FAIL: test_ac_q_06_waiting_patience_out_of_range (test_quan_rules.ScenarioConflicts.test_ac_q_06_waiting_patience_out_of_range) (patience=3601)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 193, in test_ac_q_06_waiting_patience_out_of_range
-    self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [customer(patience=patience)]})
-  File ".\tests\test_quan_rules.py", line 166, in assert_exit_2
-    self.assertEqual(code, 2, block)
-AssertionError: 0 != 2 : {'stock': {'ca_loc': 1}, 'customers': [{'id': 'C1', 'table_id': 'T1', 'dish': 'ca_loc_nuong_trui', 'state': 'waiting', 'patience_ticks': 3601, 'reserved': {'ca_loc': 1}}]}
 
 ======================================================================
 FAIL: test_ac_q_09_serve_then_paid_with_price_and_tip (test_quan_rules.ServiceAndMoney.test_ac_q_09_serve_then_paid_with_price_and_tip)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 254, in test_ac_q_09_serve_then_paid_with_price_and_tip
+  File ".\tests\test_quan_rules.py", line 256, in test_ac_q_09_serve_then_paid_with_price_and_tip
     self.assertEqual(len(served), 1, events(rows))
 AssertionError: 0 != 1 : []
 
@@ -383,7 +119,7 @@ AssertionError: 0 != 1 : []
 FAIL: test_ac_q_10_low_patience_no_tip (test_quan_rules.ServiceAndMoney.test_ac_q_10_low_patience_no_tip)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 289, in test_ac_q_10_low_patience_no_tip
+  File ".\tests\test_quan_rules.py", line 291, in test_ac_q_10_low_patience_no_tip
     self.assertEqual(len(paid), 1, events(rows))
 AssertionError: 0 != 1 : []
 
@@ -391,7 +127,7 @@ AssertionError: 0 != 1 : []
 FAIL: test_ac_q_11_holding_interact_acts_once (test_quan_rules.ServiceAndMoney.test_ac_q_11_holding_interact_acts_once)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 317, in test_ac_q_11_holding_interact_acts_once
+  File ".\tests\test_quan_rules.py", line 319, in test_ac_q_11_holding_interact_acts_once
     self.assertEqual(len(events(rows, "cook_started")), 1)
 AssertionError: 0 != 1
 
@@ -399,7 +135,7 @@ AssertionError: 0 != 1
 FAIL: test_ac_q_11_nearest_object_wins (test_quan_rules.ServiceAndMoney.test_ac_q_11_nearest_object_wins)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 309, in test_ac_q_11_nearest_object_wins
+  File ".\tests\test_quan_rules.py", line 311, in test_ac_q_11_nearest_object_wins
     self.assertEqual(len(events(rows, "served")), 1)
 AssertionError: 0 != 1
 
@@ -407,11 +143,11 @@ AssertionError: 0 != 1
 FAIL: test_ac_q_12_quan_end_matches_snapshot (test_quan_rules.ServiceAndMoney.test_ac_q_12_quan_end_matches_snapshot)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File ".\tests\test_quan_rules.py", line 332, in test_ac_q_12_quan_end_matches_snapshot
+  File ".\tests\test_quan_rules.py", line 334, in test_ac_q_12_quan_end_matches_snapshot
     self.assertGreater(data["earned"], 0, "kịch bản phải có doanh thu")
 AssertionError: 0 not greater than 0 : kịch bản phải có doanh thu
 
 ----------------------------------------------------------------------
-Ran 59 tests in 13.083s
+Ran 76 tests in 16.301s
 
-FAILED (failures=21, errors=16)
+FAILED (failures=7, errors=1)

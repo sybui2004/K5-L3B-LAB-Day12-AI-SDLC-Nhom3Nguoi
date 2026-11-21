@@ -14,13 +14,14 @@ Nhánh: `feature/ui-qa-phase-1` (gộp ba việc dự kiến `feature/ui-hud`, `
 ## Bước 2 — UI (0:30–0:45)
 - [x] HUD gather + quan trong `chonoi/web/index.html` theo bảng trường snapshot; toast sự kiện.
 - [x] `test_live.py` xanh; luồng gather → `--inventory-out kho.json` → quan `--inventory kho.json` nạp đúng kho.
-- [ ] Chơi trọn gather và quan trên luật thật (chờ TV1, TV2 đẩy luật).
+- [ ] Chơi trọn gather và quan trên luật thật (chờ TV1 đẩy gather và lát 4).
 
 ## Bước 3 — Bằng chứng (0:45–0:55)
 - [x] Log unittest, JSONL mẫu (đuôi `.jsonl.txt`), kết quả `cmp`, ảnh UI vào `docs/proof/phase-1/`.
 - [x] Điền kết quả trung thực vào `docs/verification/phase-1.md`.
-- [ ] Nhắc cả nhóm ghi `docs/ai-usage-log.md` (mới có dòng của TV3).
-- [ ] Chạy lại `phase-check --proof` và cập nhật verification sau khi gộp luật.
+- [ ] Nhắc cả nhóm ghi `docs/ai-usage-log.md` (đã có TV2, TV3; còn TV1).
+- [x] Đồng bộ với `main`, đổi HUD và test sang tên trường clarify #7, chạy lại `phase-check --proof`.
+- [ ] Chạy lại `phase-check --proof` và cập nhật verification sau khi có luật của TV1.
 
 ## Dự phòng
 Người dự phòng của TV3 là TV2 (test quan); nếu UI trễ, ưu tiên bằng chứng + verification trước HUD.
