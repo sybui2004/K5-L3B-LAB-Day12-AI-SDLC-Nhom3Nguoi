@@ -1,0 +1,23 @@
+# Bằng chứng lát C (TV2) — quán độ tươi + day, nhánh feature/p3-quan-fresh trên main 919d97d
+
+## 1. Ngưỡng ươn ở kho quán (fresh 30.004 -> ươn tick 1; 30.005 -> tick 2)
+$ quan --scenario {stock:[I1 ca_linh 30.004]} --ticks 3
+{"type":"event","tick":1,"phase":"quan","name":"spoiled","data":{"item_id":"I1","kind":"ca_linh","location":"stock"}}
+$ quan --scenario {stock:[I1 ca_linh 30.005]} --ticks 3
+{"type":"event","tick":2,"phase":"quan","name":"spoiled","data":{"item_id":"I1","kind":"ca_linh","location":"stock"}}
+
+## 2. Giữ lại khi hàng giữ vừa ươn + giá theo tươi
+{"type":"event","tick":1,"phase":"quan","name":"spoiled","data":{"item_id":"I1","kind":"ca_loc","location":"stock"}}
+{"type":"event","tick":2,"phase":"quan","name":"cook_started","data":{"stove_id":"B1","order_id":"C1","dish_id":"ca_loc_nuong_trui","items":[{"id":"I2","kind":"ca_loc","fresh":50.492}],"base_price":30}}
+tick 1 C1.reserved = ['I2'] reserved
+
+## 3. day --days 2 (thời gian, cùng seed 2 lần)
+real 0.31
+real 0.27
+cmp: IDENTICAL
+{"type":"end","ticks":44400,"sim_tick":44400,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":3.0,"score":300,"days_completed":2}
+
+## 4. Toàn bộ unittest
+Ran 142 tests in 13.008s
+
+OK
