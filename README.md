@@ -54,7 +54,13 @@ python -m chonoi.soak --seed 7 --days 10 --out soak.json
 
 Bench cần Chrome, Chromium hoặc Edge. Dùng `CHONOI_BROWSER` hoặc `--browser` để chỉ định đường dẫn. FPS phụ thuộc máy, trình duyệt và giới hạn tần số của chế độ headless.
 
-Các lệnh trong manifest gọi `python`. Trên máy chỉ có `python3`, tạo và kích hoạt môi trường ảo bằng `python3 -m venv .venv` và `source .venv/bin/activate` trước khi chạy bộ test.
+Các lệnh trong manifest gọi `python`. Trên Linux hoặc macOS chỉ có `python3`, chạy `python3 -m venv --without-pip .venv` rồi `source .venv/bin/activate` trước khi chạy bộ test.
+
+## Demo một ngày
+
+1. Mở `--mode day`, chọn **Chơi** và vào ca Lặn. Hái rau bằng **E** hoặc bắt cá bằng **Space**, rồi quay về bến và nhấn **E** để chuyển nguyên liệu sang quán.
+2. Khi khách đặt món, đứng gần bếp và nhấn **E** để nấu. Nhấn **E** lần nữa để lấy món, rồi đến bàn đúng khách và nhấn **E** để phục vụ. Có thể dùng **Esc** hoặc **P** để tạm dừng và xem HUD.
+3. Sau ca Quán, tiếp tục qua màn kết quả đến Shop. Xem các nâng cấp và nhấn **Enter** để đóng Shop, sang ngày tiếp theo. Nhấn **C** trong lúc chơi để kiểm tra tương phản cao.
 
 ## Sáng tạo của nhóm
 

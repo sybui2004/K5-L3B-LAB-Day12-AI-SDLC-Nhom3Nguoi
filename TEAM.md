@@ -4,6 +4,9 @@
 
 > Nhóm có 4 người: 3 thành viên làm việc + 1 admin (Sang Phan, không nhận module). Trước đó nhóm được phép làm 3 người (xem [`docs/clarify.md`](docs/clarify.md) #6).
 
+- Repo chung là fork công khai trên GitHub, với cả bốn tài khoản trong bảng có quyền cộng tác. [Repo nhóm](https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi)
+- Lịch sử đến `bffd2e5` ghi nhận ít nhất 3 commit có nội dung cho mỗi người trong ba thành viên phụ trách module. Phần đóng góp của admin cần bổ sung dẫn chứng hoặc xin giảng viên xác nhận cách áp dụng yêu cầu commit.
+
 | Thành viên | GitHub handle | Module chính | Vai quy trình | Người dự phòng cho |
 |---|---|---|---|---|
 | Bùi Thái Sỹ | sybui2004 | `sim/gather` + `sim/quan` lát 4 | Integrator · Scrum/Release | Thành viên 2 |
@@ -91,7 +94,7 @@ Spec chung (DoD, AC-P4-01…19, bảng tác động): [`docs/spec/phase-4/README
 
 ## Thỏa thuận làm việc nhóm (điền trong 15 phút kickoff, ≤ 10 dòng)
 
-- Kênh liên lạc: … (nhóm chat chung)
+- Kênh liên lạc: nhóm chat chung để trao đổi, GitHub PR và [`docs/standup.md`](docs/standup.md) để lưu tiến độ và quyết định.
 - Khi bất đồng về thiết kế: nói 2 phút, không xong thì Integrator (TV1) quyết và ghi lý do vào `docs/adr/`.
 - Khi ai đó trễ hoặc vướng quá 10 phút: báo ngay trong kênh, người dự phòng (cột cuối bảng) nhận việc.
 - Giờ standup giữa phase: phút thứ 30 của mỗi phase, ghi `docs/standup.md`.

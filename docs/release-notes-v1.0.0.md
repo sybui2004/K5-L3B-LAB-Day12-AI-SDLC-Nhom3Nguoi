@@ -24,7 +24,7 @@ python -m chonoi.soak --seed 7 --days 10 --out soak.json
 
 ## Giới hạn đã biết
 
-Bench cần Chrome, Chromium hoặc Edge. FPS phụ thuộc máy và trình duyệt. Các lệnh kiểm thử cần `python` trên PATH. Máy chỉ có `python3` có thể kích hoạt môi trường ảo trước khi chạy test.
+Bench cần Chrome, Chromium hoặc Edge. FPS phụ thuộc máy và trình duyệt. Các lệnh kiểm thử cần `python` trên PATH. Trên Linux hoặc macOS chỉ có `python3`, chạy `python3 -m venv --without-pip .venv` rồi `source .venv/bin/activate` trước khi chạy test.
 
 ## Thành viên
 
