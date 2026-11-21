@@ -1,0 +1,6 @@
+Lệnh: python -m chonoi.headless --mode day --days 3 --seed 1 --ticks 66600
+Quái trong snapshot pha gather theo Ngày:
+  Ngày 1: ['M1']
+  Ngày 2: ['M1']
+  Ngày 3: ['M1', 'M2']
+Kỳ vọng AC-P2-06: M1 từ Ngày 1, M2 chỉ từ Ngày 3 -> ĐẠT

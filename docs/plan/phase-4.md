@@ -19,7 +19,7 @@
 
 | Phút | Giờ | Việc |
 |---|---|---|
-| 0–2 | 2:30–2:32 | Đọc spec, **gật**; PO mở clarify #32–36 (#36 hỏi giảng viên giấy phép) |
+| 0–2 | 2:30–2:32 | Đọc spec, **gật**; PO mở clarify #35–39 (#39 hỏi giảng viên giấy phép) |
 | 2–15 | 2:32–2:45 | Song song A, B, C trên nhánh ngắn; TV3 thử clone sạch bản `main` hiện tại (B1) để lộ lỗi sớm; TV1 nháp CHANGELOG + release notes |
 | **15** | **2:45** | Gộp A → B → C, test xanh mỗi lần; **bật `"1.3"`**; chạy bench + soak trên commit ứng viên, lưu proof |
 | 15–25 | 2:45–2:55 | Retro + members (mỗi người ≤ 200 từ, tự commit); **phút 20 standup** ghi `docs/standup.md`, ai xong sang hỗ trợ; TV3 điền verification, clone sạch lần cuối + zip |
@@ -34,7 +34,7 @@
 - [ ] `docs/members/sybui2004.md`.
 
 ### TV2 (lit1numyt, Khoa) — lát B, E · PO + điều phối retro
-- [ ] Ghi clarify #32–36, hỏi trợ giảng/giảng viên (#36 giấy phép).
+- [ ] Ghi clarify #35–39, hỏi trợ giảng/giảng viên (#39 giấy phép).
 - [ ] `chonoi/soak.py`, `chonoi/sim/bot.py`, `DaySim` chạy > 5 Ngày (CLI headless vẫn 1..5), `tests/test_p4_soak.py` theo [bench-soak.md](../spec/phase-4/bench-soak.md) B.
 - [ ] `docs/retro.md` theo [release-docs.md](../spec/phase-4/release-docs.md) D1; nhắc đủ 4 file members; `docs/members/lit1numyt.md`.
 

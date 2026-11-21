@@ -1,6 +1,6 @@
 # Phase 4 — Lát C: cảnh báo dễ nhận biết + tương phản cao (TV3)
 
-> Phần chung: [README.md](README.md). Chỉ sửa `chonoi/web/index.html` (đọc snapshot, **không chứa luật**). Ngưỡng cảnh báo là quyết định trình bày, đặt hằng số đầu file JS, không đưa vào `tuning` (không đổi contract gameplay). [clarify #32]
+> Phần chung: [README.md](README.md). Chỉ sửa `chonoi/web/index.html` (đọc snapshot, **không chứa luật**). Ngưỡng cảnh báo là quyết định trình bày, đặt hằng số đầu file JS, không đưa vào `tuning` (không đổi contract gameplay). [clarify #35]
 
 ## C1. Ba cảnh báo
 

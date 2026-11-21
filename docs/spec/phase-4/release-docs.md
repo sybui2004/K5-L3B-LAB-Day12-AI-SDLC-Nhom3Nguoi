@@ -25,7 +25,7 @@ cd K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi
 python3 -m chonoi.live --mode gather     # mở địa chỉ in ra
 ```
 - Thử thật trên Linux hoặc macOS (máy thành viên, WSL Ubuntu, hoặc GitHub Codespaces). Lưu log vào `docs/proof/phase-4/clean-clone.txt`: OS, `python3 --version`, 3 lệnh, dòng địa chỉ in ra, ảnh màn hình đầu.
-- Không có máy Linux/macOS ⇒ dùng WSL; ghi rõ môi trường đã thử. [clarify #35]
+- Không có máy Linux/macOS ⇒ dùng WSL; ghi rõ môi trường đã thử. [clarify #38]
 
 ### B2. Bản đóng gói
 - `git archive --format=zip --prefix=chonoi-v1.0.0/ -o chonoi-v1.0.0.zip <commit-tag>` (chỉ file trong git, không kèm `handoff/`, worktree, file tạm).
@@ -47,7 +47,7 @@ Thêm/sửa các mục (giữ nội dung lab gốc phía trên, thêm phần c�
   - `## [phase-3]` breaking v1.2 (bản nháp ở spec phase-3 README mục 5).
   - `## [phase-2]` v1.1: 6 nguyên liệu, cá bơi/sinh, Cá Sấu, Máu/ngất, 2 bếp/4 bàn/6 món, day/Shop, pause.
   - `## [phase-1]` PRD-0: gather + quan, headless, live.
-- `LICENSE`: đề xuất MIT cho code nhóm; giữ ghi chú khung starter thuộc giảng viên. **Chờ PO hỏi giảng viên giấy phép của starter** [clarify #36]. Nếu chưa có trả lời trước 2:55 ⇒ MIT kèm câu "Khung starter © giảng viên khóa học, dùng theo điều kiện của lab".
+- `LICENSE`: đề xuất MIT cho code nhóm; giữ ghi chú khung starter thuộc giảng viên. **Chờ PO hỏi giảng viên giấy phép của starter** [clarify #39]. Nếu chưa có trả lời trước 2:55 ⇒ MIT kèm câu "Khung starter © giảng viên khóa học, dùng theo điều kiện của lab".
 - `CREDITS.md`: không có asset ngoài (vẽ bằng canvas, âm thanh Web Audio tự sinh — kiểm lại `creative.js`); liệt kê công cụ AI (Claude Code/Opus 5.5, DeepSeek, Gemini/agy — theo `docs/ai-usage-log.md`); nhân vật Bến Tre là hư cấu của nhóm.
 
 ## C. Tag + Release (TV1, Release/Integrator)
@@ -73,4 +73,4 @@ Bốn file: `sybui2004.md`, `lit1numyt.md`, `hgmdz1210.md`, `sangdaden.md`. Mỗ
 Bảng AC-P4-01…19 → cách kiểm → bằng chứng → kết quả trên commit tag (khung đã tạo sẵn). Thêm dòng regression P1–P3 (`unittest.txt`).
 
 ### D4. `docs/clarify.md`, `docs/ai-usage-log.md`
-Mỗi người thêm dòng Phase 4 của mình vào ai-usage-log; PO chốt #32–#36.
+Mỗi người thêm dòng Phase 4 của mình vào ai-usage-log; PO chốt #35–#39.

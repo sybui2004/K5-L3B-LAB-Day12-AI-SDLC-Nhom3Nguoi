@@ -40,7 +40,7 @@ python -m chonoi.bench --seed 42 --duration 30 --out bench.json [--warmup 3] [--
 ### A4. Bằng chứng
 - `docs/proof/phase-4/bench.json` chạy trên commit tag + `bench-run.txt` (lệnh, OS, trình duyệt + phiên bản).
 - Mốc báo cáo (không chấm đạt/trượt): avg ≥ 60, 1% low ≥ 30, load ≤ 10 000 ms — ghi đạt/không vào verification.
-- Chrome headless có thể khóa rAF theo 60 Hz ⇒ `avg_fps` ≈ 60 là bình thường. [clarify #33]
+- Chrome headless có thể khóa rAF theo 60 Hz ⇒ `avg_fps` ≈ 60 là bình thường. [clarify #36]
 
 ## B. `soak_cmd` — `python -m chonoi.soak` (TV2)
 
@@ -53,7 +53,7 @@ python -m chonoi.soak --seed 7 --days 10 --out soak.json
 ### B2. Chạy
 - Một tiến trình, một `Streams(seed)`, một `IdAllocator`, **một** `DaySim(tuning, scenario=None, streams, ids, days=N)`.
 - `chonoi/sim/day.py`: giữ `validate_days` (1..5) cho CLI headless, nhưng `DaySim` không tự chặn N > 5. Ngày `d` dùng `day_plan[(d - 1) % len(day_plan)]`. Tiền, tổng thu, uy tín, cấp nâng cấp, `days_completed`, id cá thể **không reset** giữa các Ngày (đã theo hợp đồng P2/P3 — chỉ cần kiểm).
-- Vòng: `while sim.reason is None: events = sim.step(bot.next(sim.snapshot()))`; gặp `shop_end` ⇒ thêm `{"day": d, "earned": sim.earned, "reputation": round(sim.reputation, 3), "score": <như runner._common>}` vào `results`. Dùng **giá trị lũy kế** của lượt (giống snapshot). [clarify #34]
+- Vòng: `while sim.reason is None: events = sim.step(bot.next(sim.snapshot()))`; gặp `shop_end` ⇒ thêm `{"day": d, "earned": sim.earned, "reputation": round(sim.reputation, 3), "score": <như runner._common>}` vào `results`. Dùng **giá trị lũy kế** của lượt (giống snapshot). [clarify #37]
 - Bọc vòng bằng `try/except Exception`: lỗi ⇒ `crashes = 1`, dừng, vẫn ghi `soak.json` với `days_completed` tới lúc đó, in traceback ra stderr, thoát 1. Không lỗi ⇒ thoát 0.
 - `duration_s` = thời gian thực toàn lượt (làm tròn 3) — trường duy nhất được phép khác giữa hai lần chạy.
 - Giới hạn tick an toàn: `days × (gather + quan + shop.max_ticks + 10)` tick; vượt ⇒ coi là crash (ghi lý do `stuck` ra stderr).

@@ -80,7 +80,7 @@ Spec chung (DoD, AC-P4-01…19, bảng tác động): [`docs/spec/phase-4/README
 
 ### Thành viên 2 (lit1numyt) — soak + retro · PO, điều phối retro
 - `soak_cmd` 10 Ngày, bot tất định. Spec: [`bench-soak.md`](docs/spec/phase-4/bench-soak.md) mục B
-- Clarify #32–36, `docs/retro.md`, nhắc đủ `docs/members/`.
+- Clarify #35–39, `docs/retro.md`, nhắc đủ `docs/members/`.
 
 ### Thành viên 3 (hgmdz1210) — cảnh báo + tương phản cao + đóng gói · Bench/QA
 - Ba cảnh báo, chế độ tương phản cao. Spec: [`alerts-ui.md`](docs/spec/phase-4/alerts-ui.md)

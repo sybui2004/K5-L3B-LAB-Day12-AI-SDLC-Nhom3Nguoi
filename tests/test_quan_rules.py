@@ -11,7 +11,7 @@ import math
 import os
 import unittest
 
-from helpers import ROOT, Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import reserved_counts, stock_counts, ROOT, Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     TUNING = json.load(_f)["tuning"]
@@ -136,7 +136,7 @@ class Customers(unittest.TestCase):
                     _, snaps = run_quan(w, {"stock": stock}, ticks=Q["first_customer_tick"], seed=seed)
                     c = snaps[Q["first_customer_tick"]]["customers"][0]
                     self.assertIn(c["dish_id"], allowed)
-                    self.assertEqual(c["reserved"], MENU[c["dish_id"]]["recipe"])
+                    self.assertEqual(reserved_counts(snaps[Q["first_customer_tick"]], c), MENU[c["dish_id"]]["recipe"])  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
                     self.assertEqual(c["state"], "waiting")
                     self.assertEqual(c["patience_ticks_left"], PATIENCE_MAX)
 
@@ -151,7 +151,7 @@ class Customers(unittest.TestCase):
             self.assertTrue(close(snaps[5]["reputation"], Q["reputation_initial"] + Q["left_reputation_delta"], 1e-6))
             self.assertEqual(snaps[5]["customers"], [])
             self.assertIsNone(snaps[5]["tables"][0]["customer_id"])
-            self.assertEqual(snaps[5]["stock"], {"ca_loc": 1}, "bỏ đi không được trừ kho")
+            self.assertEqual(stock_counts(snaps[5]["stock"]), {"ca_loc": 1}, "bỏ đi không được trừ kho")  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
 
     def test_ac_q_04_reservation_released_for_next_customer(self):
         with Workdir() as w:
@@ -247,7 +247,7 @@ class Kitchen(NeedsSlice4):
             self.assertEqual(len(started), 1)
             assert_fields(self, started[0]["data"], dish=DISH, stove_id=STOVE["id"])
             self.assertEqual(snaps[started[0]["tick"]]["stoves"][0]["state"], "cooking")
-            self.assertEqual(snaps[started[0]["tick"]]["stock"], {}, "nấu phải trừ nguyên liệu")
+            self.assertEqual(snaps[started[0]["tick"]]["stock"], [], "nấu phải trừ nguyên liệu")  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
             self.assertEqual(len(ready), 1)
             self.assertEqual(ready[0]["tick"] - started[0]["tick"], cook_ticks)
             assert_fields(self, ready[0]["data"], dish=DISH, stove_id=STOVE["id"])
@@ -291,6 +291,10 @@ class ServiceAndMoney(NeedsSlice4):
             self.assertEqual(snaps[served[0]["tick"]]["customers"][0]["state"], "eating")
             self.assertEqual(len(paid), 1)
             self.assertEqual(paid[0]["tick"] - served[0]["tick"], EAT_TICKS)
+            # Đổi test (TICKET-03): giá chốt theo độ tươi lúc nấu -> dùng giá trong `served`, boa = floor(giá × 0.2)
+            price = served[0]["data"]["price"]
+            tip = math.floor(price * Q["tip_rate"])
+            self.assertLessEqual(price, MENU[DISH]["price"])
             assert_fields(self, paid[0]["data"], customer_id="C1", amount=price + tip, tip=tip)
             last = snaps[max(snaps)]
             self.assertEqual(last["money"], price + tip)
@@ -322,7 +326,8 @@ class ServiceAndMoney(NeedsSlice4):
             paid = events(rows, "paid")
             self.assertEqual(len(paid), 1, events(rows))
             self.assertEqual(paid[0]["data"]["tip"], 0)
-            self.assertEqual(paid[0]["data"]["amount"], price)
+            self.assertEqual(paid[0]["data"]["amount"], paid[0]["data"]["price"])  # Đổi test (TICKET-03): giá theo tươi
+            self.assertLessEqual(paid[0]["data"]["price"], price)
             self.assertTrue(close(snaps[max(snaps)]["reputation"], Q["reputation_initial"], 1e-6))
 
     def _overlap_block(self, player_x):

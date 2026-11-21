@@ -9,7 +9,7 @@ import math
 import os
 import unittest
 
-from helpers import ROOT, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import ROOT, Workdir, stock_counts, events, frames, read_jsonl, run_headless, snapshots, write_json
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     T = json.load(_f)["tuning"]
@@ -75,12 +75,13 @@ class Stove(unittest.TestCase):
             code, err, rows = run(w, block, n + 2)
             self.assertEqual(code, 0, err)
             cs = events(rows, "cook_started")
-            self.assertEqual([(e["tick"], e["data"]) for e in cs],
+            self.assertEqual([(e["tick"], {k: e["data"][k] for k in ("stove_id", "order_id", "dish_id")}) for e in cs],
                              [(1, {"stove_id": "B1", "order_id": "C1", "dish_id": "goi_bong_sung"})])
+            self.assertEqual([it["kind"] for it in cs[0]["data"]["items"]], ["bong_sung", "bong_sung"])  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
             self.assertEqual(events(rows, "dish_ready")[0]["tick"], 1 + n)
             last = snapshots(rows)[-1]
-            self.assertEqual(last["stock"], {})                       # đã trừ kho
-            self.assertEqual(last["customers"][0]["reserved"], {})
+            self.assertEqual(last["stock"], [])                       # đã tiêu đúng các cá thể giữ chỗ
+            self.assertEqual(last["customers"][0]["reserved"], [])
             self.assertEqual(last["customers"][0]["order_status"], "ready")
             self.assertEqual(last["stoves"][0]["state"], "ready")
 
@@ -107,7 +108,8 @@ class Stove(unittest.TestCase):
             code, err, rows = run(w, {"player": {"pos": NEAR_B1}, "stoves": [ready]}, 2)
             self.assertEqual(code, 0, err)
             self.assertEqual(events(rows, "dish_picked")[0]["data"],
-                             {"stove_id": "B1", "order_id": None, "dish_id": "goi_bong_sung"})
+                             {"stove_id": "B1", "order_id": None, "dish_id": "goi_bong_sung",
+                              "base_price": MENU["goi_bong_sung"]["price"]})  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể (dish_picked thêm base_price)
             last = snapshots(rows)[-1]
             self.assertEqual(last["hand"], "goi_bong_sung")
             self.assertEqual(last["stoves"][0]["state"], "idle")
@@ -155,11 +157,11 @@ class Serve(unittest.TestCase):
     def test_ac_q_10_tip_threshold_half_patience(self):
         half = int(Q["tip_min_patience_ratio"] * PATIENCE)
         with Workdir() as w:
-            # kiên nhẫn giảm 1 trước interact trong cùng bước -> half+1 còn đúng half lúc giao
-            code, err, rows = self.serve(w, half + 1, ticks=2)
+            # Đổi test (TICKET-03 thứ tự tick): giao TRƯỚC khi trừ kiên nhẫn của bước -> đúng half lúc giao vẫn boa
+            code, err, rows = self.serve(w, half, ticks=2)
             self.assertEqual(code, 0, err)
             self.assertGreater(events(rows, "served")[0]["data"]["tip"], 0)
-            code, err, rows = self.serve(w, half, ticks=EAT + 2)
+            code, err, rows = self.serve(w, half - 1, ticks=EAT + 2)
             self.assertEqual(code, 0, err)
             self.assertEqual(events(rows, "served")[0]["data"]["tip"], 0)
             self.assertEqual(snapshots(rows)[-1]["reputation"], Q["reputation_initial"])  # không boa -> không +uy tín
@@ -178,8 +180,8 @@ class Serve(unittest.TestCase):
             code, err, rows = run(w, block, 2)
             self.assertEqual(code, 0, err)
             last = snapshots(rows)[-1]
-            self.assertEqual(last["customers"][0]["reserved"], {})
-            self.assertEqual(last["stock"], {"bong_sung": 2})  # chưa nấu thì không trừ kho
+            self.assertEqual(last["customers"][0]["reserved"], [])
+            self.assertEqual(stock_counts(last["stock"]), {"bong_sung": 2})  # chưa nấu thì không trừ kho  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
 
 
 class CloseShift(unittest.TestCase):
@@ -208,7 +210,7 @@ class CloseShift(unittest.TestCase):
             self.assertEqual(last["customers"], [])
             self.assertEqual(last["hand"], None)
             self.assertTrue(all(s["state"] == "idle" and s["dish"] is None for s in last["stoves"]))
-            self.assertEqual(last["stock"], {"ca_loc": 1})  # phần giữ được nhả, không mất
+            self.assertEqual(stock_counts(last["stock"]), {"ca_loc": 1})  # phần giữ được nhả, không mất  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
             self.assertEqual(end["data"]["money"], last["money"])
 
 

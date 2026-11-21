@@ -8,7 +8,7 @@ import json
 import os
 import unittest
 
-from helpers import (Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json)
+from helpers import (stock_counts, Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json)
 
 
 def last_pos(rows):
@@ -217,7 +217,8 @@ class Integration(unittest.TestCase):
             code, err = run_headless("--mode", "quan", "--seed", "42", "--ticks", "0", "--inventory", inv,
                                      "--out", w.path("q.jsonl"))
             self.assertEqual(code, 0, err)
-            self.assertEqual(snapshots(read_jsonl(w.path("q.jsonl")))[0]["stock"], {"bong_sung": 2, "ca_loc": 1})
+            stock = snapshots(read_jsonl(w.path("q.jsonl")))[0]["stock"]  # Đổi test (TICKET-03): kho quán là cá thể
+            self.assertEqual(stock_counts(stock), {"bong_sung": 2, "ca_loc": 1})
 
     def test_inv_01_not_written_when_tick_limit_first(self):
         with Workdir() as w:
