@@ -133,12 +133,14 @@ def _recoil_step(monster, species) -> None:
         monster["pos"][1] += d[1] / norm * dist
 
 
-def step_monsters(monsters, player_pos, g_tuning, tick_hz) -> None:
+def step_monsters(monsters, player_pos, g_tuning, tick_hz) -> set:
     """B2: một bước di chuyển cho từng quái, theo thứ tự id, rồi chặn biên.
 
     patrol: đi tới waypoint đích; chase: bơi về phía người chơi; recoil: lùi theo
-    `recoil_dir`. Chuyển trạng thái xét SAU khi di chuyển (dùng vị trí cuối bước).
+    `recoil_dir`. Chuyển trạng thái xét sau khi di chuyển. Trả id quái đã
+    lùi trong bước này để loại khỏi xét chạm, kể cả bước lùi cuối.
     """
+    recoiling = set()
     for m in sort_by_id(monsters):
         species = _species(m, g_tuning)
         state = m.get("state", "patrol")
@@ -155,6 +157,7 @@ def step_monsters(monsters, player_pos, g_tuning, tick_hz) -> None:
                 m["state"] = "patrol"
                 m["state_ticks_left"] = 0
         elif state == "recoil":
+            recoiling.add(m["id"])
             left = int(m.get("state_ticks_left", 0))
             if left > 0:
                 _recoil_step(m, species)
@@ -171,8 +174,10 @@ def step_monsters(monsters, player_pos, g_tuning, tick_hz) -> None:
             if left == 0:
                 m["state"] = "patrol"
 
+    return recoiling
 
-def pick_hit(monsters, player_pos, invuln_ticks, g_tuning) -> Optional[dict]:
+
+def pick_hit(monsters, player_pos, invuln_ticks, g_tuning, recoiling) -> Optional[dict]:
     """B3: chọn tối đa MỘT quái chạm người chơi — gần nhất, hòa theo id.
 
     Ứng viên: không ở recoil, người chơi d ≥ depths[0] của loài, cách ≤ hit_radius.
@@ -182,7 +187,7 @@ def pick_hit(monsters, player_pos, invuln_ticks, g_tuning) -> Optional[dict]:
         return None
     best, best_d = None, None
     for m in sort_by_id(monsters):
-        if m.get("state") == "recoil":
+        if m["id"] in recoiling:
             continue
         species = _species(m, g_tuning)
         if player_pos[1] < species["depths"][0]:
@@ -216,7 +221,7 @@ def drop_lifo(hold_list, count_carried, loss_ratio) -> tuple:
     n = int(math.floor(count_carried * loss_ratio))
     if n <= 0:
         return list(hold_list), []
-    return list(hold_list[:-n]), list(hold_list[-n:])
+    return list(hold_list[:-n]), list(reversed(hold_list[-n:]))
 
 
 def _round3(v) -> float:

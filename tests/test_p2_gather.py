@@ -328,55 +328,68 @@ class TestP2Gather(unittest.TestCase):
             self.assertNotIn("M2", monster_ids, "M2 chỉ xuất hiện từ Ngày 3")
 
     def test_ac_p2_07_monster_hit_and_recoil(self):
-        """AC-P2-07: Chạm: -1 Máu, rơi floor(n/2) LIFO, bất tử 90, recoil 60 bước x 2/60 m; monster_hit.
-
-        Spec B3 & C: giỏ 5 món => mất 2 món cuối; 90 tick sau mới hit lại được.
-        """
-        t = g()
-        m_cfg = t["monsters"]
-        loss_ratio = m_cfg["loss_ratio"]
-        invuln_ticks = m_cfg["invuln_ticks"]
-
+        cfg = g()["monsters"]
+        species = cfg["species"]["ca_sau"]
         initial_hold = ["ca_loc", "bong_dien_dien", "ca_linh", "ca_keo", "bong_sung"]
-        drop_count = math.floor(len(initial_hold) * loss_ratio)  # floor(5 * 0.5) = 2
-        expected_remaining = initial_hold[:-drop_count]  # ["ca_loc", "bong_dien_dien", "ca_linh"]
-
-        with Workdir() as w:
-            # Người chơi ở d >= 10, quái ở khoảng cách <= hit_radius (1.5)
-            block = {
-                "player": {"pos": [60.0, 20.0], "hp": 3, "invuln_ticks": 0},
-                "hold": list(initial_hold),
-                "random_fish": False,
-                "monsters": [{
-                    "id": "M1",
-                    "kind": "ca_sau",
-                    "pos": [60.0, 20.5],
-                    "waypoints": [[60.0, 20.5], [64.0, 20.5]],
-                    "target_idx": 1,
-                    "state": "patrol",
-                }],
+        drop_count = math.floor(len(initial_hold) * cfg["loss_ratio"])
+        monsters = [
+            {
+                "id": mid,
+                "kind": "ca_sau",
+                "pos": [60.0, 20.5],
+                "waypoints": [[60.0, 20.5], [60.0, 20.5]],
+                "state": "chase",
             }
+            for mid in ("M1", "M2")
+        ]
+        block = {
+            "player": {"pos": [60.0, 20.0], "hp": 3},
+            "hold": initial_hold,
+            "random_fish": False,
+            "monsters": monsters,
+        }
+        next_hit_tick = 1 + cfg["invuln_ticks"]
+        with Workdir() as w:
+            rows = run(w, block, ticks=next_hit_tick)
+
+        hits = events(rows, "monster_hit")
+        self.assertEqual(
+            [(row["tick"], row["data"]["monster_id"]) for row in hits],
+            [(1, "M1"), (next_hit_tick, "M2")],
+        )
+        self.assertEqual(hits[0]["data"]["hp"], 2)
+        self.assertEqual(hits[0]["data"]["lost"], initial_hold[-drop_count:][::-1])
+        by_tick = {row["tick"]: row for row in snapshots(rows)}
+        after_hit = by_tick[1]
+        self.assertEqual(after_hit["hold"], initial_hold[:-drop_count])
+        self.assertEqual(after_hit["player"]["invuln_ticks"], cfg["invuln_ticks"])
+
+        recoil_start = after_hit["monsters"][0]
+        self.assertEqual(recoil_start["state"], "recoil")
+        self.assertEqual(recoil_start["recoil_dir"], [0.0, 1.0])
+        self.assertEqual(recoil_start["state_ticks_left"], species["recoil_ticks"])
+        recoil_end = by_tick[1 + species["recoil_ticks"]]["monsters"][0]
+        self.assertEqual(recoil_end["state"], "patrol")
+        self.assertAlmostEqual(dist(recoil_start["pos"], recoil_end["pos"]),
+                               species["recoil_dist"], places=3)
+
+    def test_ac_p2_07_last_recoil_step_cannot_hit(self):
+        block = {
+            "player": {"pos": [60.0, 20.0], "hp": 3},
+            "random_fish": False,
+            "monsters": [{
+                "id": "M1",
+                "kind": "ca_sau",
+                "pos": [60.0, 20.5],
+                "waypoints": [[60.0, 20.5], [60.0, 20.5]],
+                "state": "recoil",
+                "state_ticks_left": 1,
+                "recoil_dir": [0.0, 1.0],
+            }],
+        }
+        with Workdir() as w:
             rows = run(w, block, ticks=2)
-
-            ev_hit = events(rows, "monster_hit")
-            self.assertEqual(len(ev_hit), 1, "Phải phát đúng một sự kiện monster_hit")
-            hit_data = ev_hit[0]["data"]
-            self.assertEqual(hit_data["monster_id"], "M1")
-            self.assertEqual(hit_data["hp"], 2)
-
-            # 2 món rơi theo LIFO là 2 món cuối cùng trong giỏ
-            self.assertEqual(len(hit_data["lost"]), drop_count)
-            self.assertEqual(set(hit_data["lost"]), set(initial_hold[-drop_count:]))
-
-            # Snapshot sau khi hit
-            s_end = snapshots(rows)[-1]
-            self.assertEqual(s_end["player"]["hp"], 2)
-            self.assertEqual(s_end["hold"], expected_remaining)
-            self.assertGreater(s_end["player"]["invuln_ticks"], 0, "Người chơi phải có thời gian bất tử")
-
-            # Quái M1 vào trạng thái recoil
-            m1 = [m for m in s_end["monsters"] if m["id"] == "M1"][0]
-            self.assertEqual(m1["state"], "recoil")
+        self.assertEqual([row["tick"] for row in events(rows, "monster_hit")], [2])
 
     def test_ac_p2_08_monster_faint_and_choke(self):
         """AC-P2-08: Ngất do quái: faint{cause:"monster"}, mất giỏ, gather_end(fainted) ngay; ngạt xuyên bất tử.

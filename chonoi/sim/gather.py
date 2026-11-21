@@ -141,10 +141,9 @@ class GatherSim:
         # 2b. oxy theo d CUỐI bước, ngạt, Máu
         if self._oxygen(now_surface, events):
             return events
-        # 3. quái theo id (mục B — lát 2, chưa nối monsters.py)
-        #    ĐÃ NỐI monsters.py (lát 2): cập nhật theo id, xét tối đa MỘT hit.
-        step_monsters(self.monsters, self.pos, self.t, TICK)
-        hit = pick_hit(self.monsters, self.pos, self.invuln_ticks, self.t)
+        # 3. Cập nhật quái theo id và xét tối đa một hit.
+        recoiling = step_monsters(self.monsters, self.pos, self.t, TICK)
+        hit = pick_hit(self.monsters, self.pos, self.invuln_ticks, self.t, recoiling)
         if hit is not None:
             basket = list(self.hold)  # giỏ lúc chạm (dùng cho lost của faint nếu ngất)
             self.hp = max(0, self.hp - 1)
