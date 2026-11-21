@@ -161,3 +161,83 @@ def _validate_quan(b, tuning):
             raise BadInput(f"customers.{c['id']}: table_id phải là bàn có thật")
     if len(table_ids) != len(set(table_ids)):
         raise BadInput("hai khách cùng bàn")
+    _validate_quan_rules(b, tuning)
+
+
+QUAN_CUSTOMER_KEYS = {"id", "table_id", "dish_id", "state", "patience_ticks_left", "reserved",
+                      "eat_ticks_left", "price", "tip"}
+QUAN_STOVE_KEYS = {"id", "pos", "state", "dish", "cook_ticks_left", "ready_ticks"}
+
+
+def _validate_quan_rules(b, tuning):
+    """Mâu thuẫn mức luật của quan (TV2, spec quan.md mục A4). Tổng giữ chỗ > kho kiểm ở QuanSim
+    (vì kho có thể đến từ --inventory)."""
+    q, menu = tuning["quan"], tuning["menu"]
+    patience_max = int(round(q["patience_s"] * 60))
+    eat_max = int(round(q["eat_s"] * 60))
+    if "random_customers" in b and not isinstance(b["random_customers"], bool):
+        raise BadInput("random_customers phải là boolean")
+    if "reputation" in b:
+        r = b["reputation"]
+        if not _num(r) or not (q["reputation_min"] <= r <= q["reputation_max"]):
+            raise BadInput(f"reputation phải là số trong [{q['reputation_min']}, {q['reputation_max']}]")
+    if "hand" in b and b["hand"] is not None and b["hand"] not in menu:
+        raise BadInput("hand phải là null hoặc id món trong menu")
+    for c in b.get("customers", []):
+        cid = c["id"]
+        extra = set(c) - QUAN_CUSTOMER_KEYS
+        if extra:
+            raise BadInput(f"customers.{cid}: trường lạ/chưa hỗ trợ {sorted(extra)}")
+        dish = c.get("dish_id")
+        if dish not in menu:
+            raise BadInput(f"customers.{cid}: dish_id phải là món trong menu")
+        state = c.get("state", "waiting")
+        if state not in ("waiting", "eating"):
+            raise BadInput(f"customers.{cid}: state phải là waiting hoặc eating")
+        if "patience_ticks_left" in c:
+            _nonneg_int(f"customers.{cid}.patience_ticks_left", c["patience_ticks_left"])
+            lo = 1 if state == "waiting" else 0
+            if not (lo <= c["patience_ticks_left"] <= patience_max):
+                raise BadInput(f"customers.{cid}: patience_ticks_left phải trong [{lo}, {patience_max}]")
+        if "reserved" in c:
+            res = c["reserved"]
+            if not isinstance(res, dict):
+                raise BadInput(f"customers.{cid}: reserved phải là object")
+            res = validate_items(res)
+            if state == "eating" and res:
+                raise BadInput(f"customers.{cid}: khách eating không còn giữ chỗ")
+            if state == "waiting" and res and res != menu[dish]["recipe"]:
+                raise BadInput(f"customers.{cid}: reserved phải đúng recipe của {dish} (hoặc rỗng nếu đã nấu)")
+        if state == "eating":
+            for key in ("price", "tip"):
+                if key not in c:
+                    raise BadInput(f"customers.{cid}: khách eating thiếu {key}")
+                _nonneg_int(f"customers.{cid}.{key}", c[key])
+            if "eat_ticks_left" in c:
+                _nonneg_int(f"customers.{cid}.eat_ticks_left", c["eat_ticks_left"])
+                if not (1 <= c["eat_ticks_left"] <= eat_max):
+                    raise BadInput(f"customers.{cid}: eat_ticks_left phải trong [1, {eat_max}]")
+        else:
+            for key in ("price", "tip", "eat_ticks_left"):
+                if key in c:
+                    raise BadInput(f"customers.{cid}: khách waiting không có {key}")
+    for s in b.get("stoves", []):
+        sid = s["id"]
+        extra = set(s) - QUAN_STOVE_KEYS
+        if extra:
+            raise BadInput(f"stoves.{sid}: trường lạ/chưa hỗ trợ {sorted(extra)}")
+        state = s.get("state", "idle")
+        if state not in ("idle", "cooking", "ready"):
+            raise BadInput(f"stoves.{sid}: state phải là idle, cooking hoặc ready")
+        dish = s.get("dish")
+        if state == "idle" and dish is not None:
+            raise BadInput(f"stoves.{sid}: bếp idle không có món")
+        if state != "idle" and dish not in menu:
+            raise BadInput(f"stoves.{sid}: bếp {state} phải có dish trong menu")
+        for key in ("cook_ticks_left", "ready_ticks"):
+            if key in s:
+                _nonneg_int(f"stoves.{sid}.{key}", s[key])
+        if state == "cooking":
+            cook_max = int(round(menu[dish]["cook_s"] * 60))
+            if not (1 <= s.get("cook_ticks_left", 0) <= cook_max):
+                raise BadInput(f"stoves.{sid}: cook_ticks_left phải trong [1, {cook_max}]")

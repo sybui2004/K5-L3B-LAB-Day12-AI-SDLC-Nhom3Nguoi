@@ -11,6 +11,7 @@
 </head>
 <body>
 <canvas id="c"></canvas>
+<script>if (/[?&]creative=1(&|$)/.test(location.search)) document.write('<script src="/creative.js"><\/script>');</script>
 <script>
 "use strict";
 /*
@@ -77,6 +78,7 @@ async function poll() {
     snap = await r.json();
     offline = false;
     collectToasts();
+    if (window.CREATIVE) window.CREATIVE.onSnap(snap);   // lớp sáng tạo (chỉ có khi ?creative=1)
   } catch (e) { offline = true; }
   setTimeout(poll, 16);
 }
@@ -344,6 +346,7 @@ function frame() {
     eventLog(w, h);
     overlay(w, h);
     drawToasts(w);
+    if (window.CREATIVE) window.CREATIVE.draw(ctx, w, h, snap);
   } else {
     text(offline ? "Không kết nối được máy chủ…" : "Đang tải…", w / 2, h / 2, { align: "center", size: 18 });
   }
