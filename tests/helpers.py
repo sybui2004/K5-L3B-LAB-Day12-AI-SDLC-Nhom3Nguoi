@@ -65,3 +65,19 @@ class Workdir:
 
     def path(self, name):
         return os.path.join(self._d.name, name)
+
+
+def stock_counts(stock):
+    """v1.2: kho là mảng cá thể -> đếm theo kind (để giữ ý nghĩa test v1.1 về số lượng)."""
+    if isinstance(stock, dict):
+        return stock
+    out = {}
+    for it in stock:
+        out[it["kind"]] = out.get(it["kind"], 0) + 1
+    return {k: out[k] for k in sorted(out)}
+
+
+def reserved_counts(snap, customer):
+    """v1.2: customers[].reserved là mảng id cá thể -> đếm theo kind, tra kind trong snapshot stock."""
+    kinds = {it["id"]: it["kind"] for it in snap["stock"]}
+    return stock_counts([{"kind": kinds[i]} for i in customer["reserved"]])
