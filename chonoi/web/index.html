@@ -88,7 +88,7 @@ poll();
 const KIND_COLOR = { ca_loc: "#7c9a52", ca_linh: "#d6e6f2", ca_keo: "#d9a066", bong_dien_dien: "#f2c230", bong_sung: "#e8799c", keo_neo: "#8fcf6b" };
 const KIND_NAME = { ca_loc: "cá lóc", ca_linh: "cá linh", ca_keo: "cá kèo", bong_dien_dien: "điên điển", bong_sung: "bông súng", keo_neo: "kèo nèo" };
 const kc = (k) => KIND_COLOR[k] || "#bbbbbb";
-const DISH_NAME = { ca_loc_nuong_trui: "cá lóc nướng trui", goi_bong_sung: "gỏi bông súng", lau_ca_linh_dien_dien: "lẩu cá linh điên điển" };
+const DISH_NAME = { ca_loc_nuong_trui: "cá lóc nướng trui", goi_bong_sung: "gỏi bông súng", lau_ca_linh_dien_dien: "lẩu cá linh điên điển", canh_chua_ca_loc: "canh chua cá lóc", ca_keo_nuong: "cá kèo nướng", lau_mam: "lẩu mắm" };
 const dishName = (d) => DISH_NAME[d] || d || "món";
 const kindName = (k) => KIND_NAME[k] || k || "";
 
@@ -107,7 +107,7 @@ const TOAST = {
   dish_ready: (d) => [`${dishName(d.dish ?? d.dish_id)} đã chín`, "good"],
   served: (d) => [`Đã phục vụ ${dishName(d.dish ?? d.dish_id)}`, "good"],
   paid: (d) => [`Khách trả ${d.amount ?? 0}k` + (d.tip ? ` (boa ${d.tip}k)` : ""), "good"],
-  customer_left: () => ["Khách bỏ đi, uy tín giảm", "bad"],
+  customer_left: (d) => (d.reason === "closing" ? ["Đóng ca, khách ra về", "info"] : ["Khách bỏ đi, uy tín giảm", "bad"]),
   no_dish: () => ["Kho không đủ nấu món nào", "warn"],
   quan_end: (d) => [`Hết ca: kiếm được ${d.earned ?? 0}k`, "info"],
 };
