@@ -1,7 +1,7 @@
 # Spec `client/ui` — Cửa sổ chơi trên trình duyệt
 
 **Chủ:** Thành viên 3 · **File:** `chonoi/web/index.html` (+ `chonoi/live.py` chỉ khi thật cần, báo cả nhóm vì là file khung) · **Plan:** [../../plan/phase-1/ui-qa.md](../../plan/phase-1/ui-qa.md)
-**Chạy:** `python3 -m chonoi.live --mode gather|quan [--seed N] [--inventory-out kho.json | --inventory kho.json]` → mở địa chỉ in ra. Phím: WASD/mũi tên, **E** = `interact`, **Space** = `catch`, **R** = chơi lại.
+**Chạy:** `python -m chonoi.live --mode gather|quan [--seed N] [--inventory-out kho.json | --inventory kho.json]` → mở địa chỉ in ra. Phím: WASD/mũi tên, **E** = `interact`, **Space** = `catch`, **R** = chơi lại.
 
 ## Nguyên tắc
 - UI chạy **cùng lớp sim** với headless; UI chỉ đọc snapshot (`GET` state) và gửi input (`POST`), không chứa luật.

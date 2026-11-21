@@ -16,15 +16,15 @@ Kế hoạch tổng (mốc giờ, phụ thuộc, rủi ro): [`docs/plan/phase-1.
 
 ## 1. Định nghĩa xong (Definition of Done) của Phase 1
 
-1. `PYTHONPATH=tests:. python3 -m unittest discover -s tests -v` xanh trên nhánh chính.
-2. `python3 -m chonoi.headless --mode gather --seed 1 --ticks 600 --out out.jsonl` và `--mode quan` chạy, mã thoát 0; cùng seed chạy 2 lần cho file giống từng byte.
+1. `PYTHONPATH=tests:. python -m unittest discover -s tests -v` xanh trên nhánh chính.
+2. `python -m chonoi.headless --mode gather --seed 1 --ticks 600 --out out.jsonl` và `--mode quan` chạy, mã thoát 0; cùng seed chạy 2 lần cho file giống từng byte.
 3. Luồng `gather --inventory-out kho.json` → `quan --inventory kho.json` chạy thông.
 4. `TEAM.md`, `docs/plan/phase-1.md`, `docs/verification/phase-1.md`, `docs/clarify.md`, `docs/ai-usage-log.md` đã điền; mỗi người ≥ 1 commit có nội dung trong phase này.
 5. Tag `phase-1` gắn trước mốc **1:00**; chỗ chưa xong ghi trung thực trong `docs/verification/phase-1.md`.
 
 ## 2. Test Contract v1.0 (khung đã lo, KHÔNG được làm vỡ)
 
-- CLI: `python3 -m chonoi.headless --mode gather|quan --seed N --ticks N --out f.jsonl [--inputs i.json] [--scenario s.json] [--inventory kho.json | --inventory-out kho.json]`.
+- CLI: `python -m chonoi.headless --mode gather|quan --seed N --ticks N --out f.jsonl [--inputs i.json] [--scenario s.json] [--inventory kho.json | --inventory-out kho.json]`.
 - Mã thoát: 0 chạy xong; 2 đầu vào sai (inputs/scenario/kho sai schema, mâu thuẫn); 1 lỗi khác.
 - JSONL theo thứ tự: snapshot tick 0 → mỗi bước: các `event` (theo thứ tự xử lý) rồi snapshot (nếu tới lượt hoặc buổi kết thúc) → dòng `end`. Số làm tròn 3 chữ số, id sắp bằng `ids.sort_by_id`.
 - Dòng event: `{"type":"event","tick":k+1,"phase":...,"name":...,"data":{...}}` — luật chỉ trả `(name, data)` từ `step()`.

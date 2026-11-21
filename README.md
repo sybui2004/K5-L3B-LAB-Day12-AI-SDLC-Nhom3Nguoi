@@ -17,11 +17,11 @@ Cách làm việc kỹ thuật là **tự do** (push thẳng, nhánh + PR, pair,
 
 ```bash
 git clone <fork-của-nhóm> && cd <fork-của-nhóm>
-PYTHONPATH=tests:. python3 -m unittest discover -s tests -v        # smoke test
-python3 -m chonoi.live --mode gather                                # chơi thử trên trình duyệt (tùy chọn)
+PYTHONPATH=tests:. python -m unittest discover -s tests -v        # smoke test
+python -m chonoi.live --mode gather                                # chơi thử trên trình duyệt (tùy chọn)
 ```
 
-Game cần chế độ **headless** theo Test Contract (`python3 -m chonoi.headless --mode gather|quan …`) để được chạy và chấm tự động. **Công nghệ không ràng buộc**: khung Python trong `chonoi/` chỉ là gợi ý, chi tiết ở [`docs/STARTER.md`](docs/STARTER.md).
+Game cần chế độ **headless** theo Test Contract (`python -m chonoi.headless --mode gather|quan …`) để được chạy và chấm tự động. **Công nghệ không ràng buộc**: khung Python trong `chonoi/` chỉ là gợi ý, chi tiết ở [`docs/STARTER.md`](docs/STARTER.md).
 
 ## Tự do sáng tạo
 

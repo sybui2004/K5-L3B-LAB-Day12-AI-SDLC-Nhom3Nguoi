@@ -1,6 +1,6 @@
 """Cửa sổ chơi trực tiếp bằng TRÌNH DUYỆT, chỉ dùng thư viện chuẩn Python.
 
-    python3 -m chonoi.live --mode gather|quan [--seed N] [--port 8000]
+    python -m chonoi.live --mode gather|quan [--seed N] [--port 8000]
 
 Máy chủ HTTP nhỏ (ThreadingHTTPServer) phục vụ `chonoi/web/index.html` và hai API:
     GET  /state  -> snapshot JSON hiện tại (cùng trường như dòng snapshot của headless) + `meta` + `events`
