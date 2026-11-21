@@ -6,7 +6,7 @@ Chạy N Ngày trong MỘT tiến trình bằng `runner.Session` mode `day` (cù
 (không ngẫu nhiên, không đồng hồ): mỗi Ngày đi gather → quan → shop; kế hoạch D1–D5 lặp ở Ngày 6–10; tiền, earned,
 uy tín, cấp nâng cấp, số Ngày và id cá thể tiếp tục xuyên suốt (DaySim lo).
 
-Bot:
+Bot (`chonoi/sim/bot.py`, chỉ đọc snapshot):
 - gather: bơi trên mặt nước (an toàn khỏi Cá Sấu, không tốn oxy) qua các nút hái theo x tăng dần, hái mỗi nút một lần,
   rồi quay về bến và cập bến.
 - quan: tay trống + bếp có món chín ⇒ tới nhặt; có đơn reserved + bếp rảnh ⇒ tới bếp nấu; đang cầm món ⇒ tới bàn của
@@ -28,112 +28,28 @@ import traceback
 
 from .contract import load_contract
 from .errors import BadInput
-from .ids import id_key, sort_by_id
-from .inputs import InputState
 from .runner import Session
-
-STOP = (0.0, 0.0)
-
-
-def _toward(pos, target, slow_within=1.5):
-    dx, dy = target[0] - pos[0], target[1] - pos[1]
-    d = math.hypot(dx, dy)
-    if d < 1e-9:
-        return STOP
-    k = 1.0 if d > slow_within else max(0.35, d / slow_within)
-    return (dx / d * k, dy / d * k)
-
-
-class Bot:
-    """Bot tất định đọc trạng thái sim (chỉ đọc) và trả InputState cho bước kế."""
-
-    def __init__(self, tuning):
-        self.t = tuning
-        self.cool = 0          # chờ vài bước sau mỗi lần bấm để trạng thái kịp đổi
-        self.visited = set()   # nút đã hái trong Ngày (gather)
-        self.day = None
-
-    def act(self, day_sim) -> InputState:
-        if day_sim.day != self.day:
-            self.day, self.visited, self.cool = day_sim.day, set(), 0
-        if self.cool > 0:
-            self.cool -= 1
-            return InputState(STOP, {}, set())
-        phase, sim = day_sim.phase, day_sim.child
-        if phase == "gather":
-            return self._gather(sim)
-        if phase == "quan":
-            return self._quan(sim)
-        return self._shop(day_sim)
-
-    def _press(self, move=STOP, buy=None, button="interact"):
-        self.cool = 3
-        return InputState(move, {}, {button}, buy=buy)
-
-    # --- gather ------------------------------------------------------------------------
-    def _gather(self, g):
-        t = self.t["gather"]
-        reach = t["interact_radius"] * 0.6
-        todo = [n for n in sorted(g.nodes, key=lambda n: (n["pos"][0], id_key(n["id"])))
-                if n["id"] not in self.visited and n["regrow_ticks"] == 0 and len(g.hold) < t["hold_capacity"]]
-        target = todo[0]["pos"] if todo else t["dock_pos"]
-        pos = [g.pos[0], 0.0]  # giữ trên mặt nước
-        if math.dist(pos, target) <= reach and abs(g.vel[0]) < 0.5:
-            if todo:
-                self.visited.add(todo[0]["id"])
-            return self._press()
-        mx, _ = _toward(pos, target)
-        return InputState((mx, -1.0 if g.pos[1] > 0 else 0.0), {}, set())
-
-    # --- quan --------------------------------------------------------------------------
-    def _quan(self, q):
-        reach = q.t["interact_radius"] * 0.6
-        target = None
-        if q.hand is not None:
-            waiting = [c for c in sort_by_id(q.customers) if c["state"] == "waiting" and c["dish_id"] == q.hand]
-            if waiting:
-                target = next(tb["pos"] for tb in q.tables if tb["id"] == waiting[0]["table_id"])
-        else:
-            ready = [s for s in q.stoves if s["state"] == "ready"]
-            idle = [s for s in q.stoves if s["state"] == "idle"]
-            if ready:
-                target = min(ready, key=lambda s: (math.dist(q.pos, s["pos"]), id_key(s["id"])))["pos"]
-            elif idle and q._oldest_reserved_order() is not None:
-                target = min(idle, key=lambda s: (math.dist(q.pos, s["pos"]), id_key(s["id"])))["pos"]
-        if target is None:
-            return InputState(STOP, {}, set())
-        if math.dist(q.pos, target) <= reach and math.hypot(*q.vel) < 0.5:
-            return self._press()
-        return InputState(_toward(q.pos, target), {}, set())
-
-    # --- shop --------------------------------------------------------------------------
-    def _shop(self, d):
-        shop = d.child
-        table = self.t["shop"]["upgrades"]
-        for kind in ("oxygen", "hp"):
-            level = shop.upgrades.get(kind, 0) + 1
-            if level <= len(table[kind]) and table[kind][level - 1]["price"] <= shop.money:
-                return self._press(buy=kind, button="none")
-        return self._press(button="shop_done")
-
+from .sim.bot import Bot
 
 def run_soak(tuning, seed, days):
-    """Trả (days_completed, crashes, results). Lỗi trong sim được bắt và đếm là crash (dừng lượt)."""
+    """Trả (days_completed, crashes, results). Lỗi trong sim hoặc kẹt quá giới hạn tick ⇒ crash (dừng lượt)."""
     sess = Session("day", tuning, {}, seed, None, days)
     bot = Bot(tuning)
     results = []
     crashes = 0
+    mult = tuning["score"]["reputation_multiplier"]
     max_steps = days * (int(tuning["gather"]["duration_s"] * 60) + int(tuning["quan"]["duration_s"] * 60)
-                        + int(tuning["shop"]["max_ticks"])) + 10
+                        + int(tuning["shop"]["max_ticks"]) + 10)
     try:
-        while not sess.done and sess.tick < max_steps:
-            sim = sess.sim
-            for row in sess.step(bot.act(sim)):
+        while not sess.done:
+            if sess.tick >= max_steps:
+                raise RuntimeError(f"stuck: quá {max_steps} tick mà chưa xong {days} Ngày")
+            for row in sess.step(bot.next(sess.snapshot())):
                 if row["name"] == "shop_end":
-                    mult = tuning["score"]["reputation_multiplier"]
-                    results.append({"day": row["day"], "earned": sim.earned, "reputation": sim.reputation,
+                    sim = sess.sim  # giá trị LŨY KẾ của lượt lúc Shop đóng (clarify #37)
+                    results.append({"day": row["day"], "earned": sim.earned, "reputation": round(sim.reputation, 3),
                                     "score": sim.earned + mult * math.floor(sim.reputation)})
-    except Exception:  # crash của luật: ghi nhận, không văng cả tiến trình
+    except Exception:  # crash của luật / kẹt: ghi nhận, vẫn ghi soak.json
         crashes += 1
         traceback.print_exc(file=sys.stderr)
     return sess.sim.days_completed, crashes, results

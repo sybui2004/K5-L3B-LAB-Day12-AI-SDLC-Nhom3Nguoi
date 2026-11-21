@@ -1,0 +1,6 @@
+# soak-diff — hai lần chạy cùng lệnh, so mọi trường trừ duration_s (spec phase-4/bench-soak.md B5)
+nhánh feature/p4-soak-spec trên main 8ab5077; bot chonoi/sim/bot.py (chỉ đọc snapshot)
+$ python -m chonoi.soak --seed 7 --days 10 --out soak.json   # chạy 2 lần
+lần 1 duration_s = 2.793 | lần 2 duration_s = 2.719
+days_completed = 10 / 10 | crashes = 0
+KẾT QUẢ: GIỐNG HỆT (bỏ duration_s)
