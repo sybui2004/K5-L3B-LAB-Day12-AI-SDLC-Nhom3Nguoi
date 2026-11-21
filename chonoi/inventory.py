@@ -11,9 +11,11 @@ import tempfile
 from .errors import BadInput
 
 KINDS_P1 = ("ca_loc", "ca_linh", "bong_dien_dien", "bong_sung")
+# v1.1 (TICKET-02): thêm cá kèo và kèo nèo. Sửa file khung vì kho/scenario phải nhận đủ 6 nguyên liệu.
+KINDS = KINDS_P1 + ("ca_keo", "keo_neo")
 
 
-def validate_items(items, kinds=KINDS_P1):
+def validate_items(items, kinds=KINDS):
     if not isinstance(items, dict):
         raise BadInput("items phải là object")
     out = {}
@@ -27,7 +29,7 @@ def validate_items(items, kinds=KINDS_P1):
     return out
 
 
-def read_inventory(path: str, kinds=KINDS_P1) -> dict:
+def read_inventory(path: str, kinds=KINDS) -> dict:
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)

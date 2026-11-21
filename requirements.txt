@@ -1,0 +1,2 @@
+# Starter Python chỉ dùng thư viện chuẩn (argparse, json, http, unittest, ...).
+# Không cần cài gói ngoài. File này giữ chỗ để CI/venv có chỗ thêm gói sau này.

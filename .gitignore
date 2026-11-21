@@ -3,3 +3,5 @@ __pycache__/
 *.jsonl
 !tests/fixtures/*.jsonl
 .DS_Store
+.venv
+.env
