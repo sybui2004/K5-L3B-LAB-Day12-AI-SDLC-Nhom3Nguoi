@@ -148,6 +148,6 @@ Traceback (most recent call last):
 AssertionError: 0 not greater than 0 : kịch bản phải có doanh thu
 
 ----------------------------------------------------------------------
-Ran 76 tests in 16.301s
+Ran 76 tests in 15.050s
 
 FAILED (failures=7, errors=1)

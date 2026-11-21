@@ -1,6 +1,6 @@
 # Ma trận truy vết Phase 1
 
-> Trạng thái ngày 2026-11-21 trên nhánh `feature/ui-qa-phase-1`, đã gộp `origin/main` (`0302397`). Luật khách (lát 3) đã có; luật gather và quan lát 4 **chưa có trong repo**, nên các AC phụ thuộc vẫn ghi chưa đạt. Chạy lại `phase-check` và cập nhật bảng này sau khi gộp code của TV1.
+> Trạng thái ngày 2026-11-21 trên nhánh `feature/ui-qa-phase-1`, đã gộp `origin/main` (`38a4e99`). Luật khách (lát 3) đã có; luật gather và quan lát 4 **chưa có trong repo**, nên các AC phụ thuộc vẫn ghi chưa đạt. Chạy lại `phase-check` và cập nhật bảng này sau khi gộp code của TV1.
 
 | AC | Cách kiểm chứng | Bằng chứng (link `docs/proof/phase-1/...`) | Kết quả (đạt / chưa đạt — ghi trung thực) |
 |---|---|---|---|

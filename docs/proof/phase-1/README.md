@@ -1,6 +1,6 @@
 # Bằng chứng Phase 1
 
-Tạo ngày 2026-11-21 trên nhánh `feature/ui-qa-phase-1`, sau khi gộp `origin/main` (`0302397`). Đã có luật khách (lát 3); luật gather và quan lát 4 **chưa có trong repo**.
+Tạo ngày 2026-11-21 trên nhánh `feature/ui-qa-phase-1`, sau khi gộp `origin/main` (`38a4e99`). Đã có luật khách (lát 3); luật gather và quan lát 4 **chưa có trong repo**.
 
 | File | Nội dung |
 |---|---|
