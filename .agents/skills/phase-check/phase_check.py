@@ -54,7 +54,7 @@ def main(argv=None):
         rows.append((name, bool(ok), note))
 
     code, unit_log = run([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"])
-    check("unittest", code == 0, last_line(unit_log))
+    check("unittest", code == 0 and "skipped=" not in last_line(unit_log), last_line(unit_log))
     code, out = run([sys.executable, "tools/check_team.py"])
     check("check_team", code == 0, last_line(out))
 
