@@ -28,7 +28,7 @@
 | Kho | `stock` |
 | Tay cầm | `hand` |
 | Bếp | `stoves[].state, dish, cook_ticks_left` (thanh tiến độ nấu) |
-| Bàn + khách | `tables[].customer_id`, `customers[].dish, state, patience_ticks` (thanh kiên nhẫn) |
+| Bàn + khách | `tables[].customer_id`, `customers[].dish_id, state, patience_ticks_left` (thanh kiên nhẫn) |
 | Tiền / uy tín / điểm | `money`, `earned`, `reputation`, `score` |
 | Đồng hồ | `time_left_ticks` |
 
