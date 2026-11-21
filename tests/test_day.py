@@ -53,7 +53,8 @@ class DayLoop(unittest.TestCase):
                 (G_TICKS, "gather", "gather_end"), (G_TICKS, "quan", "phase_start"),
                 (G_TICKS + Q_TICKS, "quan", "quan_end"), (G_TICKS + Q_TICKS, "shop", "phase_start"),
                 (DAY_TICKS, "shop", "shop_end")])
-            self.assertEqual(rows[0]["type"], "event")          # sự kiện tick 0 trước snapshot tick 0
+            self.assertEqual((rows[0]["type"], rows[0]["tick"]), ("snapshot", 0))  # snapshot tick 0 trước (clarify #19)
+            self.assertEqual([r["name"] for r in rows[1:4]], ["day_start", "day_plan", "phase_start"])
             plan = events(rows, "day_plan")[0]
             self.assertEqual(plan["day"], 1)
             self.assertEqual(plan["data"], {"dishes": T["day_plan"][0]["dishes"],
@@ -126,7 +127,7 @@ class Shop(unittest.TestCase):
     def test_buy_failed_reasons(self):
         cases = [({"money": 0}, "hp", "funds"),
                  ({"money": 999, "earned": 999, "upgrades": {"hp": len(UP["hp"])}}, "hp", "max_level"),
-                 ({"money": 999, "earned": 999}, "weapon", "unknown")]
+                 ({"money": 999, "earned": 999}, "xyz", "unknown")]
         with Workdir() as w:
             for day, action, reason in cases:
                 sc = {"day": day, "gather": {"random_fish": False}}
@@ -145,6 +146,34 @@ class Shop(unittest.TestCase):
             code, err, rows = run_day(w, sc, fr, ticks=SHOP_OPEN + 1)
             self.assertEqual(code, 0, err)
             self.assertEqual(events(rows, "bought")[0]["data"]["money"], 0)
+
+    def test_extension_buys_ignored_when_not_enabled(self):
+        """Clarify #18: weapon/net/buy:<kind>/sell:<kind> khi chưa bật mở rộng -> bỏ qua, không event."""
+        sc = {"day": {"money": 999, "earned": 999}, "gather": {"random_fish": False}}
+        with Workdir() as w:
+            for i, action in enumerate(("weapon", "net", "buy:ca_loc", "sell:ca_loc")):
+                fr = [{"tick": 0, "interact": True}, {"tick": SHOP_OPEN, "buy": action}]
+                code, err, rows = run_day(w, sc, fr, ticks=SHOP_OPEN + 1, name=f"e{i}")
+                self.assertEqual(code, 0, err)
+                self.assertEqual(events(rows, "bought") + events(rows, "buy_failed"), [], action)
+
+    def test_buy_and_shop_done_same_frame(self):
+        fr = [{"tick": 0, "interact": True}, {"tick": SHOP_OPEN, "buy": "oxygen", "shop_done": True}]
+        with Workdir() as w:
+            code, err, rows = run_day(w, DOCKED, fr, ticks=SHOP_OPEN + 1)
+            self.assertEqual(code, 0, err)
+            shop = [(e["tick"], e["name"]) for e in events(rows) if e["phase"] == "shop"]
+            self.assertEqual(shop, [(SHOP_OPEN, "phase_start"), (SHOP_OPEN + 1, "bought"), (SHOP_OPEN + 1, "shop_end")])
+            self.assertEqual(events(rows, "shop_end")[0]["data"], {"reason": "done"})
+
+    def test_shop_snapshot_upgrades_and_day_result(self):
+        with Workdir() as w:
+            code, err, rows = run_day(w, DOCKED, [{"tick": 0, "interact": True}], ticks=SHOP_OPEN)
+            self.assertEqual(code, 0, err)
+            snap = snapshots(rows)[-1]
+            self.assertEqual(snap["phase"], "shop")
+            self.assertEqual(snap["upgrades"], {})
+            self.assertEqual(set(snap["day_result"]), {"served", "left", "money", "tips", "reputation_delta", "best_dish"})
 
     def test_buy_outside_shop_ignored(self):
         fr = [{"tick": 3, "buy": "hp"}]

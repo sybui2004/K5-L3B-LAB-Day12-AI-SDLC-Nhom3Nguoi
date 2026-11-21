@@ -131,11 +131,8 @@ def _load_day(data, tuning):
             if isinstance(cnt, bool) or not isinstance(cnt, int) or cnt <= 0:
                 raise BadInput(f"day.day_plan[{n}].dishes.{dish} phải là số nguyên dương")
         if "ingredients" in p:
-            want = {}
-            for dish, cnt in dishes.items():
-                for k, m in tuning["menu"][dish]["recipe"].items():
-                    want[k] = want.get(k, 0) + m * cnt
-            if p["ingredients"] != want:
+            from .sim.plan import plan_ingredients
+            if p["ingredients"] != plan_ingredients(dishes, tuning["menu"]):
                 raise BadInput(f"day.day_plan[{n}].ingredients không khớp tổng công thức × số suất")
     out["day"] = d
     return out

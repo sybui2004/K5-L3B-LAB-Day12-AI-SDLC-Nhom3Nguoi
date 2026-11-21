@@ -141,3 +141,32 @@ def validate_tuning(t):
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
+    _validate_day_shop(t, menu)
+
+
+def _validate_day_shop(t, menu):
+    """v1.1 (TV2): day_plan 5 Ngày, ingredients = Σ công thức × suất; shop.upgrades theo cấp."""
+    from .sim.plan import plan_ingredients
+    plans = t.get("day_plan")
+    if plans is not None:
+        if not isinstance(plans, list) or [p.get("day") for p in plans] != list(range(1, len(plans) + 1)):
+            raise BadInput("tuning.day_plan phải là mảng {day, dishes, ingredients} theo Ngày 1..n")
+        for p in plans:
+            dishes = p.get("dishes")
+            if not isinstance(dishes, dict) or not dishes or any(d not in menu for d in dishes):
+                raise BadInput(f"tuning.day_plan[{p['day']}].dishes phải là map id món -> số suất")
+            if any(isinstance(n, bool) or not isinstance(n, int) or n <= 0 for n in dishes.values()):
+                raise BadInput(f"tuning.day_plan[{p['day']}].dishes: số suất phải nguyên dương")
+            if p.get("ingredients") != plan_ingredients(dishes, menu):
+                raise BadInput(f"tuning.day_plan[{p['day']}].ingredients khác Σ công thức × suất")
+    shop = t.get("shop")
+    if shop is not None:
+        _int_between("shop.max_ticks", shop.get("max_ticks"), 1, 100_000)
+        for kind, field in (("oxygen", "oxygen_max_s"), ("hp", "hp_max")):
+            rows = shop.get("upgrades", {}).get(kind)
+            if not isinstance(rows, list) or [r.get("level") for r in rows] != list(range(1, len(rows) + 1)):
+                raise BadInput(f"tuning.shop.upgrades.{kind} phải là mảng theo cấp 1..n")
+            for r in rows:
+                _int_between(f"shop.upgrades.{kind}.price", r.get("price"), 1, 1_000_000)
+                if not _num(r.get(field)) or r[field] <= 0:
+                    raise BadInput(f"tuning.shop.upgrades.{kind}.{field} phải > 0")

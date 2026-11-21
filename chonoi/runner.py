@@ -69,7 +69,7 @@ class Session:
         return row
 
     def initial_events(self) -> list:
-        """Sự kiện tick 0 (mode day: day_start, day_plan, phase_start) — ghi TRƯỚC snapshot tick 0."""
+        """Sự kiện tick 0 (mode day: day_start, day_plan, phase_start) — ghi SAU snapshot tick 0 (clarify #19)."""
         pending, self.sim.pending = getattr(self.sim, "pending", []), []
         return [self._row(ev) for ev in pending]
 
@@ -124,9 +124,9 @@ def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every, i
     player = InputPlayer(frames)
     w = JsonlWriter(out_path)
     try:
-        for row in sess.initial_events():
-            w.write(row)
         w.write(sess.snapshot())  # tick 0: sau khi dựng scenario, trước mọi input
+        for row in sess.initial_events():  # day: day_start, day_plan, phase_start (tick 0) SAU snapshot (clarify #19)
+            w.write(row)
         last_snapped = 0
         while sess.tick < ticks and not sess.done:
             inp = player.advance(sess.tick)  # bước k đọc input có tick == k

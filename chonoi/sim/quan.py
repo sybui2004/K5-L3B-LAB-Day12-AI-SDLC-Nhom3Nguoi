@@ -25,9 +25,9 @@ class QuanSim:
     mode = "quan"
     phase = "quan"
 
-    def __init__(self, tuning, scenario, streams, ids, inventory=None, dishes=None, carry=None):
-        """`dishes`: danh sách id món của kế hoạch Ngày (mode day); None = cả menu (quán chạy riêng).
-        `carry`: {money, earned, reputation} mang từ Ngày trước (mode day)."""
+    def __init__(self, tuning, scenario, streams, ids, inventory=None, ctx=None):
+        """`ctx` (hợp đồng chuyển pha, spec phase-2/README.md 3.2; None = quán chạy riêng, cả 6 món):
+        `plan_dishes` (map món -> suất, lọc menu), `money`, `earned`, `reputation` mang từ Ngày trước, `day`."""
         t = tuning["quan"]
         self.t = t
         self.menu = tuning["menu"]
@@ -42,11 +42,16 @@ class QuanSim:
         self.stock = dict(inventory if inventory is not None else scenario.get("stock", {}))
         self.hand = scenario.get("hand")
         self.time_left_ticks = scenario.get("time_left_ticks", int(round(t["duration_s"] * TICK)))
-        carry = carry or {}
+        carry = ctx or {}
+        dishes = carry.get("plan_dishes")
         self.reputation = carry.get("reputation", scenario.get("reputation", t["reputation_initial"]))
         self.money = carry.get("money", 0)
         self.earned = carry.get("earned", 0)
         self.shift_earned = 0
+        self._rep_start = self.reputation
+        self._served_by_dish = {}
+        self._left = 0
+        self._tips = 0
         self.dishes = sorted(dishes) if dishes is not None else sorted(self.menu)
         self.stoves = [dict(s, state=s.get("state", "idle"), dish=s.get("dish"), order_id=s.get("order_id"),
                             cook_ticks_left=s.get("cook_ticks_left", 0), ready_ticks=s.get("ready_ticks", 0))
@@ -61,7 +66,7 @@ class QuanSim:
         for e in self.customers:
             ids.reserve(e["id"])
         self._check_rules()
-        self.ticks = 0  # số bước đã chạy (= tick của dòng event phát trong bước này)
+        self.ticks = 0  # = phase_tick: số bước gameplay của quán (pause không tăng, clarify #13) (= tick của dòng event phát trong bước này)
         self.done = False
         self.reason = None
 
@@ -146,6 +151,12 @@ class QuanSim:
                                         "shift_earned": self.shift_earned, "reputation": self.reputation}))
         return events
 
+    def stats(self) -> dict:
+        """Cho DayResult/Summary (TV3): phục vụ, bỏ đi (hết kiên nhẫn), tiền ca, boa, đổi uy tín, món bán chạy (hòa: id)."""
+        best = max(sorted(self._served_by_dish), key=lambda d: self._served_by_dish[d], default=None)
+        return {"served": sum(self._served_by_dish.values()), "left": self._left, "money": self.shift_earned,
+                "tips": self._tips, "reputation_delta": round(self.reputation - self._rep_start, 3), "best_dish": best}
+
     # --- tiện ích chung ------------------------------------------------------------------
     def _free_stock(self) -> dict:
         """Kho chưa bị giữ chỗ = stock - Σ reserved."""
@@ -215,6 +226,7 @@ class QuanSim:
             if c["patience_ticks_left"] == 0:
                 self._remove_customer(c)
                 self._change_reputation(self.t["left_reputation_delta"])
+                self._left += 1
                 events.append(("customer_left", {"customer_id": c["id"], "table_id": c["table_id"],
                                                  "dish_id": c["dish_id"], "reason": "patience"}))
 
@@ -268,6 +280,7 @@ class QuanSim:
         if s is not None:
             s["order_id"] = None
         self.hand = None
+        self._served_by_dish[c["dish_id"]] = self._served_by_dish.get(c["dish_id"], 0) + 1
         c.update(state="eating", order_status="served", eat_ticks_left=self.eat_max, price=price, tip=tip)
         events.append(("served", {"customer_id": c["id"], "table_id": c["table_id"], "dish_id": c["dish_id"],
                                   "price": price, "tip": tip}))
@@ -284,6 +297,7 @@ class QuanSim:
         self.money += amount
         self.earned += amount
         self.shift_earned += amount
+        self._tips += c["tip"]
         if c["tip"] > 0:
             self._change_reputation(self.t["tip_reputation"])
         self.customers.remove(c)

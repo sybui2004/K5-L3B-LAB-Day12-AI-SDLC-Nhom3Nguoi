@@ -229,5 +229,33 @@ class Scenario(unittest.TestCase):
                 self.assertEqual(code, 2, block)
 
 
+class Ctx(unittest.TestCase):
+    """Giao diện ctx (spec phase-2/README.md 3.2) + stats() cho DayResult — test đơn vị gọi thẳng QuanSim."""
+
+    def make(self, scenario, ctx=None, inventory=None):
+        from chonoi.ids import IdAllocator
+        from chonoi.rng import Streams
+        from chonoi.sim.quan import QuanSim
+        return QuanSim(T, scenario, Streams(1), IdAllocator(), inventory=inventory, ctx=ctx)
+
+    def test_ctx_plan_dishes_money_reputation(self):
+        sim = self.make({}, ctx={"day": 1, "plan_dishes": {"goi_bong_sung": 3}, "money": 50, "earned": 80,
+                                 "reputation": 4.0}, inventory={"ca_loc": 5, "bong_sung": 2})
+        self.assertEqual((sim.money, sim.earned, sim.reputation, sim.dishes), (50, 80, 4.0, ["goi_bong_sung"]))
+        self.assertEqual(sim._pick_dish(), "goi_bong_sung")  # cá lóc đủ nhưng không thuộc kế hoạch
+
+    def test_stats_after_serve_and_pay(self):
+        from chonoi.inputs import InputState
+        sim = self.make({"player": {"pos": NEAR_T1}, "hand": "goi_bong_sung", "random_customers": False,
+                         "customers": [waiting("C1", "T1", "goi_bong_sung", reserved={})]})
+        sim.step(InputState((0.0, 0.0), {}, {"interact"}))
+        for _ in range(EAT):
+            sim.step(InputState((0.0, 0.0), {}, set()))
+        price = MENU["goi_bong_sung"]["price"]
+        tip = math.floor(price * Q["tip_rate"])
+        self.assertEqual(sim.stats(), {"served": 1, "left": 0, "money": price + tip, "tips": tip,
+                                       "reputation_delta": Q["tip_reputation"], "best_dish": "goi_bong_sung"})
+
+
 if __name__ == "__main__":
     unittest.main()
