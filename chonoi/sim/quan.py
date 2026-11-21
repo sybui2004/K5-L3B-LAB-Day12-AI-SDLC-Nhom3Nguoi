@@ -12,8 +12,10 @@ Trường khách (snapshot + scenario `customers[]`), theo tên mà client khung
 Giả định chưa có trong PRD-0: xem docs/clarify.md #7–#12.
 """
 
+import math
+
 from ..errors import BadInput
-from ..ids import sort_by_id
+from ..ids import id_key, sort_by_id
 from .ramp import ramp_velocity
 
 TICK = 60.0
@@ -113,12 +115,15 @@ class QuanSim:
         events = []
         self.ticks += 1
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
+        # TODO(nhóm): giảm kiên nhẫn / nấu / ăn; bếp chín -> ready; xử lý khách theo thứ tự PRD-0 mục F.
         self._tick_customers(events)   # TV2: kiên nhẫn, bỏ đi        [đối chiếu thứ tự PRD-0 mục F]
         self._tick_stoves(events)      # TV1: nấu -> dish_ready
         self._tick_eating(events)      # TV1: ăn xong -> paid
         self._move(inp)                # khung
+        # TODO(nhóm): tối đa MỘT interact, chọn đối tượng theo (khoảng cách, bếp trước bàn, id).
         if inp.pressed("interact"):
             self._interact(events)     # TV1: tối đa MỘT đối tượng
+        # TODO(nhóm): khách mới theo lịch (first_customer_tick, customer_interval_s), no_dish.
         self._spawn_customer(events)   # TV2: khách mới theo lịch, no_dish
         if self.time_left_ticks <= 0:
             self.done = True
@@ -192,15 +197,130 @@ class QuanSim:
                 events.append(("customer_left", {"customer_id": c["id"], "table_id": c["table_id"],
                                                  "dish_id": c["dish_id"]}))
 
-    # --- TV1: bếp, bưng, phục vụ, tiền (lát 4) — hàm rỗng, TV1 điền ---------------------------
+    # --- TV1: bếp, bưng, phục vụ, tiền (lát 4) -----------------------------------------
+    def _interact(self, events):
+        """Tối đa MỘT đối tượng: (khoảng cách, bếp trước bàn, id); không hợp lệ thì thôi."""
+        near = []
+        for kind, obj in [("stove", s) for s in self.stoves] + [("table", tb) for tb in self.tables]:
+            d = math.dist(self.pos, obj["pos"])
+            if d <= self.t["interact_radius"]:
+                near.append((d, 0 if kind == "stove" else 1, id_key(obj["id"]), kind, obj))
+        if not near:
+            return
+        near.sort(key=lambda e: (e[0], e[1], e[2]))
+        _, _, _, kind, obj = near[0]  # chỉ xử lý đối tượng đầu, không thử đối tượng kế
+        if kind == "stove":
+            if obj["state"] == "idle":
+                self._cook(obj, events)
+            elif obj["state"] == "ready":
+                self._pick_up(obj, events)
+        else:
+            self._serve(obj, events)
+
+    def _cook(self, stove, events):
+        """Bếp idle + tay trống + khách waiting chưa có món đang nấu -> nấu món khách id nhỏ nhất."""
+        if stove["state"] != "idle" or self._hands_full():
+            return
+        busy = {s.get("dish") for s in self.stoves if s.get("state") in ("cooking", "ready")}
+        customer = None
+        for c in sort_by_id(self.customers):
+            if c.get("state") != "waiting":
+                continue
+            dish = c.get("dish_id")
+            if dish in self.menu and dish not in busy:
+                customer = c
+                break
+        if customer is None:
+            return
+        dish = customer["dish_id"]
+        # B2: chỉ trừ đúng phần đã giữ chỗ (không suy ra recipe khi reserved rỗng)
+        recipe = customer.get("reserved") or {}
+        if any(self.stock.get(k, 0) < n for k, n in recipe.items()):
+            return
+        # trừ kho phần nguyên liệu đã giữ chỗ; giữ chỗ coi như đã dùng xong
+        for k, n in recipe.items():
+            self.stock[k] = self.stock.get(k, 0) - n
+        customer["reserved"] = {}
+        stove["state"] = "cooking"
+        stove["dish"] = dish
+        stove["cook_ticks_left"] = int(round(self.menu[dish]["cook_s"] * TICK))
+        stove["ready_ticks"] = 0
+        events.append(("cook_started", {"stove_id": stove["id"], "dish": dish}))
+
     def _tick_stoves(self, events):
-        pass  # TODO(TV1, lát 4): cooking -> cook_ticks_left -> dish_ready
+        """Nấu -> chín; burn_s null nên bếp ready chỉ đếm tick, không cháy món."""
+        for stove in sort_by_id(self.stoves):
+            if stove.get("state") == "cooking":
+                stove["cook_ticks_left"] = max(0, stove.get("cook_ticks_left", 0) - 1)
+                if stove["cook_ticks_left"] == 0:
+                    stove["state"] = "ready"
+                    stove["ready_ticks"] = 0
+                    events.append(("dish_ready", {"stove_id": stove["id"], "dish": stove["dish"]}))
+            elif stove.get("state") == "ready":
+                stove["ready_ticks"] = stove.get("ready_ticks", 0) + 1
+
+    def _hands_full(self) -> bool:
+        """Tay đầy khi đã cầm >= carry_limit món (số liệu đọc từ self.t; P1 = 1)."""
+        carried = 0 if self.hand is None else 1
+        return carried >= self.t["carry_limit"]
+
+    def _pick_up(self, stove, events):
+        """Bếp ready + tay trống (carry_limit) -> cầm món, bếp về idle."""
+        if stove.get("state") != "ready" or self._hands_full():
+            return
+        dish = stove["dish"]
+        self.hand = dish
+        stove["state"] = "idle"
+        stove["dish"] = None
+        stove["cook_ticks_left"] = 0
+        stove["ready_ticks"] = 0
+        events.append(("dish_picked", {"stove_id": stove["id"], "dish": dish}))
+
+    def _serve(self, table, events):
+        """Bàn có khách waiting đúng món đang cầm -> served, chốt price/tip."""
+        customer = None
+        for c in sort_by_id(self.customers):
+            if c.get("table_id") == table["id"] and c.get("state") == "waiting":
+                customer = c
+                break
+        if customer is None or self.hand is None or customer.get("dish_id") != self.hand:
+            return
+        dish = customer["dish_id"]
+        price = self.menu[dish]["price"]
+        full = self.t["patience_s"] * TICK
+        patience = customer.get("patience_ticks_left", full)
+        tip = round(price * self.t["tip_rate"]) if patience / full >= self.t["tip_min_patience_ratio"] else 0
+        self.hand = None
+        customer["state"] = "eating"
+        customer["eat_ticks_left"] = int(round(self.t["eat_s"] * TICK))
+        customer["price"] = price
+        customer["tip"] = tip
+        events.append(("served", {"customer_id": customer["id"], "table_id": table["id"], "dish": dish}))
 
     def _tick_eating(self, events):
-        pass  # TODO(TV1, lát 4): eat_ticks_left -> paid, cộng tiền, boa -> _change_reputation
+        """Ăn xong -> paid (tiền + uy tín), khách rời bàn."""
+        paid_ids = []
+        for c in sort_by_id(self.customers):
+            if c.get("state") != "eating":
+                continue
+            c["eat_ticks_left"] = max(0, c.get("eat_ticks_left", int(round(self.t["eat_s"] * TICK))) - 1)
+            if c["eat_ticks_left"] == 0:
+                self._pay(c, events)
+                paid_ids.append(c["id"])
+        if paid_ids:
+            self.customers = [c for c in self.customers if c["id"] not in paid_ids]
 
-    def _interact(self, events):
-        pass  # TODO(TV1, lát 4): một đối tượng theo (khoảng cách, bếp trước bàn, id)
+    def _pay(self, customer, events):
+        """Cộng tiền/doanh thu; có boa thì cộng uy tín (kẹp [reputation_min, reputation_max])."""
+        price = customer.get("price", 0)
+        tip = customer.get("tip", 0)
+        amount = price + tip
+        self.money += amount
+        self.earned += amount
+        self.shift_earned += amount
+        if tip > 0:
+            self._change_reputation(self.t["tip_reputation"])
+        events.append(("paid", {"customer_id": customer["id"], "amount": amount, "tip": tip}))
 
     # --- khung ---------------------------------------------------------------------------
     def _move(self, inp):
