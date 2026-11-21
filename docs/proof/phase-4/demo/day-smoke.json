@@ -1,0 +1,40 @@
+{
+  "gather": {
+    "time_left_ticks": 300,
+    "hold": [
+      {
+        "id": "I1",
+        "kind": "ca_loc",
+        "fresh": 100
+      }
+    ],
+    "random_fish": false
+  },
+  "quan": {
+    "player": {
+      "pos": [
+        6.1,
+        5
+      ]
+    },
+    "time_left_ticks": 1300,
+    "stoves": [
+      {
+        "id": "B1",
+        "pos": [
+          5,
+          5
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "id": "T1",
+        "pos": [
+          7.4,
+          5
+        ]
+      }
+    ]
+  }
+}

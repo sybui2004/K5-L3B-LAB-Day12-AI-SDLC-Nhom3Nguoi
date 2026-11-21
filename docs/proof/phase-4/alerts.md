@@ -24,4 +24,4 @@ python -m chonoi.live --mode quan --scenario docs/proof/phase-4/scenarios/custom
 Mở địa chỉ in ra, thêm `?contrast=high` để xem chế độ cao.
 
 ## Đã kiểm
-Chrome headless 1280×720 trên code thật: cả 6 trường hợp hiện đúng cảnh báo, phím `C` bật và tắt được, lựa chọn còn sau khi tải lại trang, không có lỗi JavaScript. Chưa có người chơi kiểm tra trực tiếp.
+Chrome headless 1280×720 trên mã nguồn `f498edd`: cả 6 trường hợp hiện đúng cảnh báo. Phím `C` bật và tắt được, lựa chọn còn sau khi tải lại trang. Demo dùng bàn phím trong trình duyệt tự động, ghi nhận 0 ngoại lệ JavaScript. [Log chạy](ui-smoke.txt)

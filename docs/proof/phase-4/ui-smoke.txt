@@ -1,0 +1,22 @@
+Source commit f498edd. Chrome headless, 1280×720.
+monster-near normal|⚠ 🐊 Thủy quái gần!
+monster-near high|⚠ 🐊 Thủy quái gần!
+oxygen-low normal|⚠ O₂ sắp hết — lên mặt nước! 5s
+oxygen-low high|⚠ O₂ sắp hết — lên mặt nước! 5s
+customer-angry normal|😠 ! Sắp giận
+Contrast key C toggles high and normal; high persisted across reload
+customer-angry high|😠 ! Sắp giận
+Day menu tick=0, phase=gather, gate=menu
+Day intro tick=0, phase=gather, gate=day_intro
+Day gather tick=0, phase=gather, gate=null
+Day pause tick=9, phase=gather, gate=null
+Pause freezes sim_tick, phase_tick and time_left_ticks; the Continue button resumes
+Day evening tick=41, phase=quan, gate=evening_intro
+Day quan tick=41, phase=quan, gate=null
+Day cooking tick=166, phase=quan, gate=null
+Day served tick=558, phase=quan, gate=null
+Served ca_loc_nuong_trui with keyboard controls; paid={"customer_id":"C1","table_id":"T1","dish_id":"ca_loc_nuong_trui","price":59,"tip":11,"amount":70}
+Day result tick=1341, phase=shop, gate=day_result
+Day shop tick=1341, phase=shop, gate=null
+Day summary tick=1351, phase=shop, gate=summary
+JavaScript exceptions: 0

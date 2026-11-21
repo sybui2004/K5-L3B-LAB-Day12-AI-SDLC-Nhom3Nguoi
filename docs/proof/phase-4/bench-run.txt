@@ -1,5 +1,4 @@
-python -m chonoi.bench --seed 42 --duration 30 --out docs/proof/phase-4/bench.json
-Windows x64, Python 3.13.18, Google Chrome 158.0.8127.37.
-Chrome headless; 1280 x 720; 3 s warmup.
-Gather default scenario, no inputs, browser rendering through the live game loop.
-Measured: 1801 frames, 30.02 s, avg 60.00 FPS, 1% low 51.02 FPS, load 886 ms.
+Source f498edd, Windows x64, Python 3.13.18, Chrome 158.0.8127.37
+python -m chonoi.bench --seed 42 --duration 30 --out bench.json
+Chrome headless 1280x720; warmup 3 s (default); gather scene, character at dock.
+Exit 0. Report: 1800 frames, 30.01 s, 59.97 avg fps, 45.14 1% low fps, load 839 ms.

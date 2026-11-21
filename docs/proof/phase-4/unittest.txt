@@ -46,6 +46,7 @@ test_ac_p2_05_catch_before_fish_moves (test_p2_gather.TestP2Gather.test_ac_p2_05
 AC-P2-05: Bắt cá xét theo vị trí cá TRƯỚC khi bơi; cá mới tham gia từ bước sau. ... ok
 test_ac_p2_06_monster_patrol_and_chase (test_p2_gather.TestP2Gather.test_ac_p2_06_monster_patrol_and_chase)
 AC-P2-06: Cá Sấu patrol <-> chase (<= 10 m, d >= 10) <-> patrol (> 16 m hoặc d < 10), chặn d in [10,30]. ... ok
+test_ac_p2_07_last_recoil_step_cannot_hit (test_p2_gather.TestP2Gather.test_ac_p2_07_last_recoil_step_cannot_hit) ... ok
 test_ac_p2_07_monster_hit_and_recoil (test_p2_gather.TestP2Gather.test_ac_p2_07_monster_hit_and_recoil)
 AC-P2-07: Chạm: -1 Máu, rơi floor(n/2) LIFO, bất tử 90, recoil 60 bước x 2/60 m; monster_hit. ... ok
 test_ac_p2_08_monster_faint_and_choke (test_p2_gather.TestP2Gather.test_ac_p2_08_monster_faint_and_choke)
@@ -160,6 +161,16 @@ test_explicit_existing_file (test_p4_bench.TestFindBrowser.test_explicit_existin
 explicit trỏ file tồn tại thì được trả về ngay. ... ok
 test_shutil_which_search_candidates (test_p4_bench.TestFindBrowser.test_shutil_which_search_candidates)
 shutil.which tìm theo thứ tự các trình duyệt hỗ trợ. ... ok
+test_bad_args_exit_2 (test_p4_soak.Soak.test_bad_args_exit_2) ... ok
+test_day6_announces_day1_plan (test_p4_soak.Soak.test_day6_announces_day1_plan)
+Chạy 6 Ngày trong tiến trình bằng bot: event day_plan của Ngày 6 trùng D1. ... ok
+test_deterministic_ignoring_wall_time (test_p4_soak.Soak.test_deterministic_ignoring_wall_time) ... ok
+test_headless_day_still_limited_to_5 (test_p4_soak.Soak.test_headless_day_still_limited_to_5) ... ok
+test_plan_repeats_after_day_5 (test_p4_soak.Soak.test_plan_repeats_after_day_5)
+Ngày 6 dùng lại kế hoạch D1 (DaySim, có thể chạy quá 5 Ngày khi soak). ... ok
+test_schema_and_pass_condition (test_p4_soak.Soak.test_schema_and_pass_condition) ... ok
+test_ten_days_seed_7 (test_p4_soak.Soak.test_ten_days_seed_7)
+B4: --days 10 --seed 7 ⇒ 10/10, 0 crash, results theo Ngày 1..10, earned không giảm (~3 s). ... ok
 test_bad_frames_raise (test_python_starter_units.Units.test_bad_frames_raise) ... ok
 test_catch_is_a_v10_button_and_attack_is_not (test_python_starter_units.Units.test_catch_is_a_v10_button_and_attack_is_not) ... ok
 test_id_allocator_continues_after_max (test_python_starter_units.Units.test_id_allocator_continues_after_max) ... ok
@@ -251,17 +262,12 @@ test_time_ends_gather_and_keeps_hold (test_smoke_p1.Movement.test_time_ends_gath
 test_khoi_sai_mode_exit_2 (test_smoke_p1.ScenarioModes.test_khoi_sai_mode_exit_2) ... ok
 test_quan_fixture_khong_hop_le_exit_2 (test_smoke_p1.ScenarioModes.test_quan_fixture_khong_hop_le_exit_2) ... ok
 test_quan_player_vel_hop_le (test_smoke_p1.ScenarioModes.test_quan_player_vel_hop_le) ... ok
-test_bad_args_exit_2 (test_soak.Soak.test_bad_args_exit_2) ... ok
-test_deterministic_ignoring_wall_time (test_soak.Soak.test_deterministic_ignoring_wall_time) ... ok
-test_plan_repeats_after_day_5 (test_soak.Soak.test_plan_repeats_after_day_5)
-Ngày 6 dùng lại kế hoạch D1 (DaySim, có thể chạy quá 5 Ngày khi soak). ... ok
-test_schema_and_pass_condition (test_soak.Soak.test_schema_and_pass_condition) ... ok
 test_good (test_team_check.TeamCheck.test_good) ... ok
 test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected) ... ok
 test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
 test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
 
 ----------------------------------------------------------------------
-Ran 205 tests in 71.810s
+Ran 209 tests in 161.099s
 
 OK

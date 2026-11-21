@@ -15,6 +15,8 @@ python3 -m chonoi.live --mode day
 
 Mở địa chỉ in trên terminal. Nhấn **C** để bật tương phản cao. Cần Python 3.10 trở lên và một trình duyệt hiện đại.
 
+Xem [hướng dẫn demo một ngày](https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi/tree/v1.0.0#demo-một-ngày) và [kết quả kiểm chứng](https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi/blob/v1.0.0/docs/verification/phase-4.md).
+
 ```bash
 PYTHONPATH=tests:. python -m unittest discover -s tests -v
 python -m chonoi.headless --mode day --days 1 --seed 1 --ticks 22200 --out day.jsonl

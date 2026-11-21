@@ -1,0 +1,4 @@
+So sanh JSONL day: v1.2 (6ba4d26) va v1.3 (f498edd)
+python -m chonoi.headless --mode day --days 1 --seed 1 --ticks 22200 --out <file>
+Hai lenh thoat 0. File trung tung byte.
+SHA256 hai file: 5817c6d53da0a4722500d246b12a99ee28c7e049e54647079dc71ad770a015f8

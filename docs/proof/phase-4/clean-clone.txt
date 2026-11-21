@@ -1,36 +1,34 @@
-Bản thử sớm theo plan Phase 4 (TV3). CHƯA phải bằng chứng cuối: phải chạy lại trên commit gắn tag phase-4.
-Môi trường WSL được tính theo clarify #38. Nhánh UI Phase 3, Phase 4 chưa có trong bản main được clone ở lần thử này.
-
-Môi trường: Ubuntu 26.04.1 LTS trên WSL2, Linux 6.18.58.1-microsoft-standard-WSL2
-Python 3.14.4; lệnh python: không có; pip: không dùng
-
-$ git clone https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi.git
-$ cd K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi
-commit: d0652b9 (Merge pull request #18 from sybui2004/feature/p3-gather-fres)
-$ python3 -m chonoi.live --mode gather
-/state OK, mode=gather; trang chính HTTP 200
-  Mở trình duyệt tại http://127.0.0.1:8791/  (chế độ gather, seed 1). Ctrl+C để dừng.
-
-$ PYTHONPATH=tests:. python3 -m unittest discover -s tests   # máy chỉ có python3
-FAILED (errors=158)
-  lỗi: FileNotFoundError: [Errno 2] No such file or directory: 'python'
-
-$ (thêm lệnh python trỏ tới python3) PYTHONPATH=tests:. python3 -m unittest discover -s tests
-Ran 180 tests in 28.270s
-OK
-
-$ git archive --format=zip --prefix=chonoi-v1.0.0/ -o chonoi-v1.0.0.zip HEAD
-giải nén: 134 file
-$ python3 -m chonoi.live --mode gather
-/state OK, mode=gather; trang chính HTTP 200
-  Mở trình duyệt tại http://127.0.0.1:8792/  (chế độ gather, seed 1). Ctrl+C để dừng.
-unittest trong zip (có lệnh python): Ran 180 tests in 28.675s, OK
-
-Mode day, chạy từ code nhánh feature/p4-alerts-contrast trên cùng Ubuntu:
+Ubuntu WSL2 | Linux 6.18.58.1-microsoft-standard-WSL2
+Python 3.12.3
+$ git clone --no-local --branch lab-final <local candidate repository>
+Cloning into '/tmp/tmp.kKYrp2gwXZ/clone'...
+$ cd clone
+f498edd22262bf17803892f5cfab6157254baa1e
 $ python3 -m chonoi.live --mode day
-/state OK, mode=day, gate=menu, day=1/5
+Mở trình duyệt tại http://127.0.0.1:8793/  (chế độ day, seed 1). Ctrl+C để dừng.
+HTTP 200 /state: day gather
+$ python3 -m zipfile -e <candidate archive> <fresh directory>
+$ python3 -m chonoi.live --mode gather
+Mở trình duyệt tại http://127.0.0.1:8794/  (chế độ gather, seed 1). Ctrl+C để dừng.
+HTTP 200 /state: gather gather
+$ python3 -m venv --without-pip .venv && source .venv/bin/activate
+$ PYTHONPATH=tests:. python -m unittest discover -s tests
+............................................đầu vào sai: --days phải là số nguyên từ 1 đến 5
+đầu vào sai: --days chỉ dùng với day
+đầu vào sai: --inventory chỉ dùng với quan
+đầu vào sai: --inventory-out chỉ dùng với gather
+.........................................................đối số sai: the following arguments are required: --seed, --duration, --out
+đối số sai: the following arguments are required: --seed
+đối số sai: the following arguments are required: --duration
+đối số sai: the following arguments are required: --out
+đối số sai: --duration phải > 0
+đối số sai: --duration phải > 0
+đối số sai: argument --seed: invalid int value: 'not_an_int'
+đối số sai: argument --duration: invalid float value: 'not_a_num'
+.Không tìm thấy trình duyệt. Vui lòng cài Chrome/Chromium/Edge hoặc đặt biến môi trường CHONOI_BROWSER.
+.Không tìm thấy trình duyệt. Vui lòng cài Chrome/Chromium/Edge hoặc đặt biến môi trường CHONOI_BROWSER.
+.s........................................................................................................
+----------------------------------------------------------------------
+Ran 209 tests in 94.932s
 
-Kết luận:
-- Clone sạch mở được giao diện bằng 3 lệnh, không cần cài gói.
-- Gói zip giải nén chạy được giao diện.
-- Máy chỉ có python3 (Ubuntu mặc định) thì unittest lỗi vì headless_cmd trong contract gọi python. Xem clarify #42.
+OK (skipped=1)
