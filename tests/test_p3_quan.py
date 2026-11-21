@@ -281,7 +281,7 @@ class Day(unittest.TestCase):
             q1 = snap_at(rows, 1)
             self.assertEqual(q1["phase"], "quan")
             self.assertEqual([it["id"] for it in q1["stock"]], ["I1", "I2", "I3"])
-            self.assertTrue(all(it["fresh"] == 100 for it in q1["stock"]))  # bàn giao cùng tick, chưa hao
+            self.assertTrue(all(abs(it["fresh"] - 99.992) < 0.01 for it in q1["stock"]))  # Đổi test (P3 lát B): gather đã hao 1 bước đầu tick bàn giao (100 − 1/120 ≈ 99.992); quán không hao thêm
             shop0, shop_end = snap_at(rows, shop_open), snap_at(rows, day2_dock)
             self.assertEqual(shop0["phase"], "shop")
             shop_last = [s for s in snapshots(rows) if s["phase"] == "shop"][-1]

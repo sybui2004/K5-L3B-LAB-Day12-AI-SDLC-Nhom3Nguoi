@@ -213,7 +213,8 @@ class Integration(unittest.TestCase):
             self.assertEqual(saved, {"items": {"bong_sung": 2, "ca_loc": 1}})
             end = events(read_jsonl(w.path("r.jsonl")), "gather_end")[0]["data"]
             self.assertEqual(end["reason"], "docked")
-            self.assertEqual(end["inventory"], saved)
+            # Đổi test (P3 lát B): gather_end.inventory là mảng cá thể v1.2; file kho còn 1.1 (dạng đếm).
+            self.assertEqual(stock_counts(end["inventory"]["items"]), saved["items"])
             code, err = run_headless("--mode", "quan", "--seed", "42", "--ticks", "0", "--inventory", inv,
                                      "--out", w.path("q.jsonl"))
             self.assertEqual(code, 0, err)
