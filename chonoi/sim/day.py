@@ -60,6 +60,10 @@ class DaySim:
         self.pending = []  # sự kiện tick 0 (day_start, day_plan, phase_start) — runner ghi SAU snapshot tick 0 (clarify #19)
         self._start_day(self.pending)
 
+    def _plan(self):
+        """Kế hoạch của Ngày hiện tại; sau Ngày 5 lặp lại D1–D5 (TICKET-04 soak: Ngày 6–10 dùng D1–D5)."""
+        return self.plans[(self.day - 1) % len(self.tuning["day_plan"]) + 1]
+
     # --- giao diện cho runner ----------------------------------------------------------
     @property
     def time_left_ticks(self):
@@ -69,7 +73,7 @@ class DaySim:
         snap = self.child.snapshot()
         if self.phase == "shop" and self.last_stats is not None:
             snap["day_result"] = self.last_stats  # DayResult: phục vụ, bỏ đi, tiền ca, boa, đổi uy tín, món bán chạy
-        plan = self.plans[self.day]
+        plan = self._plan()
         snap.update({"day": self.day, "days_completed": self.days_completed,
                      "day_plan": {"dishes": plan["dishes"], "ingredients": plan["ingredients"]},
                      "upgrades": {k: self.upgrades[k] for k in sorted(self.upgrades)},
@@ -110,7 +114,7 @@ class DaySim:
     def _start_day(self, events):
         self.day += 1
         self.active_upgrades = dict(self.upgrades)
-        plan = self.plans[self.day]
+        plan = self._plan()
         events.append(("day_start", {}, "gather", self.day))
         events.append(("day_plan", {"dishes": plan["dishes"], "ingredients": plan["ingredients"]}, "gather", self.day))
         # ctx cho gather (hp_max, oxygen_max_s theo cấp đang áp dụng). Khi GatherSim chưa nhận ctx (TV1),
@@ -138,7 +142,7 @@ class DaySim:
         """Bàn giao trong CÙNG tick gather_end, không hao thêm; ngất ⇒ kho rỗng. Kho đếm (gather chưa v1.2) được đổi
         sang cá thể mới bằng allocator chung."""
         items = [] if self.child.reason == "fainted" else self.child.inventory_items()
-        ctx = {"day": self.day, "plan_dishes": dict(self.plans[self.day]["dishes"]),
+        ctx = {"day": self.day, "plan_dishes": dict(self._plan()["dishes"]),
                "money": self.money, "earned": self.earned, "reputation": self.reputation}
         self.child = QuanSim(self.tuning, self.q_tpl, self.streams, self.ids, inventory=items, ctx=ctx,
                              item_ids=self.item_ids)
