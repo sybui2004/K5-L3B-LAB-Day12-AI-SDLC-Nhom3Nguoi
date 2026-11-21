@@ -41,9 +41,9 @@
 - [ ] `tests/test_p3_quan.py` + đổi `test_quan_*.py`, `test_day.py` (ghi lý do).
 
 ### TV3 (hgmdz1210, Hưng) — lát A, D, QA
-- [ ] Lát A theo [adapter-hud-qa.md](../spec/phase-3/adapter-hud-qa.md) mục A, đẩy `main` **trước phút 10**.
-- [ ] HUD mục B; ảnh chụp vào `docs/proof/phase-3/`.
-- [ ] Smoke mục C, bật v1.2, CHANGELOG, `docs/verification/phase-3.md`, `docs/ai-usage-log.md`.
+- [x] Lát A theo [adapter-hud-qa.md](../spec/phase-3/adapter-hud-qa.md) mục A, đẩy `main` **trước phút 10**.
+- [x] HUD mục B; ảnh chụp vào `docs/proof/phase-3/`.
+- [x] Smoke mục C, bật v1.2, CHANGELOG, `docs/verification/phase-3.md`, `docs/ai-usage-log.md`.
 
 ## Rủi ro
 - **Gather P2 chưa gộp + chưa có tag nào trên remote** ⇒ TV1 làm bước 0 trước mọi thứ; nếu tới phút 10 chưa gộp được, lát B làm trên nhánh gather P2 và gộp chung.

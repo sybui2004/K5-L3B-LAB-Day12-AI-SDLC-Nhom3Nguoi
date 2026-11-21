@@ -10,9 +10,10 @@ import urllib.request
 
 from chonoi.contract import load_contract
 from chonoi.live import LiveGame, LiveServer, main
+from helpers import hold_items, stock_counts, stock_items
 
 TUNING = load_contract()["tuning"]
-FAST = {"gather": {"hold": ["ca_loc"], "random_fish": False}, "quan": {"time_left_ticks": 5}}
+FAST = {"gather": {"hold": hold_items(["ca_loc"]), "random_fish": False}, "quan": {"time_left_ticks": 5}}
 
 
 def state(game):
@@ -181,7 +182,7 @@ class ClientData(unittest.TestCase):
 
     def test_tally_counts_served_dishes_across_shift(self):
         stove, table = TUNING["quan"]["stoves"][0]["id"], TUNING["quan"]["tables"][0]["id"]
-        sc = {"gather": {"hold": ["ca_loc"], "random_fish": False},
+        sc = {"gather": {"hold": hold_items(["ca_loc"]), "random_fish": False},
               "quan": {"player": {"pos": [6.1, 5]}, "time_left_ticks": 1300,
                        "stoves": [{"id": stove, "pos": [5, 5]}], "tables": [{"id": table, "pos": [7.4, 5]}]}}
         g = new_game(sc, days=1)

@@ -70,7 +70,8 @@ def main(argv=None):
             check(f"so byte {mode} (2 lần)", same[mode], "giống từng byte" if same[mode] else "KHÁC hoặc thiếu file")
 
         with open(p("sc.json"), "w", encoding="utf-8") as f:
-            json.dump({"gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"]}}, f)
+            json.dump({"gather": {"hold": [{"id": "I1", "kind": "ca_loc", "fresh": 100}, {"id": "I2", "kind": "bong_sung", "fresh": 100},
+                                            {"id": "I3", "kind": "bong_sung", "fresh": 100}]}}, f)
         with open(p("in.json"), "w", encoding="utf-8") as f:
             json.dump({"frames": [{"tick": 0, "interact": True}]}, f)
         c1, _ = run([*headless, "--mode", "gather", "--seed", "1", "--ticks", "1", "--scenario", p("sc.json"),
@@ -81,8 +82,9 @@ def main(argv=None):
         if c2 == 0:
             with open(p("flow_q.jsonl"), encoding="utf-8") as f:
                 stock = json.loads(f.readline()).get("stock")
-        want = {"bong_sung": 2, "ca_loc": 1}
-        check("luồng kho gather -> quan", stock == want, f"stock = {stock}")
+        got = sorted((it["id"], it["kind"]) for it in stock) if isinstance(stock, list) else stock
+        want = [("I1", "ca_loc"), ("I2", "bong_sung"), ("I3", "bong_sung")]
+        check("luồng kho gather -> quan", got == want, f"cá thể = {got}")
 
         table = ["| Mục | Kết quả | Ghi chú |", "|---|---|---|"]
         table += [f"| {n} | {'ĐẠT' if ok else 'KHÔNG ĐẠT'} | {note} |" for n, ok, note in rows]

@@ -8,6 +8,7 @@ import os
 import unittest
 
 from helpers import ROOT, Workdir, stock_counts, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import hold_items, stock_counts, stock_items
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     T = json.load(_f)["tuning"]
@@ -19,7 +20,7 @@ UP = T["shop"]["upgrades"]
 
 # Ví dụ trong ticket 4.3: mở một Ngày đã có tiền và kho mang về; interact ở bến đóng ca sáng ngay (bước 0 -> tick 1).
 DOCKED = {"day": {"money": 200, "earned": 200},
-          "gather": {"hold": ["ca_loc", "bong_sung", "bong_sung"], "random_fish": False}}
+          "gather": {"hold": hold_items(["ca_loc", "bong_sung", "bong_sung"]), "random_fish": False}}
 SHOP_OPEN = 1 + Q_TICKS  # tick quán đóng và Shop mở khi cập bến ở tick 1
 
 
@@ -223,7 +224,7 @@ class BadInput(unittest.TestCase):
 
     def test_day_scenario_conflicts(self):
         bad = [
-            {"quan": {"stock": {"ca_loc": 1}}},
+            {"quan": {"stock": stock_items({"ca_loc": 1})}},
             {"quan": {"reputation": 3}},
             {"day": {"money": 10}},                                   # có tiền mà không khai earned
             {"day": {"money": 10, "earned": 5}},                      # money > earned
