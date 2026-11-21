@@ -47,7 +47,8 @@ class DayLoop(unittest.TestCase):
         with Workdir() as w:
             code, err, rows = run_day(w)
             self.assertEqual(code, 0, err)
-            ev = [e for e in names(rows) if e[2] not in ("no_dish",)]
+            # Đổi test (P2 lát 1): fish_spawned (sinh cá theo lịch 360 tick, spec P2 A3) là sự kiện hợp lệ, không thuộc thứ tự pha.
+            ev = [e for e in names(rows) if e[2] not in ("no_dish", "fish_spawned")]
             self.assertEqual(ev, [
                 (0, "gather", "day_start"), (0, "gather", "day_plan"), (0, "gather", "phase_start"),
                 (G_TICKS, "gather", "gather_end"), (G_TICKS, "quan", "phase_start"),

@@ -74,8 +74,8 @@ def _validate_gather(g):
     if not _num(g.get("start_heading_deg")):
         raise BadInput("tuning.gather.start_heading_deg phải là số")
     fy = g.get("fish_yield")
-    if not isinstance(fy, dict) or not {"ca_linh", "ca_loc"} <= set(fy):
-        raise BadInput("tuning.gather.fish_yield phải có ca_linh và ca_loc")
+    if not isinstance(fy, dict) or not {"ca_linh", "ca_loc", "ca_keo"} <= set(fy):
+        raise BadInput("tuning.gather.fish_yield phải có ca_linh, ca_loc và ca_keo")
     for k, v in fy.items():
         _int_between(f"gather.fish_yield.{k}", v, 1, g["hold_capacity"])
     nodes = g.get("nodes")
@@ -86,27 +86,79 @@ def _validate_gather(g):
         if not isinstance(n, dict) or not isinstance(n.get("id"), str) or n["id"] in seen:
             raise BadInput("tuning.gather.nodes: mỗi nút cần id duy nhất")
         seen.add(n["id"])
-        if n.get("kind") not in ("bong_dien_dien", "bong_sung"):
-            raise BadInput(f"tuning.gather.nodes.{n['id']}: kind phải là bong_dien_dien hoặc bong_sung")
+        if n.get("kind") not in ("bong_dien_dien", "bong_sung", "keo_neo"):
+            raise BadInput(f"tuning.gather.nodes.{n['id']}: kind phải là bong_dien_dien, bong_sung hoặc keo_neo")
         kinds.add(n["kind"])
         _pos_in(f"gather.nodes.{n['id']}.pos", n.get("pos"), b, ("x", "d"))
         if n["pos"][1] != 0:
             raise BadInput(f"tuning.gather.nodes.{n['id']}: nút hái nằm ở mặt nước (d = 0)")
-    if kinds != {"bong_dien_dien", "bong_sung"}:
-        raise BadInput("tuning.gather.nodes phải có ít nhất một nút mỗi loại (bong_dien_dien, bong_sung)")
+    if kinds != {"bong_dien_dien", "bong_sung", "keo_neo"}:
+        raise BadInput("tuning.gather.nodes phải có ít nhất một nút mỗi loại (3 loại)")
     fish = g.get("fish_initial")
-    if not isinstance(fish, list) or len(fish) != 6:
-        raise BadInput("tuning.gather.fish_initial phải là danh sách đúng 6 đàn")
+    if isinstance(fish, bool) or not isinstance(fish, int) or fish < 0:
+        raise BadInput("tuning.gather.fish_initial phải là số nguyên không âm")
+
+
+def _validate_day_plan(t, menu):
+    """Mỗi Ngày: ingredients == tổng recipe × suất của các món trong dishes."""
+    plan = t.get("day_plan")
+    if not isinstance(plan, list) or not plan:
+        raise BadInput("tuning.day_plan phải là mảng không rỗng")
     seen = set()
-    for f in fish:
-        if not isinstance(f, dict) or not isinstance(f.get("id"), str) or f["id"] in seen:
-            raise BadInput("tuning.gather.fish_initial: mỗi đàn cần id duy nhất")
-        seen.add(f["id"])
-        if f.get("kind") not in fy:
-            raise BadInput(f"tuning.gather.fish_initial.{f['id']}: kind phải thuộc fish_yield")
-        _pos_in(f"gather.fish_initial.{f['id']}.pos", f.get("pos"), b, ("x", "d"))
-        if f["pos"][1] <= g["surface_depth"]:
-            raise BadInput(f"tuning.gather.fish_initial.{f['id']}: đàn cá phải ở dưới nước")
+    for e in plan:
+        if not isinstance(e, dict) or set(e) != {"day", "dishes", "ingredients"}:
+            raise BadInput("tuning.day_plan: mỗi Ngày cần đúng day, dishes, ingredients")
+        day = e["day"]
+        if isinstance(day, bool) or not isinstance(day, int) or day < 1 or day in seen:
+            raise BadInput("tuning.day_plan: day phải là số nguyên dương duy nhất")
+        seen.add(day)
+        dishes, ing = e["dishes"], e["ingredients"]
+        if not isinstance(dishes, dict) or not dishes:
+            raise BadInput(f"tuning.day_plan.ngày {day}: dishes phải là object không rỗng")
+        if not isinstance(ing, dict):
+            raise BadInput(f"tuning.day_plan.ngày {day}: ingredients phải là object")
+        want = {}
+        for dish, n in dishes.items():
+            if dish not in menu:
+                raise BadInput(f"tuning.day_plan.ngày {day}: món lạ {dish}")
+            if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+                raise BadInput(f"tuning.day_plan.ngày {day}: suất của {dish} phải là số nguyên dương")
+            for kind, q in menu[dish]["recipe"].items():
+                want[kind] = want.get(kind, 0) + q * n
+        got = {}
+        for kind, n in ing.items():
+            if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+                raise BadInput(f"tuning.day_plan.ngày {day}: số lượng {kind} phải là số nguyên dương")
+            got[kind] = n
+        if got != want:
+            raise BadInput(f"tuning.day_plan.ngày {day}: ingredients phải bằng tổng recipe × suất ({want})")
+
+
+def _validate_shop(t):
+    shop = t.get("shop")
+    if not isinstance(shop, dict) or set(shop) != {"max_ticks", "upgrades"}:
+        raise BadInput("tuning.shop phải có đúng max_ticks và upgrades")
+    if isinstance(shop["max_ticks"], bool) or not isinstance(shop["max_ticks"], int) or shop["max_ticks"] < 1:
+        raise BadInput("tuning.shop.max_ticks phải là số nguyên dương")
+    ups = shop["upgrades"]
+    if not isinstance(ups, dict) or set(ups) != {"oxygen", "hp"}:
+        raise BadInput("tuning.shop.upgrades phải có oxygen và hp")
+    for key, stat in (("oxygen", "oxygen_max_s"), ("hp", "hp_max")):
+        arr = ups[key]
+        if not isinstance(arr, list) or not arr:
+            raise BadInput(f"tuning.shop.upgrades.{key} phải là mảng không rỗng")
+        levels = set()
+        for u in arr:
+            if not isinstance(u, dict) or set(u) != {"level", "price", stat}:
+                raise BadInput(f"tuning.shop.upgrades.{key}: mỗi bậc cần level, price, {stat}")
+            lvl, price, val = u["level"], u["price"], u[stat]
+            if isinstance(lvl, bool) or not isinstance(lvl, int) or lvl < 1 or lvl in levels:
+                raise BadInput(f"tuning.shop.upgrades.{key}: level phải là số nguyên dương duy nhất")
+            levels.add(lvl)
+            if isinstance(price, bool) or not isinstance(price, int) or price <= 0:
+                raise BadInput(f"tuning.shop.upgrades.{key}.level {lvl}: price phải là số nguyên dương")
+            if isinstance(val, bool) or not isinstance(val, int) or val < 1:
+                raise BadInput(f"tuning.shop.upgrades.{key}.level {lvl}: {stat} phải là số nguyên dương")
 
 
 def validate_tuning(t):
@@ -141,32 +193,5 @@ def validate_tuning(t):
         price, cook = d.get("price"), d.get("cook_s")
         if isinstance(price, bool) or not isinstance(price, int) or price <= 0 or not _num(cook) or cook <= 0:
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
-    _validate_day_shop(t, menu)
-
-
-def _validate_day_shop(t, menu):
-    """v1.1 (TV2): day_plan 5 Ngày, ingredients = Σ công thức × suất; shop.upgrades theo cấp."""
-    from .sim.plan import plan_ingredients
-    plans = t.get("day_plan")
-    if plans is not None:
-        if not isinstance(plans, list) or [p.get("day") for p in plans] != list(range(1, len(plans) + 1)):
-            raise BadInput("tuning.day_plan phải là mảng {day, dishes, ingredients} theo Ngày 1..n")
-        for p in plans:
-            dishes = p.get("dishes")
-            if not isinstance(dishes, dict) or not dishes or any(d not in menu for d in dishes):
-                raise BadInput(f"tuning.day_plan[{p['day']}].dishes phải là map id món -> số suất")
-            if any(isinstance(n, bool) or not isinstance(n, int) or n <= 0 for n in dishes.values()):
-                raise BadInput(f"tuning.day_plan[{p['day']}].dishes: số suất phải nguyên dương")
-            if p.get("ingredients") != plan_ingredients(dishes, menu):
-                raise BadInput(f"tuning.day_plan[{p['day']}].ingredients khác Σ công thức × suất")
-    shop = t.get("shop")
-    if shop is not None:
-        _int_between("shop.max_ticks", shop.get("max_ticks"), 1, 100_000)
-        for kind, field in (("oxygen", "oxygen_max_s"), ("hp", "hp_max")):
-            rows = shop.get("upgrades", {}).get(kind)
-            if not isinstance(rows, list) or [r.get("level") for r in rows] != list(range(1, len(rows) + 1)):
-                raise BadInput(f"tuning.shop.upgrades.{kind} phải là mảng theo cấp 1..n")
-            for r in rows:
-                _int_between(f"shop.upgrades.{kind}.price", r.get("price"), 1, 1_000_000)
-                if not _num(r.get(field)) or r[field] <= 0:
-                    raise BadInput(f"tuning.shop.upgrades.{kind}.{field} phải > 0")
+    _validate_day_plan(t, menu)
+    _validate_shop(t)
