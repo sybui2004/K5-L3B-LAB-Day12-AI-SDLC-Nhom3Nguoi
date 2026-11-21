@@ -70,6 +70,25 @@ Spec chung (DoD, AC-P3-01…16, bảng tác động, schema cá thể): [`docs/s
 ### Thành viên 3 (hgmdz1210) — lát A adapter + HUD + QA · QA lead
 - Adapter kho v1.2 (đẩy trước phút 10), HUD độ tươi, smoke kho, bật v1.2, CHANGELOG, verification. Spec: [`docs/spec/phase-3/adapter-hud-qa.md`](docs/spec/phase-3/adapter-hud-qa.md)
 
+## Nhiệm vụ Phase 4 (Ticket-04 — Phát hành v1.0.0, Test Contract v1.3)
+
+Spec chung (DoD, AC-P4-01…19, bảng tác động): [`docs/spec/phase-4/README.md`](docs/spec/phase-4/README.md) · Kế hoạch + mốc giờ: [`docs/plan/phase-4.md`](docs/plan/phase-4.md) · Verification: [`docs/verification/phase-4.md`](docs/verification/phase-4.md)
+
+### Thành viên 1 (sybui2004) — bench + contract 1.3 + Release · Integrator/Release
+- `bench_cmd` (Chrome headless, `bench.json`). Spec: [`bench-soak.md`](docs/spec/phase-4/bench-soak.md) mục A
+- Contract 1.3, README, CHANGELOG, LICENSE, CREDITS, release notes, tag `phase-4` + Release `v1.0.0` trước 3:00. Spec: [`release-docs.md`](docs/spec/phase-4/release-docs.md)
+
+### Thành viên 2 (lit1numyt) — soak + retro · PO, điều phối retro
+- `soak_cmd` 10 Ngày, bot tất định. Spec: [`bench-soak.md`](docs/spec/phase-4/bench-soak.md) mục B
+- Clarify #32–36, `docs/retro.md`, nhắc đủ `docs/members/`.
+
+### Thành viên 3 (hgmdz1210) — cảnh báo + tương phản cao + đóng gói · Bench/QA
+- Ba cảnh báo, chế độ tương phản cao. Spec: [`alerts-ui.md`](docs/spec/phase-4/alerts-ui.md)
+- Clone sạch ≤ 3 lệnh, zip, regression, `docs/verification/phase-4.md`.
+
+### Sang Phan (sangdaden) — admin
+- Kiểm quyền repo/Release, `docs/members/sangdaden.md`.
+
 ## Thỏa thuận làm việc nhóm (điền trong 15 phút kickoff, ≤ 10 dòng)
 
 - Kênh liên lạc: … (nhóm chat chung)
