@@ -209,14 +209,16 @@ def apply_hit(monster, player_pos, g_tuning) -> None:
 
 
 def drop_lifo(hold_list, count_carried, loss_ratio) -> tuple:
-    """Rơi `floor(count_carried × loss_ratio)` món CUỐI (nhặt sau mất trước).
+    """Rơi `floor(count_carried × loss_ratio)` CÁ THỂ CUỐI (nhặt sau mất trước).
 
-    Trả `(kept, lost)` là hai danh sách mới; không sửa `hold_list`.
+    `hold_list` là mảng cá thể (dict {id, kind, fresh}) theo thứ tự vào giỏ.
+    Trả `(kept, lost)` là hai danh sách mới; `lost` theo THỨ TỰ BỎ (mới nhất trước, LIFO);
+    không sửa `hold_list`.
     """
     n = int(math.floor(count_carried * loss_ratio))
     if n <= 0:
         return list(hold_list), []
-    return list(hold_list[:-n]), list(hold_list[-n:])
+    return list(hold_list[:-n]), list(reversed(hold_list[-n:]))
 
 
 def _round3(v) -> float:

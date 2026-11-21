@@ -8,6 +8,7 @@ import json
 import unittest
 
 from helpers import Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import hold_items, stock_counts, stock_items
 
 
 def g():
@@ -64,14 +65,15 @@ class Oxygen(unittest.TestCase):
         with Workdir() as w:
             inv = w.path("inv.json")
             rows = run(w, {"player": {"pos": [20, 5], "hp": 1, "oxygen_ticks": 0, "zero_oxy_ticks": 59},
-                           "hold": ["ca_loc", "bong_sung"], "random_fish": False}, ticks=10, inv=inv)
+                           "hold": hold_items(["ca_loc", "bong_sung"]), "random_fish": False}, ticks=10, inv=inv)
             self.assertEqual([e["name"] for e in events(rows)], ["choke", "faint", "gather_end"])
             end = events(rows, "gather_end")[0]["data"]
-            self.assertEqual(end, {"reason": "fainted", "inventory": {"items": {}}})
+            # Đổi test (P3 lát B): gather_end.inventory là mảng cá thể v1.2 (ngất => rỗng).
+            self.assertEqual(end, {"reason": "fainted", "inventory": {"items": []}})
             self.assertEqual(rows[-1]["reason"], "fainted")
             self.assertEqual(last(rows)["hold"], [])
             with open(inv, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {}})
+                self.assertEqual(json.load(f), {"items": []})
 
 
 class Harvest(unittest.TestCase):
@@ -85,7 +87,8 @@ class Harvest(unittest.TestCase):
             self.assertEqual(len(ev), 1, "nút chưa mọc lại thì không hái được lần hai")
             self.assertEqual(ev[0]["data"]["node_id"], "N1")
             s = last(rows)
-            self.assertEqual(s["hold"], ["bong_dien_dien"] * t["node_yield"])
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh} theo thứ tự vào giỏ.
+            self.assertEqual([it["kind"] for it in s["hold"]], ["bong_dien_dien"] * t["node_yield"])
             n1 = [n for n in s["nodes"] if n["id"] == "N1"][0]
             self.assertFalse(n1["ready"])
             self.assertEqual(n1["regrow_ticks"], int(t["regrow_s"] * 60) - 2)
@@ -110,7 +113,7 @@ class Harvest(unittest.TestCase):
     def test_hold_full_on_harvest(self):
         cap = g()["hold_capacity"]
         with Workdir() as w:
-            rows = run(w, {"player": {"pos": [12, 0]}, "hold": ["ca_loc"] * cap, "random_fish": False},
+            rows = run(w, {"player": {"pos": [12, 0]}, "hold": hold_items(["ca_loc"] * cap), "random_fish": False},
                        [{"tick": 0, "interact": True}])
             self.assertEqual(events(rows, "gather"), [])
             self.assertEqual(len(events(rows, "hold_full")), 1)
@@ -128,7 +131,8 @@ class Catch(unittest.TestCase):
             self.assertEqual(len(ev), 1)
             self.assertEqual(ev[0]["data"]["fish_id"], "F1")
             s = last(rows)
-            self.assertEqual(s["hold"], ["ca_linh"] * t["fish_yield"]["ca_linh"])
+            # Đổi test (P3 lát B): hold là mảng cá thể {id, kind, fresh} theo thứ tự vào giỏ.
+            self.assertEqual([it["kind"] for it in s["hold"]], ["ca_linh"] * t["fish_yield"]["ca_linh"])
             self.assertNotIn("F1", [f["id"] for f in s["fish"]])
             self.assertEqual(s["player"]["catch_cd_ticks"], int(t["catch_cooldown_s"] * 60))
 
@@ -154,7 +158,7 @@ class Catch(unittest.TestCase):
         # v1.1: ghim đàn cá (mặc định do lát 1 sinh) để kiểm giỏ đầy.
         fish = [{"id": "F1", "kind": "ca_linh", "pos": [15, 5]}]
         with Workdir() as w:
-            rows = run(w, {"player": {"pos": [15, 5]}, "fish": fish, "hold": ["ca_loc"] * (cap - 1)},
+            rows = run(w, {"player": {"pos": [15, 5]}, "fish": fish, "hold": hold_items(["ca_loc"] * (cap - 1))},
                        [{"tick": 0, "catch": True}])
             self.assertEqual(events(rows, "fish_caught"), [])
             self.assertEqual(len(events(rows, "hold_full")), 1)
@@ -166,7 +170,30 @@ class Catch(unittest.TestCase):
             run(w, {"player": {"pos": [2, 1]}, "fish": [{"id": "F1", "kind": "ca_loc", "pos": [2, 2]}]},
                 [{"tick": 0, "catch": True}, {"tick": 1, "interact": True}], ticks=5, inv=inv)
             with open(inv, encoding="utf-8") as f:
-                self.assertEqual(json.load(f), {"items": {"ca_loc": 1}})
+                self.assertEqual(stock_counts(json.load(f)["items"]), {"ca_loc": 1})
+
+
+class FreshnessType(unittest.TestCase):
+    def test_decay_keeps_fresh_as_fraction(self):
+        # Đổi test/Thêm test (P3 lát B): khóa kiểu Fraction (ADR 0001 §2)
+        from fractions import Fraction
+
+        from chonoi.contract import load_contract
+        from chonoi.ids import IdAllocator
+        from chonoi.inventory import decay
+        from chonoi.rng import Streams
+        from chonoi.sim.gather import GatherSim
+
+        tuning = load_contract()["tuning"]
+        sim = GatherSim(tuning, {"hold": [{"id": "I1", "kind": "ca_linh", "fresh": 100}],
+                                 "random_fish": False, "monsters": []},
+                        Streams(1), IdAllocator())
+        self.assertEqual(sim.decay_per_tick, Fraction(1, 120))
+        self.assertIs(type(sim.decay_per_tick), Fraction)
+        sim.hold[0]["fresh"] = Fraction(100)
+        decay(sim.hold, sim.decay_per_tick, sim.spoiled_below)
+        self.assertIs(type(sim.hold[0]["fresh"]), Fraction)
+        self.assertEqual(sim.hold[0]["fresh"], Fraction(100) - Fraction(1, 120))
 
 
 if __name__ == "__main__":

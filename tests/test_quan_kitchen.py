@@ -10,6 +10,7 @@ import os
 import unittest
 
 from helpers import ROOT, Workdir, stock_counts, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import hold_items, stock_counts, stock_items
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     T = json.load(_f)["tuning"]
@@ -44,7 +45,7 @@ class Data(unittest.TestCase):
     def test_contract_v11_standard_data(self):
         with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
             c = json.load(f)
-        self.assertEqual(c["contract_version"], "1.1")
+        self.assertEqual(c["contract_version"], "1.2")
         self.assertEqual([s["id"] for s in Q["stoves"]], ["B1", "B2"])
         self.assertEqual([t["id"] for t in Q["tables"]], ["T1", "T2", "T3", "T4"])
         self.assertEqual(len(MENU), 6)
@@ -57,7 +58,7 @@ class Data(unittest.TestCase):
 
     def test_new_ingredients_accepted_and_new_dish_chosen(self):
         with Workdir() as w:
-            inv = write_json(w.path("kho.json"), {"items": {"ca_keo": 2, "keo_neo": 1}})
+            inv = write_json(w.path("kho.json"), {"items": stock_items({"ca_keo": 2, "keo_neo": 1})})
             sc = write_json(w.path("sc.json"), {"quan": {}})
             code, err = run_headless("--mode", "quan", "--seed", "1", "--ticks", str(Q["first_customer_tick"]),
                                      "--inventory", inv, "--scenario", sc, "--out", w.path("o.jsonl"))
@@ -68,7 +69,7 @@ class Data(unittest.TestCase):
 
 class Stove(unittest.TestCase):
     def test_ac_q_07_cook_then_ready(self):
-        block = {"player": {"pos": NEAR_B1}, "stock": {"bong_sung": 2},
+        block = {"player": {"pos": NEAR_B1}, "stock": stock_items({"bong_sung": 2}),
                  "customers": [waiting("C1", "T1", "goi_bong_sung")]}
         n = cook_ticks("goi_bong_sung")
         with Workdir() as w:
@@ -86,7 +87,7 @@ class Stove(unittest.TestCase):
             self.assertEqual(last["stoves"][0]["state"], "ready")
 
     def test_stove_takes_oldest_reserved_order_then_table_id(self):
-        stock = {"bong_sung": 2, "ca_loc": 2}
+        stock = stock_items({"bong_sung": 2, "ca_loc": 2})
         block = {"player": {"pos": NEAR_B1}, "stock": stock, "customers": [
             waiting("C1", "T2", "goi_bong_sung", order_tick=5),
             waiting("C2", "T1", "ca_loc_nuong_trui", order_tick=5),
@@ -121,7 +122,7 @@ class Stove(unittest.TestCase):
 
     def test_ac_q_11_tie_picks_stove_by_id(self):
         # [3.5, 8] cách B1 và B2 đúng 1.5 m (bằng bán kính) -> chọn B1 (id nhỏ)
-        block = {"player": {"pos": [3.5, 8]}, "stock": {"bong_sung": 2},
+        block = {"player": {"pos": [3.5, 8]}, "stock": stock_items({"bong_sung": 2}),
                  "customers": [waiting("C1", "T1", "goi_bong_sung")]}
         with Workdir() as w:
             code, err, rows = run(w, block, 2)
@@ -132,7 +133,7 @@ class Stove(unittest.TestCase):
 class Serve(unittest.TestCase):
     def serve(self, w, patience, dish="goi_bong_sung", hand="goi_bong_sung", ticks=None):
         block = {"player": {"pos": NEAR_T1}, "hand": hand,
-                 "customers": [waiting("C1", "T1", dish, reserved={}, patience_ticks_left=patience)]}
+                 "customers": [waiting("C1", "T1", dish, reserved=[], patience_ticks_left=patience)]}
         return run(w, block, ticks or EAT + 2)
 
     def test_ac_q_09_serve_then_pay(self):
@@ -174,7 +175,7 @@ class Serve(unittest.TestCase):
             self.assertEqual(snapshots(rows)[-1]["hand"], "ca_loc_nuong_trui")
 
     def test_serving_reserved_order_releases_reservation(self):
-        block = {"player": {"pos": NEAR_T1}, "hand": "goi_bong_sung", "stock": {"bong_sung": 2},
+        block = {"player": {"pos": NEAR_T1}, "hand": "goi_bong_sung", "stock": stock_items({"bong_sung": 2}),
                  "customers": [waiting("C1", "T1", "goi_bong_sung")]}
         with Workdir() as w:
             code, err, rows = run(w, block, 2)
@@ -186,13 +187,13 @@ class Serve(unittest.TestCase):
 
 class CloseShift(unittest.TestCase):
     def test_ac_q_12_close_pays_eating_and_waiting_leave_without_penalty(self):
-        block = {"time_left_ticks": 3, "hand": "goi_bong_sung", "stock": {"ca_loc": 1},
+        block = {"time_left_ticks": 3, "hand": "goi_bong_sung", "stock": stock_items({"ca_loc": 1}),
                  "stoves": [{"id": "B1", "state": "cooking", "dish": "goi_bong_sung", "order_id": "C2",
                              "cook_ticks_left": 100}],
                  "customers": [
                      {"id": "C1", "table_id": "T1", "dish_id": "goi_bong_sung", "state": "eating",
                       "price": 40, "tip": 8, "eat_ticks_left": 100},
-                     waiting("C2", "T2", "goi_bong_sung", reserved={}),
+                     waiting("C2", "T2", "goi_bong_sung", reserved=[]),
                      waiting("C3", "T3", "ca_loc_nuong_trui", patience_ticks_left=3)]}  # hết kiên nhẫn đúng bước cuối
         with Workdir() as w:
             code, err, rows = run(w, block, 10, press=())
@@ -218,8 +219,8 @@ class Scenario(unittest.TestCase):
     def test_bad_order_fields_exit_2(self):
         bad = [
             {"customers": [waiting("C1", "T1", "goi_bong_sung", order_status="served")]},
-            {"customers": [waiting("C1", "T1", "goi_bong_sung", order_status="cooking", reserved={"bong_sung": 2})],
-             "stock": {"bong_sung": 2}},
+            {"customers": [waiting("C1", "T1", "goi_bong_sung", order_status="cooking", reserved=["I1", "I2"])],
+             "stock": stock_items({"bong_sung": 2})},
             {"customers": [waiting("C1", "T1", "goi_bong_sung", order_status="lost")]},
             {"customers": [waiting("C1", "T1", "goi_bong_sung", order_tick=-1)]},
             {"stoves": [{"id": "B1", "state": "idle", "order_id": "C1"}]},
@@ -249,7 +250,7 @@ class Ctx(unittest.TestCase):
     def test_stats_after_serve_and_pay(self):
         from chonoi.inputs import InputState
         sim = self.make({"player": {"pos": NEAR_T1}, "hand": "goi_bong_sung", "random_customers": False,
-                         "customers": [waiting("C1", "T1", "goi_bong_sung", reserved={})]})
+                         "customers": [waiting("C1", "T1", "goi_bong_sung", reserved=[])]})
         sim.step(InputState((0.0, 0.0), {}, {"interact"}))
         for _ in range(EAT):
             sim.step(InputState((0.0, 0.0), {}, set()))

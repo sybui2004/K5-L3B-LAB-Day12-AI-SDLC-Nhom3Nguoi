@@ -29,8 +29,9 @@ Ngoài phần đề yêu cầu, nhóm được **thêm** nhân vật, loài cá/
 
 ## Sáng tạo của nhóm
 
-Chi tiết và trạng thái duyệt: [`docs/creative-ideas.md`](docs/creative-ideas.md). Tất cả nằm sau cờ `creative` (mặc định tắt); headless luôn tắt.
+Chi tiết và trạng thái duyệt: [`docs/creative-ideas.md`](docs/creative-ideas.md). Các mục dưới nằm sau cờ `creative` (mặc định tắt); headless luôn tắt.
 
+- **Giao diện chợ nổi (đã làm):** menu, các màn trong ngày và HUD vẽ theo ghe miền Tây, có cây bẹo treo nguyên liệu. Đây là giao diện bắt buộc của Phase 2 nên luôn bật trên trình duyệt; toàn bộ nằm ở `chonoi/web/`, headless không dùng. Chơi: `python -m chonoi.live --mode day`.
 - **Làm trước (đã duyệt):** A âm thanh Web Audio · B hiệu ứng nước/bọt/hơi bếp · C lời thoại Út Sen và khách · H sổ tay ký ức Út Sen (đều chỉ ở `chonoi/web/`).
 - **Backlog (đã duyệt, làm sau):** D bản đồ "Rạch Bần" · E cá và món mới · F khách khó tính.
 - **Nhân vật Bến Tre (hư cấu):** anh Jack Bến Tre và chị Thiên An (vợ anh), xuất hiện qua lời thoại C, sổ tay H và khách đôi F.

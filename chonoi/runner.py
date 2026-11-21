@@ -44,8 +44,9 @@ def _common(sim, tick, sim_tick, phase_tick, tuning, state):
 class Session:
     """Một lượt chơi: dựng sim, bước từng tick, lấy snapshot / dòng end."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None, days=1):
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, days=1, contract_version="1.2"):
         self.mode = mode
+        self.contract_version = contract_version
         self.tuning = tuning
         self.sim = build_sim(mode, tuning, scenario, seed, inventory, days)
         self.tick = 0       # tick ngoài: tăng cả khi pause
@@ -115,12 +116,13 @@ class Session:
     def write_inventory_if_done(self, inventory_out):
         """File kho: ghi MỘT lần khi có gather_end; chưa kết thúc thì giữ nguyên file đích."""
         if self.mode == "gather" and self.sim.done and inventory_out:
-            write_inventory(inventory_out, self.sim.inventory_items())
+            items = self.sim.hold_counts() if self.contract_version == "1.1" else self.sim.hold
+            write_inventory(inventory_out, items, self.contract_version)
 
 
 def run(mode, tuning, scenario, seed, frames, ticks, out_path, snapshot_every, inventory=None, inventory_out=None,
-        days=1):
-    sess = Session(mode, tuning, scenario, seed, inventory, days)
+        days=1, contract_version="1.2"):
+    sess = Session(mode, tuning, scenario, seed, inventory, days, contract_version)
     player = InputPlayer(frames)
     w = JsonlWriter(out_path)
     try:

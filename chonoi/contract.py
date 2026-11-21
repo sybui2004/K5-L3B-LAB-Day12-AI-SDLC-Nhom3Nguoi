@@ -24,6 +24,8 @@ def load_contract(path=DEFAULT_PATH) -> dict:
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được {path}: {e}")
     validate_tuning(c.get("tuning"))
+    if c.get("contract_version") != "1.1" and "freshness" not in c["tuning"]:
+        raise BadInput("contract từ v1.2 phải có tuning.freshness")
     return c
 
 
@@ -161,6 +163,19 @@ def _validate_shop(t):
                 raise BadInput(f"tuning.shop.upgrades.{key}.level {lvl}: {stat} phải là số nguyên dương")
 
 
+def _validate_freshness(t):
+    f = t.get("freshness")
+    if f is None:
+        return
+    if not isinstance(f, dict):
+        raise BadInput("tuning.freshness phải là object")
+    for key in ("initial", "gather_decay_per_s", "quan_decay_per_s", "spoiled_below"):
+        if not _num(f.get(key)) or f[key] <= 0:
+            raise BadInput(f"tuning.freshness.{key} phải là số dương")
+    if not f["spoiled_below"] < f["initial"] <= 100:
+        raise BadInput("tuning.freshness cần 0 < spoiled_below < initial <= 100")
+
+
 def validate_tuning(t):
     if not isinstance(t, dict):
         raise BadInput("thiếu khối tuning")
@@ -195,3 +210,4 @@ def validate_tuning(t):
             raise BadInput(f"menu.{dish_id}: price (nguyên) và cook_s phải > 0")
     _validate_day_plan(t, menu)
     _validate_shop(t)
+    _validate_freshness(t)

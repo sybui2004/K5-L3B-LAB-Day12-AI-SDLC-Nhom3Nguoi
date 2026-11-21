@@ -1,0 +1,11 @@
+| Mục | Kết quả | Ghi chú |
+|---|---|---|
+| unittest | ĐẠT | OK |
+| check_team | ĐẠT | OK: 4 thành viên: sybui2004, lit1numyt, hgmdz1210, sangdaden |
+| headless gather seed 1 | ĐẠT | mã thoát 0/0 |
+| so byte gather (2 lần) | ĐẠT | giống từng byte |
+| headless quan seed 1 | ĐẠT | mã thoát 0/0 |
+| so byte quan (2 lần) | ĐẠT | giống từng byte |
+| luồng kho gather -> quan | ĐẠT | cá thể = [('I1', 'ca_loc'), ('I2', 'bong_sung'), ('I3', 'bong_sung')] |
+
+Tổng: 7/7 mục đạt

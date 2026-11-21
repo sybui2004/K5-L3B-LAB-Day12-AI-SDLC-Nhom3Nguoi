@@ -1,7 +1,7 @@
-"""File kho v1.0 (Contract G): {"items": {id: số nguyên >= 0}}.
+"""File kho (Contract G). v1.1: {"items": {kind: số nguyên >= 0}}. v1.2: {"items": [{"id", "kind", "fresh"}]}.
 
-Đọc: từ chối sai schema / id lạ / số âm (BadInput -> mã 2).
-Ghi: bỏ mục bằng 0, qua file tạm cùng thư mục rồi thay thế, byte-ổn-định.
+Đọc: từ chối sai schema / kind lạ / số âm; v1.2 từ chối thêm kho đếm, id trùng hoặc rỗng, fresh ngoài [0, 100] (mã 2).
+Ghi: qua file tạm cùng thư mục rồi thay thế, byte-ổn-định. v1.2 sắp theo id, `fresh` là float đầy đủ (clarify #31).
 """
 
 import json
@@ -9,6 +9,7 @@ import os
 import tempfile
 
 from .errors import BadInput
+from .ids import sort_by_id
 
 KINDS_P1 = ("ca_loc", "ca_linh", "bong_dien_dien", "bong_sung")
 # v1.1 (TICKET-02): thêm cá kèo và kèo nèo. Sửa file khung vì kho/scenario phải nhận đủ 6 nguyên liệu.
@@ -29,7 +30,8 @@ def validate_items(items, kinds=KINDS):
     return out
 
 
-def read_inventory(path: str, kinds=KINDS) -> dict:
+def read_inventory(path: str, version="1.1", kinds=KINDS):
+    """v1.1 trả map đếm; từ v1.2 trả list cá thể (`fresh` là Fraction)."""
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
@@ -37,7 +39,9 @@ def read_inventory(path: str, kinds=KINDS) -> dict:
         raise BadInput(f"không đọc được file kho {path}: {e}")
     if not isinstance(data, dict) or set(data.keys()) != {"items"}:
         raise BadInput("file kho chỉ được có khóa gốc 'items'")
-    return validate_items(data["items"], kinds)
+    if version == "1.1":
+        return validate_items(data["items"], kinds)
+    return validate_item_list(data["items"], kinds)
 
 
 def hold_to_items(hold: list) -> dict:
@@ -48,13 +52,17 @@ def hold_to_items(hold: list) -> dict:
     return {k: counts[k] for k in sorted(counts)}
 
 
-def write_inventory(path: str, items: dict):
-    items = {k: items[k] for k in sorted(items) if items[k] > 0}
+def write_inventory(path: str, items, version="1.1"):
+    """v1.1: `items` là map đếm. Từ v1.2: `items` là list cá thể chưa làm tròn."""
+    if version == "1.1":
+        payload = {k: items[k] for k in sorted(items) if items[k] > 0}
+    else:
+        payload = [{"id": it["id"], "kind": it["kind"], "fresh": float(it["fresh"])} for it in sort_by_id(items)]
     d = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".inv-", suffix=".tmp", dir=d)
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            json.dump({"items": items}, f, ensure_ascii=False, separators=(",", ":"))
+            json.dump({"items": payload}, f, ensure_ascii=False, separators=(",", ":"))
             f.write("\n")
         os.replace(tmp, path)
     except BaseException:
@@ -64,7 +72,6 @@ def write_inventory(path: str, items: dict):
 
 
 # --- v1.2 (TICKET-03): cá thể có độ tươi — hàm dùng chung theo spec phase-3/README.md 4.2 / ADR 0001 ----------
-# Bản tối thiểu do TV2 viết trước để lát quán chạy được; TV3 (lát A) bổ sung đọc/ghi file v1.2 + schema scenario.
 import math
 from fractions import Fraction
 
@@ -97,7 +104,6 @@ def is_spoiled(item, spoiled_below) -> bool:
 
 def decay(items, per_tick, spoiled_below) -> list:
     """Trừ `per_tick` (kẹp 0); trả các cá thể VỪA đi từ >= ngưỡng xuống < ngưỡng, sắp theo id."""
-    from .ids import sort_by_id
     below = to_fresh(spoiled_below)
     crossed = []
     for it in items:
