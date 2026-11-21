@@ -26,7 +26,11 @@ class TeamCheck(unittest.TestCase):
     def test_template_is_rejected(self):
         with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TEAM.md"), encoding="utf-8") as f:
             m = check_team.parse_team(f.read())
-        self.assertTrue(check_team.validate(m, 4))
+        # TEAM.md thật đã điền đủ 4 người và khớp team_size trong game.contract.json.
+        import json
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json"), encoding="utf-8") as f:
+            team_size = json.load(f)["team_size"]
+        self.assertEqual(check_team.validate(m, team_size), [])
 
     def test_wrong_size_duplicate_and_outsider(self):
         m = check_team.parse_team(GOOD)
