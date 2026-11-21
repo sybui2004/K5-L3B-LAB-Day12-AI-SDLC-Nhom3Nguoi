@@ -1,0 +1,2 @@
+gather seed 1, 600 tick, 2 lần chạy: giống từng byte
+quan seed 1, 600 tick, 2 lần chạy: giống từng byte

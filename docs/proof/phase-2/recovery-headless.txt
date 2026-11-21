@@ -1,0 +1,8 @@
+Phase 2 source: 330dde9a302543c08de5c58aa24a37cfb049e384
+Python 3.13.18 on win32
+python -m chonoi.headless --mode day --days 1 --seed 1 --ticks 22200 --out <file>
+Both runs exited 0 with days_complete. Elapsed: 1.173s and 1.820s.
+Two JSONL files match byte for byte (3389615 bytes).
+Inventory smoke used the fixture and commands in integration.md.
+gather --inventory-out items = quan tick 0 stock = {"bong_sung": 2, "ca_keo": 2, "ca_loc": 1, "keo_neo": 1}
+This is a later re-run. No claim is made about completion at minute 20.
