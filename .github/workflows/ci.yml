@@ -20,9 +20,9 @@ jobs:
       - name: Kiểm danh sách thành viên (cảnh báo)
         continue-on-error: true
         if: github.repository != 'VinUni-AI20k/K5-L3B-LAB-Day12-AI-SDLC'
-        run: python3 tools/check_team.py
+        run: python tools/check_team.py
       # Nhóm đổi ngôn ngữ: sửa `build_cmd` trong game.contract.json và cài runtime ở bước riêng (xem README).
       - name: Build (build_cmd trong game.contract.json)
-        run: bash -c "$(python3 -c 'import json;print(json.load(open("game.contract.json"))["build_cmd"])')"
+        run: bash -c "$(python -c 'import json;print(json.load(open("game.contract.json"))["build_cmd"])')"
       - name: Test (hộp đen qua headless_cmd + unit của nhóm)
-        run: PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
+        run: PYTHONPATH=tests:. python -m unittest discover -s tests -v
