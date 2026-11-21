@@ -8,7 +8,7 @@ phải có đúng một món, khách eating thiếu giá/tip...) — xem PRD-0 m
 import json
 
 from .errors import BadInput
-from .inventory import KINDS, validate_items
+from .inventory import KINDS, validate_item_list, validate_items
 
 GATHER_KEYS = {"player", "hold", "nodes", "fish", "random_fish", "time_left_ticks"}
 GATHER_PLAYER_KEYS = {"pos", "vel", "heading_deg", "hp", "oxygen_ticks", "zero_oxy_ticks",
@@ -166,7 +166,7 @@ def _validate_gather(b, tuning):
         raise BadInput("random_fish phải là boolean")
     if "hold" in b:
         h = b["hold"]
-        if not isinstance(h, list) or any(k not in KINDS for k in h):
+        if not isinstance(h, list) or any(k not in KINDS for k in h):  # hold cá thể v1.2: lát A (TV3) + B (TV1)
             raise BadInput("hold phải là mảng id nguyên liệu hợp lệ")
         if len(h) > g["hold_capacity"]:
             raise BadInput("hold vượt sức chứa")
@@ -219,8 +219,11 @@ def _validate_quan(b, tuning):
     for arr in ("stoves", "tables", "customers"):
         if arr in b:
             _check_ids(arr, b[arr])
-    if "stock" in b:
-        validate_items(b["stock"])
+    if "stock" in b:  # v1.1: map đếm; v1.2: mảng cá thể (TICKET-03)
+        if isinstance(b["stock"], list):
+            validate_item_list(b["stock"])
+        else:
+            validate_items(b["stock"])
     p = b.get("player", {})
     if not isinstance(p, dict) or set(p) - QUAN_PLAYER_KEYS:
         raise BadInput("quan.player chỉ có pos và vel")
@@ -241,8 +244,8 @@ def _validate_quan(b, tuning):
 
 QUAN_CUSTOMER_KEYS = {"id", "table_id", "dish_id", "state", "patience_ticks_left", "reserved",
                       "eat_ticks_left", "price", "tip", "order_tick", "order_status"}
-QUAN_STOVE_KEYS = {"id", "pos", "state", "dish", "order_id", "cook_ticks_left", "ready_ticks"}
-ORDER_STATUSES = ("reserved", "cooking", "ready", "served")
+QUAN_STOVE_KEYS = {"id", "pos", "state", "dish", "order_id", "base_price", "cook_ticks_left", "ready_ticks"}
+ORDER_STATUSES = ("reserved", "unfulfillable", "cooking", "ready", "served")
 
 
 def _validate_quan_rules(b, tuning):
@@ -277,13 +280,17 @@ def _validate_quan_rules(b, tuning):
                 raise BadInput(f"customers.{cid}: patience_ticks_left phải trong [{lo}, {patience_max}]")
         if "reserved" in c:
             res = c["reserved"]
-            if not isinstance(res, dict):
-                raise BadInput(f"customers.{cid}: reserved phải là object")
-            res = validate_items(res)
+            if isinstance(res, list):  # v1.2: mảng id cá thể; kiểm trên kho thực ở QuanSim (TV2)
+                if any(not isinstance(i, str) or not i for i in res) or len(set(res)) != len(res):
+                    raise BadInput(f"customers.{cid}: reserved phải là mảng id cá thể khác rỗng, không trùng")
+            elif isinstance(res, dict):
+                res = validate_items(res)
+                if state == "waiting" and res and res != menu[dish]["recipe"]:
+                    raise BadInput(f"customers.{cid}: reserved phải đúng recipe của {dish} (hoặc rỗng nếu đã nấu)")
+            else:
+                raise BadInput(f"customers.{cid}: reserved phải là mảng id (v1.2) hoặc object (v1.1)")
             if state == "eating" and res:
                 raise BadInput(f"customers.{cid}: khách eating không còn giữ chỗ")
-            if state == "waiting" and res and res != menu[dish]["recipe"]:
-                raise BadInput(f"customers.{cid}: reserved phải đúng recipe của {dish} (hoặc rỗng nếu đã nấu)")
         status = c.get("order_status")
         if status is not None:
             if status not in ORDER_STATUSES:
@@ -291,9 +298,9 @@ def _validate_quan_rules(b, tuning):
             if (state == "eating") != (status == "served"):
                 raise BadInput(f"customers.{cid}: order_status served khi và chỉ khi state eating")
             res = c.get("reserved")
-            if status == "reserved" and res is not None and validate_items(res) != menu[dish]["recipe"]:
+            if status == "reserved" and isinstance(res, dict) and validate_items(res) != menu[dish]["recipe"]:
                 raise BadInput(f"customers.{cid}: đơn reserved phải giữ đúng recipe")
-            if status in ("cooking", "ready") and res:
+            if status in ("unfulfillable", "cooking", "ready") and res:
                 raise BadInput(f"customers.{cid}: đơn {status} đã trừ kho, reserved phải rỗng")
         if "order_tick" in c:
             _nonneg_int(f"customers.{cid}.order_tick", c["order_tick"])
@@ -323,6 +330,10 @@ def _validate_quan_rules(b, tuning):
             raise BadInput(f"stoves.{sid}: bếp idle không có món")
         if state != "idle" and dish not in menu:
             raise BadInput(f"stoves.{sid}: bếp {state} phải có dish trong menu")
+        if "base_price" in s and s["base_price"] is not None:  # v1.2: giá đã chốt theo độ tươi của món trên bếp
+            _nonneg_int(f"stoves.{sid}.base_price", s["base_price"])
+            if state == "idle":
+                raise BadInput(f"stoves.{sid}: bếp idle không có base_price")
         for key in ("cook_ticks_left", "ready_ticks"):
             if key in s:
                 _nonneg_int(f"stoves.{sid}.{key}", s[key])
