@@ -8,3 +8,4 @@
 | 4 | 2026-11-21 | Hồi chiêu bắt cá tính khi nào? | Giả định: chỉ khi bắt TRÚNG; bấm trượt / giỏ đầy không tốn hồi chiêu. | Chờ PO |
 | 5 | 2026-11-21 | Bắt xong đàn cá có biến mất? | Giả định: có, đàn cá bị gỡ khỏi bản đồ (P1 cá đứng yên, chưa sinh thêm). | Chờ PO |
 | 6 | 2026-11-21 | Nhóm 3 người có được chấp nhận không (đề và `tools/check_team.py` yêu cầu 4–6)? | ĐƯỢC PHÉP làm 3 người. `team_size` = 3. `tools/check_team.py` (khung, không sửa) vẫn báo "số thành viên phải từ 4 đến 6" — đây là ngoại lệ đã được duyệt, CI chỉ cảnh báo. | Giảng viên (đã xác nhận) |
+| 7 | 2026-11-21 | `first_customer_tick = 120` ứng với `tick` nào của dòng event `customer_arrived` (event ghi `tick = k + 1`)? | Giả định: event có `tick = 120`, tức bước `k = 119`. `tests/test_quan_rules.py::test_ac_q_01_*` đang kiểm theo giả định này. | Chờ PO |
