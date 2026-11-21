@@ -15,6 +15,7 @@ import copy
 import inspect
 
 from ..errors import BadInput
+from ..ids import IdAllocator
 from .gather import GatherSim
 from .plan import plan_ingredients
 from .quan import QuanSim
@@ -41,6 +42,11 @@ class DaySim:
             self.plans[p["day"]] = {"dishes": dict(p["dishes"]),
                                     "ingredients": plan_ingredients(p["dishes"], tuning["menu"])}
         self.g_tpl = scenario.get("gather", {})
+        # v1.2 (TICKET-03, AC-P3-13): một allocator RIÊNG cho cá thể, sống suốt lượt; id có sẵn trong mẫu hold được giữ.
+        self.item_ids = IdAllocator()
+        for it in self.g_tpl.get("hold", []):
+            if isinstance(it, dict):
+                self.item_ids.reserve(it["id"])
         self.q_tpl = scenario.get("quan", {})
         self.day = 0
         self.days_completed = 0
@@ -115,15 +121,27 @@ class DaySim:
             level = self.active_upgrades.get(kind, 0)
             value = self.tuning["shop"]["upgrades"][kind][level - 1][field] if level > 0 else self.tuning["gather"][field]
             ctx[field] = t["gather"][field] = value
-        kwargs = {"ctx": ctx} if "ctx" in inspect.signature(GatherSim.__init__).parameters else {}
-        self.child = GatherSim(t, self.g_tpl, self.streams, self.ids, **kwargs)
+        params = inspect.signature(GatherSim.__init__).parameters
+        kwargs = {k: v for k, v in (("ctx", ctx), ("item_ids", self.item_ids)) if k in params}
+        self.child = GatherSim(t, self._gather_template(), self.streams, self.ids, **kwargs)
         self._enter("gather", events)
 
+    def _gather_template(self):
+        """Ngày 1 giữ nguyên id trong mẫu gather.hold; Ngày 2+ cấp id MỚI theo thứ tự mảng, giữ kind/fresh ban đầu."""
+        hold = self.g_tpl.get("hold")
+        if self.day == 1 or not hold or not isinstance(hold[0], dict):
+            return self.g_tpl
+        fresh_hold = [{"id": self.item_ids.new("I"), "kind": it["kind"], "fresh": it["fresh"]} for it in hold]
+        return {**self.g_tpl, "hold": fresh_hold}
+
     def _open_quan(self, events):
-        items = {} if self.child.reason == "fainted" else self.child.inventory_items()
+        """Bàn giao trong CÙNG tick gather_end, không hao thêm; ngất ⇒ kho rỗng. Kho đếm (gather chưa v1.2) được đổi
+        sang cá thể mới bằng allocator chung."""
+        items = [] if self.child.reason == "fainted" else self.child.inventory_items()
         ctx = {"day": self.day, "plan_dishes": dict(self.plans[self.day]["dishes"]),
                "money": self.money, "earned": self.earned, "reputation": self.reputation}
-        self.child = QuanSim(self.tuning, self.q_tpl, self.streams, self.ids, inventory=items, ctx=ctx)
+        self.child = QuanSim(self.tuning, self.q_tpl, self.streams, self.ids, inventory=items, ctx=ctx,
+                             item_ids=self.item_ids)
         self._enter("quan", events)
 
     def _open_shop(self, events):
