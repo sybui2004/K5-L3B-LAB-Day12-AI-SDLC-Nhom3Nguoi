@@ -1,0 +1,3 @@
+python -m chonoi.soak --seed 7 --days 10 --out <file>
+Both runs: 10/10 days, 0 crashes. All fields match after excluding duration_s.
+Durations: 5.82 s, 5.279 s.
