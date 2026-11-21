@@ -21,6 +21,7 @@ import os
 import sys
 import threading
 import time
+from urllib.parse import parse_qs, urlsplit
 import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -35,6 +36,7 @@ from .sim.day import validate_days
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 TICK_S = 1.0 / 60.0
 MAX_BODY = 4096
+MAX_BENCH_BODY = 1024 * 1024
 RECENT_EVENTS = 40
 MAX_BUY = 32
 DEFAULT_DAYS = 5
@@ -47,12 +49,18 @@ STATIC_JS = {"/creative.js": "creative.js", "/screens.js": "screens.js"}
 class LiveGame:
     """Một lượt chơi + luồng nền bước 60 tick/s. Mọi truy cập trạng thái đi qua khóa."""
 
-    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=DEFAULT_DAYS):
-        self._args = (mode, tuning, scenario, seed, inventory, days)
+    def __init__(self, mode, tuning, scenario, seed, inventory=None, inventory_out=None, days=DEFAULT_DAYS,
+                 contract_version="1.2", bench=False):
+        self._args = (mode, tuning, scenario, seed, inventory, days, contract_version)
         self.mode = mode
         self.days = days
         self.tuning = tuning
         self.inventory_out = inventory_out
+        self.bench = bench
+        self.t0 = None
+        self.load_ms = None
+        self.frame_ms = None
+        self.bench_done = threading.Event()
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._thread = None
@@ -184,6 +192,12 @@ class LiveGame:
 
 
 class _Handler(BaseHTTPRequestHandler):
+    def handle(self):
+        try:
+            super().handle()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     protocol_version = "HTTP/1.1"
     game: LiveGame = None  # gán trên lớp con trong make_server
 
@@ -205,9 +219,18 @@ class _Handler(BaseHTTPRequestHandler):
         elif path in ("/", "/index.html"):
             try:
                 with open(os.path.join(WEB_DIR, "index.html"), "rb") as f:
-                    self._send(200, f.read(), "text/html; charset=utf-8")
+                    content = f.read()
+                    if self.game.bench and parse_qs(urlsplit(self.path).query).get("bench") == ["1"]:
+                        content = content.replace(b"</body>", b'<script src="/bench.js"></script>\n</body>')
+                    self._send(200, content, "text/html; charset=utf-8")
             except OSError:
                 self._send(404, b'{"error":"thieu index.html"}')
+        elif path == "/bench.js" and getattr(self.game, "bench", False):
+            try:
+                with open(os.path.join(WEB_DIR, "bench.js"), "rb") as f:
+                    self._send(200, f.read(), "text/javascript; charset=utf-8")
+            except OSError:
+                self._send(404, b'{"error":"thieu file"}')
         elif path in STATIC_JS:  # creative.js chỉ được trình duyệt nạp khi ?creative=1
             try:
                 with open(os.path.join(WEB_DIR, STATIC_JS[path]), "rb") as f:
@@ -219,11 +242,15 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split("?", 1)[0]
+        if path.startswith("/bench/") and not self.game.bench:
+            self._send(404, b'{"error":"khong co"}')
+            return
+        max_body = MAX_BENCH_BODY if path == "/bench/result" else MAX_BODY
         try:
             n = int(self.headers.get("Content-Length") or 0)
         except ValueError:
             n = -1
-        if n < 0 or n > MAX_BODY:
+        if n < 0 or n > max_body:
             self._send(400, b'{"error":"body sai"}')
             return
         raw = self.rfile.read(n) if n else b""
@@ -240,6 +267,25 @@ class _Handler(BaseHTTPRequestHandler):
                 self.game.advance_gate(body.get("gate"))
             elif path == "/restart":
                 self.game.restart()
+            elif path == "/bench/first-frame":
+                if not getattr(self.game, "bench", False):
+                    self._send(404, b'{"error":"khong co"}')
+                    return
+                if getattr(self.game, "load_ms", None) is None:
+                    t0 = getattr(self.game, "t0", None)
+                    self.game.load_ms = (time.perf_counter() - t0) * 1000.0 if t0 is not None else 0.0
+            elif path == "/bench/result":
+                if not getattr(self.game, "bench", False):
+                    self._send(404, b'{"error":"khong co"}')
+                    return
+                body = json.loads(raw.decode("utf-8") or "{}")
+                if not isinstance(body, dict) or "frame_ms" not in body or not isinstance(body["frame_ms"], list):
+                    raise ValueError("body phải có frame_ms là list")
+                if self.game.load_ms is None:
+                    raise ValueError("chưa nhận khung hình đầu")
+                self.game.frame_ms = body["frame_ms"]
+                if hasattr(self.game, "bench_done"):
+                    self.game.bench_done.set()
             else:
                 self._send(404, b'{"error":"khong co"}')
                 return
@@ -299,12 +345,13 @@ def main(argv=None) -> int:
         days = DEFAULT_DAYS if a.days is None else a.days
         if a.mode == "day":
             validate_days(days)
-        tuning = load_contract()["tuning"]
-        scenario = load_scenario(a.scenario, a.mode, tuning)
-        inventory = read_inventory(a.inventory) if a.inventory else None
+        contract = load_contract()
+        tuning, version = contract["tuning"], contract["contract_version"]
+        scenario = load_scenario(a.scenario, a.mode, tuning, version)
+        inventory = read_inventory(a.inventory, version) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
-        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days)
+        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out, days, version)
         server = LiveServer(game, a.host, a.port)
     except BadInput as e:
         sys.stderr.write(f"đầu vào sai: {e}\n")

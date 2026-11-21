@@ -1,0 +1,15 @@
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"day_start","data":{}}
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":1,"phase":"gather","day":1,"name":"gather_end","data":{"reason":"docked","inventory":{"items":[{"id":"I1","kind":"ca_loc","fresh":99.992},{"id":"I2","kind":"bong_sung","fresh":99.992},{"id":"I3","kind":"bong_sung","fresh":99.992}]}}}
+{"type":"event","tick":1,"phase":"quan","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":10801,"phase":"quan","day":1,"name":"quan_end","data":{"reason":"time","money":0,"earned":0,"shift_earned":0,"reputation":1.0}}
+{"type":"event","tick":10801,"phase":"shop","day":1,"name":"phase_start","data":{}}
+{"type":"event","tick":10803,"phase":"shop","day":1,"name":"shop_end","data":{"reason":"done"}}
+{"type":"event","tick":10803,"phase":"gather","day":2,"name":"day_start","data":{}}
+{"type":"event","tick":10803,"phase":"gather","day":2,"name":"phase_start","data":{}}
+{"type":"event","tick":10804,"phase":"gather","day":2,"name":"gather_end","data":{"reason":"docked","inventory":{"items":[{"id":"I4","kind":"ca_loc","fresh":99.992},{"id":"I5","kind":"bong_sung","fresh":99.992},{"id":"I6","kind":"bong_sung","fresh":99.992}]}}}
+{"type":"event","tick":10804,"phase":"quan","day":2,"name":"phase_start","data":{}}
+{"type":"event","tick":21604,"phase":"quan","day":2,"name":"quan_end","data":{"reason":"time","money":0,"earned":0,"shift_earned":0,"reputation":0}}
+{"type":"event","tick":21604,"phase":"shop","day":2,"name":"phase_start","data":{}}
+{"type":"event","tick":21606,"phase":"shop","day":2,"name":"shop_end","data":{"reason":"done"}}
+{"type":"end","ticks":21606,"sim_tick":21606,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":0,"score":0,"days_completed":2}

@@ -6,7 +6,7 @@
 
 | Thành viên | GitHub handle | Module chính | Vai quy trình | Người dự phòng cho |
 |---|---|---|---|---|
-| Thành viên 1 (điền tên) | sybui2004 | `sim/gather` + `sim/quan` lát 4 | Integrator · Scrum/Release | Thành viên 2 |
+| Bùi Thái Sỹ | sybui2004 | `sim/gather` + `sim/quan` lát 4 | Integrator · Scrum/Release | Thành viên 2 |
 | Đồng Hữu Nguyên Khoa | lit1numyt | `sim/quan` lát 3 + `scenario` | PO | Thành viên 3 |
 | Đoàn Sỹ Hưng | hgmdz1210 | `client/ui` + `qa` | QA lead | Thành viên 1 |
 | Sang Phan | sangdaden | — (admin, không nhận module) | Admin | — |

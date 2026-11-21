@@ -15,7 +15,7 @@ import copy
 import inspect
 
 from ..errors import BadInput
-from ..ids import IdAllocator
+from ..ids import IdAllocator, sort_by_id
 from .gather import GatherSim
 from .plan import plan_ingredients
 from .quan import QuanSim
@@ -141,7 +141,7 @@ class DaySim:
     def _open_quan(self, events):
         """Bàn giao trong CÙNG tick gather_end, không hao thêm; ngất ⇒ kho rỗng. Kho đếm (gather chưa v1.2) được đổi
         sang cá thể mới bằng allocator chung."""
-        items = [] if self.child.reason == "fainted" else self.child.inventory_items()
+        items = [] if self.child.reason == "fainted" else sort_by_id(self.child.hold)  # giữ fresh chưa làm tròn (ADR 0001)
         ctx = {"day": self.day, "plan_dishes": dict(self._plan()["dishes"]),
                "money": self.money, "earned": self.earned, "reputation": self.reputation}
         self.child = QuanSim(self.tuning, self.q_tpl, self.streams, self.ids, inventory=items, ctx=ctx,

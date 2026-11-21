@@ -1,0 +1,13 @@
+{
+ "gather": {
+  "player": {
+   "pos": [
+    40,
+    28
+   ],
+   "oxygen_ticks": 300
+  },
+  "random_fish": false,
+  "monsters": []
+ }
+}

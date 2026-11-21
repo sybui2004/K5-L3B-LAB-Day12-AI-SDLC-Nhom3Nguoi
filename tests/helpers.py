@@ -16,6 +16,16 @@ def write_json(path, obj):
     return path
 
 
+def hold_items(kinds, start=1, fresh=100):
+    """Giỏ v1.2 theo thứ tự nhặt: ["ca_loc", ...] -> [{"id": "I1", "kind": "ca_loc", "fresh": 100}, ...]."""
+    return [{"id": f"I{start + i}", "kind": k, "fresh": fresh} for i, k in enumerate(kinds)]
+
+
+def stock_items(counts, start=1, fresh=100):
+    """Kho v1.2 từ bảng đếm, theo kind tăng dần: {"ca_loc": 2} -> hai cá thể I1, I2."""
+    return hold_items([k for k in sorted(counts) for _ in range(counts[k])], start, fresh)
+
+
 def frames(*fr):
     return {"frames": list(fr)}
 

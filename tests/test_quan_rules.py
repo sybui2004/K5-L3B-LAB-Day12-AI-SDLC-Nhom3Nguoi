@@ -12,6 +12,7 @@ import os
 import unittest
 
 from helpers import reserved_counts, stock_counts, ROOT, Workdir, close, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import hold_items, stock_counts, stock_items
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     TUNING = json.load(_f)["tuning"]
@@ -28,7 +29,7 @@ NEAR_TABLE = [TABLE["pos"][0], TABLE["pos"][1] + 1]
 
 def customer(cid="C1", dish=DISH, patience=PATIENCE_MAX, **extra):
     c = {"id": cid, "table_id": TABLE["id"], "dish_id": dish, "state": "waiting",
-         "patience_ticks_left": patience, "reserved": dict(MENU[dish]["recipe"]) if dish in MENU else {}}
+         "patience_ticks_left": patience}  # v1.2: bỏ trống reserved thì sim tự giữ theo công thức
     c.update(extra)
     return c
 
@@ -67,7 +68,7 @@ def serve_flow(patience):
           *press(serve_at)]
     if callable(patience):
         patience = patience(serve_at)
-    block = {"player": {"pos": NEAR_STOVE}, "stock": dict(MENU[DISH]["recipe"]), "random_customers": False,
+    block = {"player": {"pos": NEAR_STOVE}, "stock": stock_items(MENU[DISH]["recipe"]), "random_customers": False,
              "customers": [customer(patience=patience)]}
     return block, frames(*fr), serve_at
 
@@ -89,7 +90,7 @@ def assert_fields(test, data, dish=None, **want):
 def slice_4_ready():
     """Dò hộp đen: đứng cạnh bếp, có khách chờ, bấm interact. Có cook_started nghĩa là đã có lát 4."""
     with Workdir() as w:
-        block = {"player": {"pos": NEAR_STOVE}, "stock": dict(MENU[DISH]["recipe"]), "random_customers": False,
+        block = {"player": {"pos": NEAR_STOVE}, "stock": stock_items(MENU[DISH]["recipe"]), "random_customers": False,
                  "customers": [customer()]}
         rows, _ = run_quan(w, block, frames(*press(0)), ticks=2)
         return bool(events(rows, "cook_started"))
@@ -108,7 +109,7 @@ class Customers(unittest.TestCase):
 
     def test_ac_q_01_first_customer_on_schedule(self):
         with Workdir() as w:
-            rows, snaps = run_quan(w, {"stock": {"ca_loc": 1}}, ticks=Q["first_customer_tick"] + 5)
+            rows, snaps = run_quan(w, {"stock": stock_items({"ca_loc": 1})}, ticks=Q["first_customer_tick"] + 5)
             arrived = events(rows, "customer_arrived")
             self.assertEqual(len(arrived), 1, arrived)
             self.assertEqual(arrived[0]["tick"], Q["first_customer_tick"])
@@ -119,7 +120,7 @@ class Customers(unittest.TestCase):
 
     def test_ac_q_02_empty_stock_no_dish(self):
         with Workdir() as w:
-            rows, snaps = run_quan(w, {"stock": {}}, ticks=Q["first_customer_tick"] + 5)
+            rows, snaps = run_quan(w, {"stock": stock_items({})}, ticks=Q["first_customer_tick"] + 5)
             self.assertEqual(len(events(rows, "no_dish")), 1)
             self.assertEqual(events(rows, "customer_arrived"), [])
             last = snaps[max(snaps)]
@@ -133,7 +134,7 @@ class Customers(unittest.TestCase):
         for stock, allowed in cases:
             for seed in range(1, 6):
                 with self.subTest(stock=stock, seed=seed), Workdir() as w:
-                    _, snaps = run_quan(w, {"stock": stock}, ticks=Q["first_customer_tick"], seed=seed)
+                    _, snaps = run_quan(w, {"stock": stock_items(stock)}, ticks=Q["first_customer_tick"], seed=seed)
                     c = snaps[Q["first_customer_tick"]]["customers"][0]
                     self.assertIn(c["dish_id"], allowed)
                     self.assertEqual(reserved_counts(snaps[Q["first_customer_tick"]], c), MENU[c["dish_id"]]["recipe"])  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
@@ -142,7 +143,7 @@ class Customers(unittest.TestCase):
 
     def test_ac_q_04_patience_out_customer_left(self):
         with Workdir() as w:
-            block = {"stock": {"ca_loc": 1}, "random_customers": False, "customers": [customer(patience=5)]}
+            block = {"stock": stock_items({"ca_loc": 1}), "random_customers": False, "customers": [customer(patience=5)]}
             rows, snaps = run_quan(w, block, ticks=8)
             left = events(rows, "customer_left")
             self.assertEqual(len(left), 1)
@@ -155,21 +156,21 @@ class Customers(unittest.TestCase):
 
     def test_ac_q_04_reservation_released_for_next_customer(self):
         with Workdir() as w:
-            block = {"stock": {"ca_loc": 1}, "customers": [customer(patience=5)]}
+            block = {"stock": stock_items({"ca_loc": 1}), "customers": [customer(patience=5)]}
             rows, _ = run_quan(w, block, ticks=Q["first_customer_tick"] + 1)
             self.assertEqual(len(events(rows, "customer_arrived")), 1, "nguyên liệu phải được nhả cho khách sau")
             self.assertEqual(events(rows, "no_dish"), [])
 
     def test_ac_q_04_reputation_clamped_at_min(self):
         with Workdir() as w:
-            block = {"stock": {"ca_loc": 1}, "random_customers": False, "reputation": Q["reputation_min"],
+            block = {"stock": stock_items({"ca_loc": 1}), "random_customers": False, "reputation": Q["reputation_min"],
                      "customers": [customer(patience=1)]}
             _, snaps = run_quan(w, block, ticks=2)
             self.assertEqual(snaps[1]["reputation"], Q["reputation_min"])
 
     def test_random_customers_false_disables_schedule(self):
         with Workdir() as w:
-            rows, _ = run_quan(w, {"stock": {"ca_loc": 1}, "random_customers": False},
+            rows, _ = run_quan(w, {"stock": stock_items({"ca_loc": 1}), "random_customers": False},
                                ticks=Q["first_customer_tick"] + 5)
             self.assertEqual(events(rows, "customer_arrived"), [])
             self.assertEqual(events(rows, "no_dish"), [])
@@ -177,7 +178,7 @@ class Customers(unittest.TestCase):
     def test_ac_q_05_same_seed_same_bytes(self):
         stock = {"ca_loc": 3, "bong_sung": 4, "ca_linh": 3, "bong_dien_dien": 1}
         with Workdir() as w:
-            sc = write_json(w.path("sc.json"), {"quan": {"stock": stock}})
+            sc = write_json(w.path("sc.json"), {"quan": {"stock": stock_items(stock)}})
             for i in (1, 2):
                 code, err = run_headless("--mode", "quan", "--seed", "7", "--ticks", "4000", "--scenario", sc,
                                          "--out", w.path(f"o{i}.jsonl"))
@@ -199,32 +200,32 @@ class ScenarioConflicts(unittest.TestCase):
             self.assertFalse(os.path.exists(out), "lỗi đầu vào phải thoát trước khi ghi đầu ra")
 
     def test_valid_fixture_is_accepted(self):
-        eating = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved={})
+        eating = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved=[])
         for c in (customer(), eating):
             with self.subTest(state=c["state"]), Workdir() as w:
-                run_quan(w, {"stock": {"ca_loc": 1}, "customers": [c]}, ticks=0)
+                run_quan(w, {"stock": stock_items({"ca_loc": 1}), "customers": [c]}, ticks=0)
 
     def test_ac_q_06_reserved_exceeds_stock(self):
-        self.assert_exit_2({"stock": {"bong_sung": 2}, "customers": [customer()]})
+        self.assert_exit_2({"stock": stock_items({"bong_sung": 2}), "customers": [customer()]})
 
     def test_ac_q_06_dish_not_on_menu(self):
-        self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [customer(dish="pho_bo", reserved={"ca_loc": 1})]})
+        self.assert_exit_2({"stock": stock_items({"ca_loc": 1}), "customers": [customer(dish="pho_bo", reserved=["I1"])]})
 
     def test_ac_q_06_reserved_differs_from_recipe(self):
-        self.assert_exit_2({"stock": {"ca_loc": 1, "bong_sung": 2},
-                            "customers": [customer(reserved={"bong_sung": 2})]})
+        self.assert_exit_2({"stock": stock_items({"ca_loc": 1, "bong_sung": 2}),
+                            "customers": [customer(reserved=["I1", "I2"])]})
 
     def test_ac_q_06_eating_missing_price_or_tip(self):
         for missing in ("price", "tip"):
             with self.subTest(missing=missing):
-                c = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved={})
+                c = customer(state="eating", eat_ticks_left=10, price=MENU[DISH]["price"], tip=0, reserved=[])
                 del c[missing]
-                self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [c]})
+                self.assert_exit_2({"stock": stock_items({"ca_loc": 1}), "customers": [c]})
 
     def test_ac_q_06_waiting_patience_out_of_range(self):
         for patience in (0, PATIENCE_MAX + 1):
             with self.subTest(patience=patience):
-                self.assert_exit_2({"stock": {"ca_loc": 1}, "customers": [customer(patience=patience)]})
+                self.assert_exit_2({"stock": stock_items({"ca_loc": 1}), "customers": [customer(patience=patience)]})
 
     def test_ac_q_06_hand_not_on_menu(self):
         self.assert_exit_2({"hand": "pho_bo"})
@@ -239,7 +240,7 @@ class Kitchen(NeedsSlice4):
     def test_ac_q_07_cook_then_ready(self):
         cook_ticks = MENU[DISH]["cook_s"] * 60
         with Workdir() as w:
-            block = {"player": {"pos": NEAR_STOVE}, "stock": {"ca_loc": 1}, "random_customers": False,
+            block = {"player": {"pos": NEAR_STOVE}, "stock": stock_items({"ca_loc": 1}), "random_customers": False,
                      "customers": [customer()]}
             rows, snaps = run_quan(w, block, frames(*press(0)), ticks=cook_ticks + 3)
             started = events(rows, "cook_started")
@@ -304,7 +305,7 @@ class ServiceAndMoney(NeedsSlice4):
 
     def test_ac_q_09_wrong_dish_is_not_served(self):
         with Workdir() as w:
-            block = {"player": {"pos": NEAR_TABLE}, "hand": "goi_bong_sung", "stock": {"ca_loc": 1},
+            block = {"player": {"pos": NEAR_TABLE}, "hand": "goi_bong_sung", "stock": stock_items({"ca_loc": 1}),
                      "random_customers": False, "customers": [customer()]}
             rows, snaps = run_quan(w, block, frames(*press(0)), ticks=3)
             self.assertEqual(events(rows, "served"), [])
@@ -334,7 +335,7 @@ class ServiceAndMoney(NeedsSlice4):
         """Bếp và bàn cùng trong bán kính; tay cầm đúng món khách đang chờ."""
         return {"player": {"pos": [player_x, 5]}, "hand": DISH, "random_customers": False,
                 "stoves": [{"id": STOVE["id"], "pos": [5, 5]}], "tables": [{"id": TABLE["id"], "pos": [6, 5]}],
-                "customers": [customer(reserved={})]}
+                "customers": [customer(reserved=[])]}
 
     def test_ac_q_11_tie_prefers_stove_and_does_not_fall_through(self):
         with Workdir() as w:
@@ -350,7 +351,7 @@ class ServiceAndMoney(NeedsSlice4):
 
     def test_ac_q_11_holding_interact_acts_once(self):
         with Workdir() as w:
-            block = {"player": {"pos": NEAR_STOVE}, "stock": {"ca_loc": 2}, "random_customers": False,
+            block = {"player": {"pos": NEAR_STOVE}, "stock": stock_items({"ca_loc": 2}), "random_customers": False,
                      "customers": [customer()]}
             rows, _ = run_quan(w, block, frames({"tick": 0, "interact": True}), ticks=5)
             self.assertEqual(len(events(rows, "cook_started")), 1)

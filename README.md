@@ -27,6 +27,35 @@ Game cần chế độ **headless** theo Test Contract (`python -m chonoi.headle
 
 Ngoài phần đề yêu cầu, nhóm được **thêm** nhân vật, loài cá/cây, sinh vật, món, bản đồ, cơ chế, câu chuyện, đồ họa, âm nhạc… với ba điều kiện: **không phá phần cố định** (tắt ở headless), ghi mục **"Sáng tạo của nhóm"** trong README của nhóm, và **làm lõi đúng trước**.
 
+## Chạy game
+
+Cần Python 3.10 trở lên và một trình duyệt hiện đại. Không cần cài gói.
+
+```bash
+git clone https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi.git
+cd K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi
+python3 -m chonoi.live --mode day   # Windows: python -m chonoi.live --mode day
+```
+
+Mở địa chỉ được in ra. Điều khiển: **WASD** hoặc mũi tên để di chuyển, **E** để hái, cập bến, nấu, lấy món và phục vụ, **Space** để bắt cá, **Esc** hoặc **P** để tạm dừng, **C** để bật tương phản cao. Trong Shop: **1**, **2** để mua, **Enter** để rời chợ. Ở chế độ `gather` và `quan`, **R** để chơi lại.
+
+## Kiểm tra và đo hiệu năng
+
+Các ca kiểm tra sử dụng Python và thư viện chuẩn. Trên Windows, đặt `$env:PYTHONPATH = "tests;."` rồi chạy `python -m unittest discover -s tests -v`.
+
+```bash
+PYTHONPATH=tests:. python -m unittest discover -s tests -v
+python -m chonoi.headless --mode gather --seed 1 --ticks 600 --out gather.jsonl
+python -m chonoi.headless --mode quan --seed 1 --ticks 600 --out quan.jsonl
+python -m chonoi.headless --mode day --days 1 --seed 1 --ticks 22200 --out day.jsonl
+python -m chonoi.bench --seed 42 --duration 30 --out bench.json
+python -m chonoi.soak --seed 7 --days 10 --out soak.json
+```
+
+Bench cần Chrome, Chromium hoặc Edge. Dùng `CHONOI_BROWSER` hoặc `--browser` để chỉ định đường dẫn. FPS phụ thuộc máy, trình duyệt và giới hạn tần số của chế độ headless.
+
+Các lệnh trong manifest gọi `python`. Trên máy chỉ có `python3`, tạo và kích hoạt môi trường ảo bằng `python3 -m venv .venv` và `source .venv/bin/activate` trước khi chạy bộ test.
+
 ## Sáng tạo của nhóm
 
 Chi tiết và trạng thái duyệt: [`docs/creative-ideas.md`](docs/creative-ideas.md). Các mục dưới nằm sau cờ `creative` (mặc định tắt); headless luôn tắt.

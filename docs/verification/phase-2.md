@@ -1,6 +1,6 @@
 # Ma trận truy vết Phase 2 (Ticket-02, Test Contract v1.1)
 
-> Commit bàn giao (tag `phase-2`): `<điền sha>` · Danh sách AC: [`docs/spec/phase-2/README.md`](../spec/phase-2/README.md) mục 2.
+> Ứng viên lõi v1.1 `26ab801` chạy lại `phase-check` đạt 7/7. UI Day vào `main` sau phần quán v1.2 tại `f1722d7`, nên commit đó mang manifest v1.1 nhưng snapshot kho cá thể và chỉ đạt 6/7. Nhóm cần chốt mốc cho tag `phase-2`. [Tiêu chí Phase 2](../spec/phase-2/README.md)
 > Kết quả ghi **trung thực** trên đúng commit gắn tag.
 
 | AC | Cách kiểm chứng | Bằng chứng (`docs/proof/phase-2/...`) | Kết quả |

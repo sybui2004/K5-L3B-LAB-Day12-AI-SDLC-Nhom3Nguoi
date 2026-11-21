@@ -1,18 +1,19 @@
 # Hợp đồng tích hợp
 
-> Ghi theo code đang chạy trên `main` (`b3b654f`, Test Contract v1.1). Phần `--mode day`, Shop và pause xem [`docs/spec/phase-2/`](../spec/phase-2/README.md). Số liệu cân bằng nằm trong [`game.contract.json`](../../game.contract.json).
+> Ghi theo code đang chạy trên `main` (Test Contract v1.2). Phần `--mode day`, Shop và pause xem [`docs/spec/phase-2/`](../spec/phase-2/README.md). Số liệu cân bằng nằm trong [`game.contract.json`](../../game.contract.json).
 
-## 1. File kho
+## 1. File kho (v1.2)
 
 ```json
-{"items": {"bong_sung": 2, "ca_loc": 1}}
+{"items": [{"id": "I1", "kind": "ca_loc", "fresh": 99.99166666666666}]}
 ```
 
-- Gốc chỉ có khóa `items`. Mỗi mục là `id nguyên liệu: số nguyên >= 0`. Mẫu hợp lệ: [`inventory.sample.json`](inventory.sample.json).
-- Id hợp lệ: `ca_loc`, `ca_linh`, `bong_dien_dien`, `bong_sung`, `ca_keo`, `keo_neo`.
-- `gather --inventory-out` ghi **một lần** khi có `gather_end`. Mục bằng 0 bị bỏ, khóa sắp tăng dần, ghi qua file tạm rồi thay thế. Hết `--ticks` trước khi kết thúc buổi thì không ghi.
+- Gốc chỉ có khóa `items`, là mảng cá thể sắp theo id. Kho rỗng là `{"items": []}`. Mẫu hợp lệ: [`inventory.sample.json`](inventory.sample.json).
+- `id` là chuỗi khác rỗng, duy nhất. `kind` thuộc `ca_loc`, `ca_linh`, `bong_dien_dien`, `bong_sung`, `ca_keo`, `keo_neo`. `fresh` là số trong `[0, 100]`.
+- Hàng **ươn** khi `fresh < spoiled_below` (30). File ghi `fresh` đầy đủ, JSONL làm tròn 3 chữ số.
+- `gather --inventory-out` ghi **một lần** khi có `gather_end`, qua file tạm rồi thay thế. Ngất ghi kho rỗng. Hết `--ticks` trước khi kết thúc buổi thì không đụng file đích.
 - `quan` nhận kho qua `--inventory` **hoặc** `scenario.quan.stock`, không dùng cả hai.
-- Sai schema, id lạ, số âm hoặc dùng cả hai nguồn kho: mã thoát 2.
+- Kho đếm kiểu cũ `{"items": {"ca_loc": 2}}`, sai schema, kind lạ, id trùng hoặc rỗng, `fresh` ngoài miền: mã thoát 2.
 
 ## 2. Giao diện `sim/*` và `client/ui`
 
@@ -29,9 +30,9 @@ Trường snapshot:
 | Phạm vi | Trường |
 |---|---|
 | Chung | `type, tick, sim_tick, mode, phase, phase_tick, state, time_left_ticks, money, earned, reputation, score` |
-| Gather | `player {pos, vel, heading_deg, oxygen_ticks, oxygen_max_ticks, hp, hp_max, zero_oxy_ticks, invuln_ticks, catch_cd_ticks, at_surface}`, `hold, hold_count, hold_capacity`, `nodes[] {id, pos, kind, ready, regrow_ticks}`, `fish[] {id, pos, kind, heading_deg}` |
-| Quán | `player {pos, vel}`, `stock, hand, shift_earned`, `stoves[] {id, pos, state, dish, order_id, cook_ticks_left, ready_ticks}`, `tables[] {id, pos, customer_id}` |
-| Khách | `customers[] {id, table_id, dish_id, state, patience_ticks_left, order_tick, order_status, reserved}`, thêm `eat_ticks_left, price, tip` khi `state = eating` |
+| Gather | `player {pos, vel, heading_deg, oxygen_ticks, oxygen_max_ticks, hp, hp_max, zero_oxy_ticks, invuln_ticks, catch_cd_ticks, at_surface}`, `hold[] {id, kind, fresh}, hold_count, hold_capacity`, `nodes[] {id, pos, kind, ready, regrow_ticks}`, `fish[] {id, pos, kind, heading_deg, age_ticks}`, `monsters[] {id, kind, pos, state, target_idx, state_ticks_left, recoil_dir}` |
+| Quán | `player {pos, vel}`, `stock[] {id, kind, fresh}, hand, hand_base_price, shift_earned`, `stoves[] {id, pos, state, dish, order_id, base_price, cook_ticks_left, ready_ticks}`, `tables[] {id, pos, customer_id}` |
+| Khách | `customers[] {id, table_id, dish_id, state, patience_ticks_left, order_tick, order_status, reserved[] (id cá thể)}`, thêm `eat_ticks_left, price, tip` khi `state = eating` |
 
 Sim muốn UI hiện thêm gì thì thêm trường vào `snapshot()` và cập nhật bảng này.
 
@@ -46,12 +47,14 @@ Người nghe: `client/ui` (toast, nhật ký sự kiện), lớp sáng tạo `?
 |---|---|
 | `dive`, `surface`, `oxygen_empty` | `{pos}` |
 | `choke` | `{hp}` |
-| `faint` | `{pos, lost: {items}}` |
+| `monster_hit` | `{monster_id, hp, lost: [cá thể], pos}` |
+| `faint` | `{pos, lost: [cá thể], hp}`, thêm `cause` khi do quái |
+| `spoiled` | `{item_id, kind, location: hold \| stock}` |
 | `gather` | `{node_id, kind, count}` |
 | `node_regrown` | `{node_id}` |
 | `fish_caught` | `{fish_id, kind, count}` |
 | `hold_full` | `{source, kind}` |
-| `gather_end` | `{reason: docked \| time \| fainted, inventory: {items}}` |
+| `gather_end` | `{reason: docked \| time \| fainted, inventory: {items: [cá thể]}}` |
 
 ### Quán (`chonoi/sim/quan.py`)
 
@@ -60,7 +63,9 @@ Người nghe: `client/ui` (toast, nhật ký sự kiện), lớp sáng tạo `?
 | `customer_arrived` | `{customer_id, table_id, dish_id}` |
 | `no_dish` | `{table_id}` |
 | `customer_left` | `{customer_id, table_id, dish_id, reason: patience \| closing}` |
-| `cook_started`, `dish_ready`, `dish_picked` | `{stove_id, order_id, dish_id}` |
+| `cook_started` | `{stove_id, order_id, dish_id, items: [cá thể], base_price}` |
+| `dish_ready` | `{stove_id, order_id, dish_id}` |
+| `dish_picked` | `{stove_id, order_id, dish_id, base_price}` |
 | `served` | `{customer_id, table_id, dish_id, price, tip}` |
 | `paid` | `{customer_id, table_id, dish_id, price, tip, amount}` |
 | `quan_end` | `{reason: time, money, earned, shift_earned, reputation}` |

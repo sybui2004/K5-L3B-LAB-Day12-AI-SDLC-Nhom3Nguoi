@@ -78,6 +78,7 @@
       return sheet([
         h("h1", "title", "Quán Ăn Chợ Nổi"),
         h("p", "lede", "Sáng lặn sông hái đồ, tối mở quán trên ghe."),
+        h("p", "note", "Nhấn C để bật hoặc tắt tương phản cao."),
         h("div", "actions", button("Chơi", () => advance("menu"), "primary"), button("Thoát", () => { quit = true; render(true); })),
       ], pole(items));
     },
@@ -167,6 +168,7 @@
       return sheet([
         h("h1", "title", "Đang tạm dừng"),
         h("p", "lede", "Đồng hồ và mọi bộ đếm đều đứng yên."),
+        h("p", "note", "Nhấn C để bật hoặc tắt tương phản cao."),
         h("div", "actions", button("Tiếp tục", () => api.pulse("pause"), "primary"),
           button(s.mode === "day" ? "Về menu" : "Chơi lại", toMenu)),
       ]);
@@ -234,6 +236,7 @@
     init(a) { api = a; },
     sync(s) { snap = s; render(false); },
     active: () => view !== null,
+    refresh: () => render(true),
     handleKey,
   };
 })();

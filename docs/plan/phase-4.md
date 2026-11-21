@@ -39,7 +39,7 @@
 - [ ] `docs/retro.md` theo [release-docs.md](../spec/phase-4/release-docs.md) D1; nhắc đủ 4 file members; `docs/members/lit1numyt.md`.
 
 ### TV3 (hgmdz1210, Hưng) — lát C, đóng gói, Bench/QA
-- [ ] Cảnh báo + tương phản cao theo [alerts-ui.md](../spec/phase-4/alerts-ui.md); 6 ảnh chụp vào `docs/proof/phase-4/`.
+- [x] Cảnh báo + tương phản cao theo [alerts-ui.md](../spec/phase-4/alerts-ui.md); 6 ảnh chụp vào `docs/proof/phase-4/`.
 - [ ] Clone sạch 3 lệnh trên Linux/macOS/WSL + thử zip ⇒ `clean-clone.txt`.
 - [ ] Regression đầy đủ ⇒ `unittest.txt`; `docs/verification/phase-4.md`; `docs/ai-usage-log.md`; `docs/members/hgmdz1210.md`.
 

@@ -6,8 +6,10 @@
 - Test: `PYTHONPATH=tests:. python -m unittest discover -s tests -v`
 - Headless: `python -m chonoi.headless --mode gather|quan --seed 1 --ticks 600 --out out.jsonl`
 - Headless vòng ngày (từ Phase 2, contract v1.1): `python -m chonoi.headless --mode day --days 1 --seed 1 --ticks 22200 --out day.jsonl`
-- Spec/plan phase hiện tại: `docs/spec/phase-2/`, `docs/plan/phase-2/` — agent đọc spec đúng lát trước khi code.
-- Chơi thử trên trình duyệt: `python -m chonoi.live --mode day|gather|quan` (mở địa chỉ in ra; WASD, E, Space, Esc/P tạm dừng; R chơi lại ở gather, quan)
+- Bench: `python -m chonoi.bench --seed 42 --duration 30 --out bench.json`
+- Soak: `python -m chonoi.soak --seed 7 --days 10 --out soak.json`
+- Spec/plan phase hiện tại: `docs/spec/phase-4/`, `docs/plan/phase-4.md`.
+- Chơi thử trên trình duyệt: `python -m chonoi.live --mode day|gather|quan` (mở địa chỉ in ra; WASD, E, Space, Esc/P tạm dừng, C tương phản cao; R chơi lại ở gather, quan)
 
 ## Cấu trúc & quy ước
 - (Starter Python là TÙY CHỌN; nhóm có thể dùng ngôn ngữ khác nếu giữ Test Contract.) Khung do giảng viên cấp: `chonoi/{headless,inputs,scenario,contract,rng,ids,jsonl,inventory,runner,live}.py` và `chonoi/web/`. Hạn chế sửa; nếu phải sửa thì báo cả nhóm và ghi lại lý do.
