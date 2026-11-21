@@ -62,6 +62,13 @@ Lưu ý: đây là nhân vật game hư cấu lấy cảm hứng từ miền Tâ
 
 Phân công (đề xuất, chờ Sỹ xác nhận; khớp `TEAM.md`): **Đoàn Sỹ Hưng (`hgmdz1210`, module `client/ui` + `qa`)** nhận toàn bộ phần sáng tạo, vì A/B/C/H đều nằm trong `chonoi/web/`. D/E/F chỉ bắt đầu khi A/B/C/H xong và lõi đã xanh; E/F chạm luật nên phối hợp với chủ module sim. Admin soạn `CREDITS.md`. Vẫn phải tắt ở headless và chạy test trước khi đẩy.
 
+## Tiến độ triển khai (nhánh `feature/creative-ui`)
+- **A, C, H đã viết** trong `chonoi/web/creative.js` (A âm thanh Web Audio + phím M tắt tiếng; C toast lời thoại gồm Jack/Thiên An; H sổ tay ở màn kết, lưu `localStorage`). **B chưa làm** (cần snapshot thật từ lõi). D/E/F backlog.
+- Bật bằng `?creative=1` (vd `http://127.0.0.1:8000/?creative=1`); không có cờ thì `creative.js` không được nạp.
+- **Sửa file khung (báo cả nhóm, theo AGENTS.md):** `chonoi/live.py` thêm route `GET /creative.js` (8 dòng, chỉ phục vụ tệp tĩnh; không đổi `/state`, `/input`, sim). `chonoi/web/index.html` thêm 3 dòng: nạp script có điều kiện + 2 lời gọi `window.CREATIVE` (bỏ qua nếu không có).
+- Test: `tests/test_creative_serve.py` (phục vụ + `/state` không chứa trường sáng tạo). Cả bộ test xanh (47 + 3 mới).
+- **Chưa kiểm bằng mắt/tai trên trình duyệt**: cần người chạy `python3 -m chonoi.live --mode gather` rồi mở `/?creative=1` để nghe và xem toast.
+
 ## Mục README dự kiến sau khi duyệt
 ```
 ## Sáng tạo của nhóm
