@@ -27,6 +27,14 @@ Game cần chế độ **headless** theo Test Contract (`python3 -m chonoi.headl
 
 Ngoài phần đề yêu cầu, nhóm được **thêm** nhân vật, loài cá/cây, sinh vật, món, bản đồ, cơ chế, câu chuyện, đồ họa, âm nhạc… với ba điều kiện: **không phá phần cố định** (tắt ở headless), ghi mục **"Sáng tạo của nhóm"** trong README của nhóm, và **làm lõi đúng trước**.
 
+## Sáng tạo của nhóm
+
+Chi tiết và trạng thái duyệt: [`docs/creative-ideas.md`](docs/creative-ideas.md). Tất cả nằm sau cờ `creative` (mặc định tắt); headless luôn tắt.
+
+- **Làm trước (đã duyệt):** A âm thanh Web Audio · B hiệu ứng nước/bọt/hơi bếp · C lời thoại Út Sen và khách · H sổ tay ký ức Út Sen (đều chỉ ở `chonoi/web/`).
+- **Backlog (đã duyệt, làm sau):** D bản đồ "Rạch Bần" · E cá và món mới · F khách khó tính.
+- **Nhân vật Bến Tre (hư cấu):** anh Jack Bến Tre và chị Thiên An (vợ anh), xuất hiện qua lời thoại C, sổ tay H và khách đôi F.
+
 ## Lịch 3 giờ
 
 | Mốc | Phase | Hạn tag |
