@@ -1,14 +1,15 @@
 # TEAM
 
-**Tên nhóm:** Nhom3Nguoi  **Số người:** 3  (khớp `team_size` trong `game.contract.json`)
+**Tên nhóm:** Nhom3Nguoi  **Số người:** 4  (khớp `team_size` trong `game.contract.json`)
 
-> Nhóm đã được phép làm 3 người (xem [`docs/clarify.md`](docs/clarify.md) #6). `tools/check_team.py` vẫn cảnh báo "4–6 người" — ngoại lệ đã duyệt, CI không chặn.
+> Nhóm có 4 người: 3 thành viên làm việc + 1 admin (Sang Phan, không nhận module). Trước đó nhóm được phép làm 3 người (xem [`docs/clarify.md`](docs/clarify.md) #6).
 
 | Thành viên | GitHub handle | Module chính | Vai quy trình | Người dự phòng cho |
 |---|---|---|---|---|
 | Thành viên 1 (điền tên) | sybui2004 | `sim/gather` + `sim/quan` lát 4 | Integrator · Scrum/Release | Thành viên 2 |
 | Thành viên 2 (điền tên) | … | `sim/quan` lát 3 + `scenario` | PO | Thành viên 3 |
 | Thành viên 3 (điền tên) | … | `client/ui` + `qa` | QA lead | Thành viên 1 |
+| Sang Phan | sangdaden | — (admin, không nhận module) | Admin | — |
 
 **Vai quy trình:** PO (đầu mối hỏi giảng viên, giữ `docs/clarify.md`) · Integrator (giữ `docs/contracts/`, gắn tag) · QA lead · Scrum/Release. Có thể kiêm.
 
