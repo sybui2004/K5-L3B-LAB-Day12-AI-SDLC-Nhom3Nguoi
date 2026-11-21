@@ -34,3 +34,19 @@ $ PYTHONPATH=tests:. python3 -m unittest discover -s tests
 Ran 76 tests in 8.449s
 
 OK
+
+## 5. Chạy lại sau khi theo hợp đồng 3.2 (ShopSim, ctx, IdAllocator chung, clarify #18/#19) — nhánh feature/p2-quan-shop trên main b3b654f
+real 0.18
+real 0.13
+cmp: IDENTICAL
+{"type":"snapshot","tick":0,"sim_tick":0,"mode":"day","phase":"gather","phase_tick":0,"state":"playing","time_
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"day_start","data":{}}
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"day_plan","data":{"dishes":{"ca_loc_nuong_trui":3,"g
+{"type":"event","tick":0,"phase":"gather","day":1,"name":"phase_start","data":{}}
+{"type":"end","ticks":22200,"sim_tick":22200,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":3.0,"score":300,"days_completed":1}
+real 0.54
+{"type":"end","ticks":111000,"sim_tick":111000,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":3.0,"score":300,"days_completed":5}
+$ PYTHONPATH=tests:. python -m unittest discover -s tests
+Ran 122 tests in 10.617s
+
+OK

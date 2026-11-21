@@ -11,13 +11,15 @@ Nguồn: TICKET-02 mục 1.3, 2, 4. Giả định ngoài ticket: [`docs/clarify.
 | (4) menu, DayIntro/EveningIntro/DayResult/Summary, HUD, pause menu | TV3 (hgmdz1210) |
 
 ## File
-- `chonoi/sim/quan.py` — luật quán v1.1. `QuanSim(..., dishes=None, carry=None)`: `dishes` lọc menu theo kế hoạch (day), `carry` mang tiền/earned/uy tín.
-- `chonoi/sim/day.py` — `DaySim`: vòng Ngày, bàn giao kho trong bộ nhớ, Shop, áp cấp oxygen/hp từ Ngày kế (ghi đè `oxygen_max_s`/`hp_max` trong bản sao tuning gather).
-- **File khung đã sửa (báo nhóm):** `runner.py` (pause, `sim_tick`/`phase_tick`, vỏ event có `day`, sự kiện tick 0, snapshot khi đổi pha, `days_completed`), `headless.py` (`--days`, mở `--mode day`), `inputs.py` (`pause`, `shop_done`, `buy`), `inventory.py` (thêm `ca_keo`, `keo_neo`), `scenario.py` (khối `day`, kiểm quán).
+- `chonoi/sim/quan.py` — luật quán v1.1. `QuanSim(tuning, scenario, streams, ids, inventory=None, ctx=None)` theo hợp đồng 3.2: `ctx.plan_dishes` lọc menu, `ctx.money/earned/reputation` mang sang; `stats()` → `{served, left, money, tips, reputation_delta, best_dish}`.
+- `chonoi/sim/shop.py` — `ShopSim(tuning, streams, ids, ctx)`: buy → shop_done → timer 600; mở rộng chưa bật ⇒ bỏ qua (clarify #18).
+- `chonoi/sim/plan.py` — `plan_ingredients(dishes, menu)`; dùng ở `contract.py` (kiểm `day_plan`, `shop` khi nạp), `scenario.py`, `day.py`.
+- `chonoi/sim/day.py` — `DaySim`: vòng Ngày, một `Streams` + một `IdAllocator` cho cả lượt, `ctx` cho gather/quan/shop. Snapshot Shop có `day_result` (= `quan.stats()`) cho màn DayResult.
+- **File khung đã sửa (báo nhóm):** `runner.py` (pause, `sim_tick`/`phase_tick`, vỏ event có `day`, snapshot tick 0 rồi 3 event tick 0 (clarify #19), snapshot khi đổi pha, `days_completed`), `headless.py` (`--days`, `--mode day`), `inputs.py` (`pause`, `shop_done`, `buy`), `inventory.py` (`ca_keo`, `keo_neo`), `contract.py` (kiểm `day_plan`/`shop`), `scenario.py` (khối `day`, kiểm quán).
 - `game.contract.json`: `contract_version 1.1`, `quan` (B2, T2–T4), `menu` 6 món, `day_plan` D1–D5, `shop`. **Phần `gather` v1.1 (fish_*, monsters, N5/N6) do TV1 thêm.**
 
 ## Giao diện cho TV1 (gather)
-- Nếu `GatherSim.__init__` có tham số `day`, `DaySim` truyền số Ngày (cho `from_day` của Cá Sấu M2). Không có thì bỏ qua.
+- Nếu `GatherSim.__init__` có tham số `ctx`, `DaySim` truyền `ctx = {day, hp_max, oxygen_max_s}` (hợp đồng 3.2). Chưa có thì `DaySim` vẫn ghi đè `hp_max`/`oxygen_max_s` trong bản sao tuning nên cấp vẫn có hiệu lực.
 - `DaySim` đọc `child.done`, `child.reason`, `child.inventory_items()`; `fainted` ⇒ kho bàn giao rỗng.
 - Oxy/Máu theo cấp: `DaySim` truyền tuning đã ghi đè `gather.oxygen_max_s` / `gather.hp_max` — gather chỉ cần đọc từ `self.t`.
 
