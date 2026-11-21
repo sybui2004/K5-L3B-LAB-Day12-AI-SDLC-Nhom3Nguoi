@@ -28,7 +28,8 @@ def step(self, inp):
 
 - TV2 sở hữu: `_tick_customers`, `_spawn_customer`, `_pick_dish`, `_reserve`, `_release`, phần khách trong `__init__`, `_validate_quan`.
 - TV1 sở hữu: `_tick_stoves`, `_tick_eating`, `_interact`, `_cook`, `_pick_up`, `_serve`, `_pay`, `_change_reputation`.
-- Hàm dùng chung (TV2 viết, TV1 gọi): `_can_cook(dish, stock_free) -> bool`, `_reserve(customer, dish)`, `_release(customer)`.
+- Hàm dùng chung (TV2 viết, TV1 gọi): `_can_cook(dish, stock_free) -> bool`, `_free_stock()`, `_reserve(customer, dish)`, `_release(customer)`, `_change_reputation(delta)` (kẹp + làm tròn 3 chữ số; TV2 viết sớm vì `customer_left` cần).
+- **Bàn giao cho TV1 (đã có trên `feature/quan-customers`):** khung `step()` với `_tick_stoves`, `_tick_eating`, `_interact` rỗng. Khi `cook_started`: trừ `customer["reserved"]` khỏi `self.stock` rồi đặt `customer["reserved"] = {}` (giữ chỗ = chưa trừ kho). Khi `served`: `state = "eating"`, thêm `eat_ticks_left`, `price`, `tip`. Khi `paid`: gỡ khách khỏi `self.customers`.
 
 ## Dữ liệu (từ `game.contract.json`)
 - Bếp `B1 [2,8]`, bàn `T1 [9,2]`, `interact_radius 1.5`, `carry_limit 1`.
@@ -41,18 +42,18 @@ def step(self, inp):
 ### A1. Vòng đời khách **[đối chiếu PRD-0 mục F]**
 `waiting` (đã ngồi, chờ món) → `eating` (đã được phục vụ) → rời bàn khi `paid`; hoặc `waiting` → hết kiên nhẫn ⇒ `customer_left`.
 
-Trường khách trong snapshot (sắp theo id): `id, table_id, dish, state, patience_ticks, reserved {kind: n}` (+ `eat_ticks`, `price`, `tip` khi `eating`). **[đối chiếu PRD-0 mục D/F: tên trường scenario `customers[]`]**
+Trường khách trong snapshot (sắp theo id): `id, table_id, dish_id, state, patience_ticks_left, reserved {kind: n}` (+ `eat_ticks_left`, `price`, `tip` khi `eating`) — clarify #7. **[đối chiếu PRD-0 mục D/F: tên trường scenario `customers[]`]**
 
 ### A2. Khách đến
 - Tick lịch: `first_customer_tick`, rồi mỗi `customer_interval_s × 60` tick. Cấp id bằng `self.ids` (`IdAllocator`).
-- Chọn bàn trống có id nhỏ nhất; không có bàn trống ⇒ **[đối chiếu: bỏ lượt hay xếp hàng]**.
+- Chọn bàn trống có id nhỏ nhất; không có bàn trống ⇒ bỏ lượt, không sự kiện (clarify #9).
 - Chọn món: các món **nấu được** từ phần kho **chưa bị giữ chỗ**; chọn ngẫu nhiên qua `self.rng` (stream riêng cho khách, `self.rng.get("customers")` — xem `chonoi/rng.py`). Thứ tự ứng viên: tên món sắp tăng dần để tất định.
 - Không món nào nấu được ⇒ `no_dish` (khách không ngồi). **[đối chiếu data]**
-- Có món ⇒ giữ chỗ nguyên liệu (`reserved` = recipe), phát `customer_arrived {customer_id, table_id, dish}` **[đối chiếu tên sự kiện]**.
+- Có món ⇒ giữ chỗ nguyên liệu (`reserved` = recipe), phát `customer_arrived {customer_id, table_id, dish_id}` (clarify #8).
 - `random_customers: false` trong scenario ⇒ tắt khách theo lịch (chỉ dùng khách dựng sẵn).
 
 ### A3. Kiên nhẫn
-- Khách `waiting`: `patience_ticks -= 1` mỗi bước. Về 0 ⇒ nhả giữ chỗ, bàn trống, `reputation += left_reputation_delta` (kẹp), phát `customer_left {customer_id, table_id}`.
+- Khách `waiting`: `patience_ticks_left -= 1` mỗi bước. Về 0 ⇒ nhả giữ chỗ, bàn trống, `reputation += left_reputation_delta` (kẹp), phát `customer_left {customer_id, table_id, dish_id}`.
 - Bàn đang được TV1 phục vụ ở cùng tick: thứ tự xử lý theo PRD-0 mục F **[đối chiếu]**.
 
 ### A4. Scenario quan (`chonoi/scenario.py::_validate_quan`) — mâu thuẫn ⇒ mã 2
