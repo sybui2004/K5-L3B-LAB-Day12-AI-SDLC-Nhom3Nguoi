@@ -52,3 +52,10 @@ TV3 kiểm **schema** (mảng cá thể, mảng id). TV2 kiểm trên kho thực
 - `cook_started.items` sắp đúng; snapshot `reserved` là mảng id.
 - Day: id giỏ Ngày 1 là `I1…`, Ngày 2 tiếp tục tăng; kho quán ở tick đổi pha bằng đúng giỏ cuối gather; Shop `stock` không đổi fresh qua 600 tick.
 - Đổi `test_quan_*.py`, `test_day.py` sang cá thể (ghi lý do).
+
+## H. Trạng thái cài đặt (TV2, nhánh `feature/p3-quan-fresh`)
+- Lát A chưa có trên `main` lúc bắt đầu ⇒ TV2 thêm **hàm cá thể tối thiểu** vào `chonoi/inventory.py` đúng chữ ký mục 4.2 (`new_item`, `decay`, `is_spoiled`, `item_out`, `validate_item_list`, + `freshness`, `to_fresh`, `decay_per_tick`, cầu nối `as_items`/`items_from_counts`) và khối `freshness` trong manifest. **Chưa** làm: đọc/ghi file kho v1.2, bật `contract_version 1.2`, schema `gather.hold` cá thể — vẫn là của TV3 (lát A) / TV1 (lát B).
+- `QuanSim(..., item_ids=None)`, `DaySim.item_ids` (allocator cá thể suốt lượt) đã nối; GatherSim nhận `item_ids` khi TV1 thêm tham số.
+- Ví dụ mục G "cá lóc fresh 50 ⇒ 30" mâu thuẫn mục D (giá lấy fresh SAU hao của tick nấu ⇒ 29). Test dùng fresh 50.5 ⇒ 30 (clarify #29).
+- Thêm ngoài spec: `stoves[].base_price` trong scenario, `hand_base_price` trong snapshot, `dish_picked.base_price` (clarify #32); đồng hồ ăn chạy từ bước sau bước giao (clarify #33).
+- Test đổi (lý do "TICKET-03 thay schema kho / thứ tự tick"): `test_quan_customers` (3), `test_quan_kitchen` (6), `test_quan_rules` (5), `test_day` (1), `test_smoke_p1.test_inv_01` (1, đọc kho quán là cá thể). Helper `stock_counts`/`reserved_counts` trong `tests/helpers.py`.

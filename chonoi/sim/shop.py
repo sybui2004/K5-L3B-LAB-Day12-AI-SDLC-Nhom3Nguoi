@@ -7,6 +7,9 @@ sell:<kind>) ⇒ bỏ qua, không event (clarify #18); chuỗi khác ⇒ buy_fai
 Mua trừ `money`, giữ `earned`/điểm; cấp mới hiện ngay ở `upgrades`, DaySim chỉ sao sang active_upgrades khi dựng Ngày mới.
 """
 
+from ..ids import sort_by_id
+from ..inventory import item_out
+
 UPGRADE_FIELD = {"oxygen": "oxygen_max_s", "hp": "hp_max"}
 EXTENSION_ACTIONS = ("weapon", "net")
 EXTENSION_PREFIXES = ("buy:", "sell:")
@@ -23,13 +26,13 @@ class ShopSim:
         self.earned = ctx.get("earned", 0)
         self.reputation = ctx.get("reputation", tuning["quan"]["reputation_initial"])
         self.upgrades = dict(ctx.get("upgrades", {}))
-        self.stock = dict(ctx.get("stock", {}))
+        self.stock = [dict(it) for it in ctx.get("stock", [])]  # kho dư (cá thể), KHÔNG hao trong Shop (AC-P3-13)
         self.time_left_ticks = int(tuning["shop"]["max_ticks"])
         self.done = False
         self.reason = None
 
     def snapshot(self) -> dict:
-        return {"stock": {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0},
+        return {"stock": [item_out(it) for it in sort_by_id(self.stock)],
                 "upgrades": {k: self.upgrades[k] for k in sorted(self.upgrades)}}
 
     def step(self, inp):
