@@ -25,7 +25,3 @@ Lệnh `--proof` ghi `unittest.txt`, `gather-seed1.jsonl.txt`, `quan-seed1.jsonl
 - Mã thoát 1: có mục KHÔNG ĐẠT. Không gắn tag cho tới khi sửa, hoặc ghi rõ phần chưa đạt trong `docs/verification/phase-1.md`.
 - Test đỏ do luật sai thì sửa luật, không sửa test cho xanh (xem `AGENTS.md`).
 - Báo đúng kết quả đã thấy. Không ghi "đạt" nếu chưa chạy.
-
-## Lệnh Python
-
-Dùng `python`. `headless_cmd` trong `game.contract.json` vẫn ghi `python3`; khi máy không có lệnh đó, `phase_check.py` và `tests/helpers.py` tự chạy bằng chính Python đang dùng. Không cần sửa contract.

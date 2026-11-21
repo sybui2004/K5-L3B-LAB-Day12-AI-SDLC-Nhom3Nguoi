@@ -44,8 +44,6 @@ def main(argv=None):
 
     with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as f:
         headless = shlex.split(json.load(f)["headless_cmd"])
-    if headless[0] == "python3" and shutil.which("python3") is None:  # máy chỉ có lệnh `python`
-        headless[0] = sys.executable
     if shutil.which(headless[0]) is None:
         print(f"KHÔNG ĐẠT: không tìm thấy lệnh `{headless[0]}` trong headless_cmd.")
         return 1
