@@ -27,6 +27,18 @@ Game cần chế độ **headless** theo Test Contract (`python -m chonoi.headle
 
 Ngoài phần đề yêu cầu, nhóm được **thêm** nhân vật, loài cá/cây, sinh vật, món, bản đồ, cơ chế, câu chuyện, đồ họa, âm nhạc… với ba điều kiện: **không phá phần cố định** (tắt ở headless), ghi mục **"Sáng tạo của nhóm"** trong README của nhóm, và **làm lõi đúng trước**.
 
+## Chạy game
+
+Cần Python 3.10 trở lên và một trình duyệt hiện đại. Không cần cài gói.
+
+```bash
+git clone https://github.com/sybui2004/K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi.git
+cd K5-L3B-LAB-Day12-AI-SDLC-Nhom3Nguoi
+python3 -m chonoi.live --mode day   # Windows: python -m chonoi.live --mode day
+```
+
+Mở địa chỉ được in ra. Điều khiển: **WASD** hoặc mũi tên để di chuyển, **E** để hái, cập bến, nấu, lấy món và phục vụ, **Space** để bắt cá, **Esc** hoặc **P** để tạm dừng, **C** để bật tương phản cao. Trong Shop: **1**, **2** để mua, **Enter** để rời chợ. Ở chế độ `gather` và `quan`, **R** để chơi lại.
+
 ## Sáng tạo của nhóm
 
 Chi tiết và trạng thái duyệt: [`docs/creative-ideas.md`](docs/creative-ideas.md). Các mục dưới nằm sau cờ `creative` (mặc định tắt); headless luôn tắt.

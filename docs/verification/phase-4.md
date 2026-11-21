@@ -13,11 +13,11 @@
 | AC-P4-07 kế hoạch lặp D1–D5, giá trị nối tiếp | `tests/test_p4_soak.py` | `unittest.txt` | |
 | AC-P4-08 tất định, 10/10, 0 crash | chạy 2 lần, so bỏ `duration_s` | `soak-diff.txt` | |
 | AC-P4-09 headless day vẫn 1..5 | `tests/test_day.py`, `test_p4_soak.py` | `unittest.txt` | |
-| AC-P4-10 cảnh báo thủy quái gần | chơi thử | `alert-monster.png`, `alert-monster-hc.png` | |
-| AC-P4-11 cảnh báo oxy | chơi thử | `alert-oxygen.png`, `alert-oxygen-hc.png` | |
-| AC-P4-12 cảnh báo khách sắp giận | chơi thử | `alert-customer.png`, `alert-customer-hc.png` | |
-| AC-P4-13 tương phản cao (`C`, `?contrast=high`) | chơi thử ba cảnh báo ở chế độ cao | 3 ảnh `*-hc.png`, `alerts.md` | |
-| AC-P4-14 clone sạch ≤ 3 lệnh (Linux/macOS) | làm theo README | `clean-clone.txt` | |
+| AC-P4-10 cảnh báo thủy quái gần | chơi thử | [thường](../proof/phase-4/alert-monster.png), [cao](../proof/phase-4/alert-monster-hc.png) | Đạt trên nhánh `feature/p4-alerts-contrast` bằng Chrome headless; chạy lại trên commit tag |
+| AC-P4-11 cảnh báo oxy | chơi thử | [thường](../proof/phase-4/alert-oxygen.png), [cao](../proof/phase-4/alert-oxygen-hc.png) | Đạt trên nhánh `feature/p4-alerts-contrast` bằng Chrome headless; chạy lại trên commit tag |
+| AC-P4-12 cảnh báo khách sắp giận | chơi thử | [thường](../proof/phase-4/alert-customer.png), [cao](../proof/phase-4/alert-customer-hc.png) | Đạt trên nhánh `feature/p4-alerts-contrast` bằng Chrome headless; chạy lại trên commit tag |
+| AC-P4-13 tương phản cao (`C`, `?contrast=high`) | chơi thử ba cảnh báo ở chế độ cao | [alerts.md](../proof/phase-4/alerts.md) và 3 ảnh `*-hc.png` | Đạt trên nhánh `feature/p4-alerts-contrast` bằng Chrome headless; chạy lại trên commit tag |
+| AC-P4-14 clone sạch ≤ 3 lệnh (Linux/macOS) | làm theo README | [clean-clone.txt](../proof/phase-4/clean-clone.txt) | Chưa chốt: bản thử trên Ubuntu WSL mở được giao diện bằng 3 lệnh; còn chạy lại trên commit tag và xử lý clarify #42 |
 | AC-P4-15 README đủ mục | đọc README | link mục README | |
 | AC-P4-16 CHANGELOG theo phase, LICENSE, CREDITS | đọc file | — | |
 | AC-P4-17 Release v1.0.0 + zip + notes, cùng commit tag | `gh release view v1.0.0`; `git rev-list -n1 phase-4 v1.0.0` | `release.txt` | |
