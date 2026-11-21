@@ -1,0 +1,5 @@
+$ python -m chonoi.soak --seed 7 --days 10 --out soak.json   (nhánh feature/p4-soak trên main 625c9ce)
+exit 0
+{"days":10,"days_completed":10,"crashes":0,"results":[{"day":1,"earned":46,"reputation":3.2,"score":346},{"day":2,"earned":46,"reputation":3.2,"score":346},{"day":3,"earned":92,"reputation":3.4,"score":392},{"day":4,"earned":138,"reputation":3.6,"score":438},{"day":5,"earned":138,"reputation":3.6,"score":438},{"day":6,"earned":184,"reputation":3.8,"score":484},{"day":7,"earned":184,"reputation":3.8,"score":484},{"day":8,"earned":230,"reputation":4.0,"score":630},{"day":9,"earned":276,"reputation":4.2,"score":676},{"day":10,"earned":276,"reputation":4.2,"score":676}],"duration_s":1.713}
+$ chạy lần 2, so các trường gameplay (bỏ duration_s)
+gameplay identical: True
