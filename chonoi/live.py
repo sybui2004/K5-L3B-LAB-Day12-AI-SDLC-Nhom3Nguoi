@@ -154,6 +154,12 @@ class _Handler(BaseHTTPRequestHandler):
                     self._send(200, f.read(), "text/html; charset=utf-8")
             except OSError:
                 self._send(404, b'{"error":"thieu index.html"}')
+        elif path == "/creative.js":  # lớp sáng tạo (tùy chọn, chỉ trình duyệt nạp khi ?creative=1)
+            try:
+                with open(os.path.join(WEB_DIR, "creative.js"), "rb") as f:
+                    self._send(200, f.read(), "text/javascript; charset=utf-8")
+            except OSError:
+                self._send(404, b'{"error":"thieu creative.js"}')
         else:
             self._send(404, b'{"error":"khong co"}')
 
