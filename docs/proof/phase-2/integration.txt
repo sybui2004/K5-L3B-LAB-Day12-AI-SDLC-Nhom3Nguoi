@@ -1,0 +1,36 @@
+$ git rev-parse --short HEAD (+ thay đổi chưa commit của feature/quan-day-v11)
+0302397
+
+## 1. Smoke tích hợp: gather --inventory-out -> quan --inventory
+$ python3 -m chonoi.headless --mode gather --seed 1 --ticks 10 --scenario g.sc.json --inputs dock.json --inventory-out kho.json --out g.jsonl
+exit 0
+{"type":"event","tick":1,"phase":"gather","name":"gather_end","data":{"reason":"docked","inventory":{"items":{"bong_sung":2,"ca_keo":2,"ca_loc":1}}}}
+$ cat kho.json
+{"items":{"bong_sung":2,"ca_keo":2,"ca_loc":1}}
+$ python3 -m chonoi.headless --mode quan --seed 1 --ticks 10800 --inventory kho.json --out q.jsonl
+exit 0
+snapshot tick 0, stock:
+{'bong_sung': 2, 'ca_keo': 2, 'ca_loc': 1}
+{"type":"event","tick":120,"phase":"quan","name":"customer_arrived","data":{"customer_id":"C1","table_id":"T1","dish_id":"ca_loc_nuong_trui"}}
+{"type":"event","tick":1020,"phase":"quan","name":"customer_arrived","data":{"customer_id":"C2","table_id":"T2","dish_id":"goi_bong_sung"}}
+{"type":"event","tick":1920,"phase":"quan","name":"customer_arrived","data":{"customer_id":"C3","table_id":"T3","dish_id":"ca_keo_nuong"}}
+{"type":"event","tick":2820,"phase":"quan","name":"no_dish","data":{"table_id":"T4"}}
+{"type":"event","tick":3720,"phase":"quan","name":"customer_left","data":{"customer_id":"C1","table_id":"T1","dish_id":"ca_loc_nuong_trui","reason":"patience"}}
+{"type":"event","tick":3720,"phase":"quan","name":"customer_arrived","data":{"customer_id":"C4","table_id":"T1","dish_id":"ca_loc_nuong_trui"}}
+
+## 2. day --days 1 (thời gian chạy, cùng seed 2 lần)
+real 0.14
+real 0.14
+cmp: IDENTICAL
+{"type":"end","ticks":22200,"sim_tick":22200,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":3.0,"score":300,"days_completed":1}
+
+## 3. day --days 5 (tối đa 5 x 22.200 tick)
+real 0.60
+day_start: 5
+{"type":"end","ticks":111000,"sim_tick":111000,"mode":"day","state":"finished","reason":"days_complete","money":0,"earned":0,"reputation":3.0,"score":300,"days_completed":5}
+
+## 4. Toàn bộ unittest
+$ PYTHONPATH=tests:. python3 -m unittest discover -s tests
+Ran 76 tests in 8.449s
+
+OK
