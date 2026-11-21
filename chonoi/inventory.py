@@ -61,3 +61,91 @@ def write_inventory(path: str, items: dict):
         if os.path.exists(tmp):
             os.unlink(tmp)
         raise
+
+
+# --- v1.2 (TICKET-03): cá thể có độ tươi — hàm dùng chung theo spec phase-3/README.md 4.2 / ADR 0001 ----------
+# Bản tối thiểu do TV2 viết trước để lát quán chạy được; TV3 (lát A) bổ sung đọc/ghi file v1.2 + schema scenario.
+import math
+from fractions import Fraction
+
+FRESHNESS_DEFAULT = {"initial": 100, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoiled_below": 30}
+
+
+def freshness(tuning) -> dict:
+    """Khối tuning.freshness (v1.2); thiếu thì dùng giá trị chuẩn của đề."""
+    return {**FRESHNESS_DEFAULT, **tuning.get("freshness", {})}
+
+
+def to_fresh(x) -> Fraction:
+    """Số JSON -> Fraction chính xác (đọc qua chuỗi để giữ đúng số thập phân trong file)."""
+    if isinstance(x, Fraction):
+        return x
+    return Fraction(x) if isinstance(x, int) else Fraction(str(x))
+
+
+def decay_per_tick(per_s, tick_hz=60) -> Fraction:
+    return to_fresh(per_s) / tick_hz
+
+
+def new_item(item_ids, kind, tuning) -> dict:
+    return {"id": item_ids.new("I"), "kind": kind, "fresh": to_fresh(freshness(tuning)["initial"])}
+
+
+def is_spoiled(item, spoiled_below) -> bool:
+    return item["fresh"] < to_fresh(spoiled_below)
+
+
+def decay(items, per_tick, spoiled_below) -> list:
+    """Trừ `per_tick` (kẹp 0); trả các cá thể VỪA đi từ >= ngưỡng xuống < ngưỡng, sắp theo id."""
+    from .ids import sort_by_id
+    below = to_fresh(spoiled_below)
+    crossed = []
+    for it in items:
+        was_ok = it["fresh"] >= below
+        it["fresh"] = max(Fraction(0), it["fresh"] - per_tick)
+        if was_ok and it["fresh"] < below:
+            crossed.append(it)
+    return sort_by_id(crossed)
+
+
+def item_out(item) -> dict:
+    """Dạng JSONL (fresh làm tròn 3 chữ số khi xuất)."""
+    return {"id": item["id"], "kind": item["kind"], "fresh": round(float(item["fresh"]), 3)}
+
+
+def validate_item_list(raw, kinds=KINDS) -> list:
+    """Kiểm mảng cá thể {id, kind, fresh}; trả list cá thể (fresh là Fraction). Sai -> BadInput (mã 2)."""
+    if not isinstance(raw, list):
+        raise BadInput("kho cá thể phải là mảng {id, kind, fresh}")
+    out, seen = [], set()
+    for i, it in enumerate(raw):
+        if not isinstance(it, dict) or set(it) != {"id", "kind", "fresh"}:
+            raise BadInput(f"cá thể #{i} phải có đúng khóa id, kind, fresh")
+        if not isinstance(it["id"], str) or not it["id"] or it["id"] in seen:
+            raise BadInput(f"cá thể #{i}: id phải là chuỗi khác rỗng, duy nhất")
+        if it["kind"] not in kinds:
+            raise BadInput(f"cá thể {it['id']}: kind lạ {it['kind']!r}")
+        f = it["fresh"]
+        if isinstance(f, bool) or not isinstance(f, (int, float)) or not math.isfinite(f) or not (0 <= f <= 100):
+            raise BadInput(f"cá thể {it['id']}: fresh phải là số hữu hạn trong [0, 100]")
+        seen.add(it["id"])
+        out.append({"id": it["id"], "kind": it["kind"], "fresh": to_fresh(f)})
+    return out
+
+
+def items_from_counts(counts, item_ids, tuning) -> list:
+    """Cầu nối khi manifest còn 1.1: kho đếm {kind: n} -> cá thể mới (fresh = initial), theo kind tăng dần."""
+    return [new_item(item_ids, k, tuning) for k in sorted(counts) for _ in range(counts[k])]
+
+
+def as_items(inv, item_ids, tuning) -> list:
+    """Nhận kho dạng đếm (v1.1) hoặc mảng cá thể (v1.2) -> list cá thể; reserve id có sẵn để id mới nối tiếp."""
+    if inv is None:
+        return []
+    if isinstance(inv, dict):
+        return items_from_counts(inv, item_ids, tuning)
+    items = validate_item_list(inv) if inv and not isinstance(inv[0].get("fresh"), Fraction) else \
+        [dict(it) for it in inv]
+    for it in items:
+        item_ids.reserve(it["id"])
+    return items
