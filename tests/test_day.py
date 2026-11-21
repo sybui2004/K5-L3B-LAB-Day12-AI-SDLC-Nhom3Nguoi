@@ -7,7 +7,7 @@ import json
 import os
 import unittest
 
-from helpers import ROOT, Workdir, events, frames, read_jsonl, run_headless, snapshots, write_json
+from helpers import ROOT, Workdir, stock_counts, events, frames, read_jsonl, run_headless, snapshots, write_json
 
 with open(os.path.join(ROOT, "game.contract.json"), encoding="utf-8") as _f:
     T = json.load(_f)["tuning"]
@@ -84,7 +84,7 @@ class DayLoop(unittest.TestCase):
             self.assertEqual(code, 0, err)
             self.assertEqual(events(rows, "gather_end")[0]["data"]["reason"], "docked")
             first_q = [s for s in snapshots(rows) if s["phase"] == "quan"][0]
-            self.assertEqual(first_q["stock"], {"bong_sung": 2, "ca_loc": 1})
+            self.assertEqual(stock_counts(first_q["stock"]), {"bong_sung": 2, "ca_loc": 1})  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
             plan = set(T["day_plan"][0]["dishes"])
             self.assertTrue(events(rows, "customer_arrived"))
             for e in events(rows, "customer_arrived"):

@@ -8,7 +8,7 @@ import json
 import os
 import unittest
 
-from helpers import ROOT, Workdir, events, read_jsonl, run_headless, snapshots, write_json
+from helpers import ROOT, Workdir, reserved_counts, stock_counts, events, read_jsonl, run_headless, snapshots, write_json
 
 
 def tuning():
@@ -96,9 +96,10 @@ class Reservation(unittest.TestCase):
             for seed in range(1, 9):
                 code, err, rows = run_quan(w, {"stock": stock}, FIRST, seed=seed)
                 self.assertEqual(code, 0, err)
-                c = snapshots(rows)[-1]["customers"][0]
+                snap = snapshots(rows)[-1]
+                c = snap["customers"][0]
                 self.assertEqual(c["dish_id"], "goi_bong_sung", seed)
-                self.assertEqual(c["reserved"], MENU["goi_bong_sung"]["recipe"])
+                self.assertEqual(reserved_counts(snap, c), MENU["goi_bong_sung"]["recipe"])  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
 
     def test_reserved_ingredients_are_not_offered_again(self):
         """Khách dựng sẵn giữ chỗ hết cá lóc -> khách mới ở bàn trống kế tiếp không chọn được món nào (no_dish)."""
@@ -107,7 +108,8 @@ class Reservation(unittest.TestCase):
         with Workdir() as w:
             code, err, rows = run_quan(w, block, FIRST)
             self.assertEqual(code, 0, err)
-            self.assertEqual(snapshots(rows)[0]["customers"][0]["reserved"], {"ca_loc": 1})
+            s0 = snapshots(rows)[0]
+            self.assertEqual(reserved_counts(s0, s0["customers"][0]), {"ca_loc": 1})  # Đổi test (TICKET-03): kho/giữ chỗ là cá thể
             self.assertEqual(events(rows, "customer_arrived"), [])
             self.assertEqual([e["data"] for e in events(rows, "no_dish")], [{"table_id": "T2"}])
 
@@ -138,7 +140,7 @@ class Patience(unittest.TestCase):
             arr = events(rows, "customer_arrived")
             self.assertEqual(len(arr), 1)
             self.assertEqual(arr[0]["data"]["dish_id"], "ca_loc_nuong_trui")
-            self.assertEqual(snap["stock"], {"ca_loc": 1})  # bỏ đi không trừ kho
+            self.assertEqual(stock_counts(snap["stock"]), {"ca_loc": 1})  # bỏ đi không trừ kho (v1.2: đếm cá thể)
 
     def test_reputation_clamped_at_min(self):
         block = {"stock": {}, "reputation": Q["reputation_min"], "random_customers": False, "customers": [
