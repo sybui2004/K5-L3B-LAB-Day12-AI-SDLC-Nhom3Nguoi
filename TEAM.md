@@ -35,6 +35,26 @@ Spec chung (Test Contract, hợp đồng kho, bảng sự kiện, giao diện si
 - Test hộp đen quan (`tests/test_quan_rules.py`), `docs/verification/phase-1.md`, `docs/proof/phase-1/`, 2 skill trong `.agents/skills/`, `docs/ai-usage-log.md`.
   - Spec: [`docs/spec/phase-1/qa-harness.md`](docs/spec/phase-1/qa-harness.md) · Plan: [`docs/plan/phase-1/ui-qa.md`](docs/plan/phase-1/ui-qa.md)
 
+## Nhiệm vụ Phase 2 (Ticket-02 — Một ngày ở chợ nổi, Test Contract v1.1)
+
+Spec chung (DoD, AC-P2-01…28, hợp đồng chuyển pha, sự kiện mới): [`docs/spec/phase-2/README.md`](docs/spec/phase-2/README.md) · Kế hoạch + mốc giờ: [`docs/plan/phase-2.md`](docs/plan/phase-2.md)
+
+### Thành viên 1 (sybui2004) — lát 0, 1, 2 · Integrator/Release
+- Gộp gather + quan lát 4 của P1, gắn tag `phase-1` (trễ, ghi trung thực).
+- Lát 0: `game.contract.json` v1.1, 6 nguyên liệu. Spec: [`contract-v1.1.md`](docs/spec/phase-2/contract-v1.1.md)
+- Lát 1: số chuẩn gather, cá bơi, sinh cá. Lát 2: Cá Sấu, Máu, ngất.
+  - Spec: [`docs/spec/phase-2/gather.md`](docs/spec/phase-2/gather.md) · Plan: [`docs/plan/phase-2/gather.md`](docs/plan/phase-2/gather.md)
+- Gộp nhánh, gắn tag `phase-2` trước 1:55.
+
+### Thành viên 2 (lit1numyt) — lát 3 + Shop · PO
+- 2 bếp / 4 bàn / 6 món, chọn món theo kế hoạch ngày, `plan_ingredients`, Shop (`buy`, `shop_done`).
+  - Spec: [`docs/spec/phase-2/quan-shop.md`](docs/spec/phase-2/quan-shop.md) · Plan: [`docs/plan/phase-2/quan-shop.md`](docs/plan/phase-2/quan-shop.md)
+- Giữ `docs/clarify.md` (#13–19), hỏi trợ giảng trên lab board.
+
+### Thành viên 3 (hgmdz1210) — lát 4 day/pause + UI + QA · QA lead
+- `--mode day`, `DaySim`, pause, scenario `day`; menu, màn Intro/Result/Shop/Summary, HUD; smoke tích hợp, verification.
+  - Spec: [`docs/spec/phase-2/day-ui.md`](docs/spec/phase-2/day-ui.md) · Plan: [`docs/plan/phase-2/day-ui-qa.md`](docs/plan/phase-2/day-ui-qa.md)
+
 ## Thỏa thuận làm việc nhóm (điền trong 15 phút kickoff, ≤ 10 dòng)
 
 - Kênh liên lạc: … (nhóm chat chung)
