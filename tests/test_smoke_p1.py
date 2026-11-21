@@ -1,7 +1,7 @@
 """Smoke test Phase 1 (công khai), kiểu HỘP ĐEN: chỉ chạy `headless_cmd` trong game.contract.json và đọc JSONL/file kho.
 Vì vậy chạy được với BẤT KỲ ngôn ngữ nào nhóm chọn, miễn đúng Test Contract. Nhóm viết thêm test cho luật của mình.
 
-Chạy: python3 -m unittest discover -s tests -v
+Chạy: python -m unittest discover -s tests -v
 """
 
 import json

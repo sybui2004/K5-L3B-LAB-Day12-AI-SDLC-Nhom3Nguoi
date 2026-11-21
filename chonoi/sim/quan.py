@@ -9,7 +9,7 @@ Khách (snapshot + scenario `customers[]`): id, table_id, dish_id, state ("waiti
 `reserved` = nguyên liệu đã GIỮ nhưng CHƯA trừ khỏi kho; bắt đầu nấu thì trừ kho và đặt reserved = {}.
 Bếp: id, pos, state ("idle" | "cooking" | "ready"), dish, order_id (id khách của đơn, null nếu khách đã đi),
   cook_ticks_left, ready_ticks. Tay cầm `hand` = id món hoặc null (carry_limit 1).
-Giả định ngoài ticket: docs/clarify.md #7–#20.
+Giả định ngoài ticket: docs/clarify.md #7–#12, #20–#27.
 """
 
 import math
@@ -82,7 +82,7 @@ class QuanSim:
                "patience_ticks_left": c.get("patience_ticks_left", self.patience_max),
                "order_tick": c.get("order_tick", 0)}
         if state == "waiting":
-            # reserved: {} mà không khai order_status => món đã được nấu (clarify #14)
+            # reserved: {} mà không khai order_status => món đã được nấu (clarify #21)
             default_status = "cooking" if c.get("reserved") == {} else "reserved"
             out["order_status"] = c.get("order_status", default_status)
             out["reserved"] = dict(c.get("reserved", self.menu[dish]["recipe"] if out["order_status"] == "reserved" else {}))

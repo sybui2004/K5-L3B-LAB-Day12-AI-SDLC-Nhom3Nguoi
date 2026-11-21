@@ -1,6 +1,6 @@
 # Spec Phase 2 — Quán v1.1 + mode `day` + Shop + pause (TV2: lit1numyt)
 
-Nguồn: TICKET-02 mục 1.3, 2, 4. Giả định ngoài ticket: [`docs/clarify.md`](../../clarify.md) #13–#20.
+Nguồn: TICKET-02 mục 1.3, 2, 4. Giả định ngoài ticket: [`docs/clarify.md`](../../clarify.md) #20–#27.
 
 ## Chia việc Phase 2 (đã chốt với nhóm)
 | Lát ticket | Chủ |

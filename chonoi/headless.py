@@ -1,4 +1,4 @@
-"""Điểm vào headless: python3 -m chonoi.headless --mode gather --seed 1 --ticks 600 --out out.jsonl
+"""Điểm vào headless: python -m chonoi.headless --mode gather --seed 1 --ticks 600 --out out.jsonl
 
 Mã thoát: 0 bình thường; 2 tham số/đầu vào sai (kiểm TRƯỚC khi ghi đầu ra); 1 lỗi chạy/ghi.
 """

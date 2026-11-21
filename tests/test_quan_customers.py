@@ -1,6 +1,6 @@
 """Test hộp đen quan lát 3 — khách (TV2). AC-Q-01..06 trong docs/spec/phase-1/quan.md mục A.
 
-Chạy: PYTHONPATH=tests:. python3 -m unittest tests.test_quan_customers -v
+Chạy: PYTHONPATH=tests:. python -m unittest tests.test_quan_customers -v
 Số liệu đọc từ game.contract.json (không hard-code).
 """
 
